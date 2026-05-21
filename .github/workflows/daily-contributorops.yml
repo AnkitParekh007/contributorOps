@@ -1,0 +1,37 @@
+name: Daily ContributorOps
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 6 * * *"
+
+jobs:
+  daily-plan:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_CONTRIBUTOROPS_TOKEN }}
+      GH_CONTRIBUTOROPS_TOKEN: ${{ secrets.GH_CONTRIBUTOROPS_TOKEN }}
+      CREATE_DAILY_ISSUE: ${{ vars.CREATE_DAILY_ISSUE || 'false' }}
+      CONTRIBUTOROPS_OWNER: AnkitParekh007
+      CONTRIBUTOROPS_REPO: contributorOps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate daily plan
+        run: npm run daily
+
+      - name: Upload daily plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: contributorops-daily-plan
+          path: data/daily-plan.json
