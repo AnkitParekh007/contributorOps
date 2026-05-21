@@ -1,14 +1,13 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 
 export function Navbar() {
-  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
 
-  const scrollToFeatures = () => {
-    navigate("/");
-    window.setTimeout(() => {
-      document.getElementById("features")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 80);
-  };
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <header className="navbar">
@@ -17,23 +16,42 @@ export function Navbar() {
           <span className="brand-mark" />
           <span>ContributorOps</span>
         </Link>
-        <nav className="nav-links">
-          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? "nav-link-active" : ""}`}>
+
+        <button
+          type="button"
+          className="nav-hamburger"
+          aria-label="Toggle navigation"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          <span className="ham-bar" />
+          <span className="ham-bar" />
+          <span className="ham-bar" />
+        </button>
+
+        <nav className={`nav-links${menuOpen ? " nav-links-open" : ""}`} aria-label="Main navigation">
+          <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Home
           </NavLink>
-          <button type="button" className="nav-link nav-button" onClick={scrollToFeatures}>
+          <NavLink to="/features" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Features
-          </button>
-          <NavLink to="/pricing" className={({ isActive }) => `nav-link ${isActive ? "nav-link-active" : ""}`}>
+          </NavLink>
+          <NavLink to="/use-cases" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
+            Use Cases
+          </NavLink>
+          <NavLink to="/pricing" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Pricing
           </NavLink>
-          <NavLink to="/docs" className={({ isActive }) => `nav-link ${isActive ? "nav-link-active" : ""}`}>
+          <NavLink to="/demo" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
+            Demo
+          </NavLink>
+          <NavLink to="/docs" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Docs
           </NavLink>
-          <NavLink to="/safety" className={({ isActive }) => `nav-link ${isActive ? "nav-link-active" : ""}`}>
+          <NavLink to="/safety" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Safety
           </NavLink>
-          <NavLink to="/roadmap" className={({ isActive }) => `nav-link ${isActive ? "nav-link-active" : ""}`}>
+          <NavLink to="/roadmap" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Roadmap
           </NavLink>
           <a
@@ -44,6 +62,9 @@ export function Navbar() {
           >
             GitHub
           </a>
+          <NavLink to="/waitlist" className="nav-link nav-link-cta">
+            Join Waitlist
+          </NavLink>
         </nav>
       </div>
     </header>

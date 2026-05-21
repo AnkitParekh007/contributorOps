@@ -8,11 +8,15 @@
   "scripts": {
     "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev --workspace @contributorops/api\" \"npm run dev --workspace @contributorops/web\"",
     "build": "npm run build --workspace @contributorops/api && npm run build --workspace @contributorops/web",
+    "build:all": "npm run build --workspace @contributorops/api && npm run build --workspace @contributorops/web && npm run site:build",
     "daily": "npm run daily --workspace @contributorops/api",
     "start": "npm run start --workspace @contributorops/api",
     "site:dev": "npm run dev --workspace @contributorops/site",
     "site:build": "npm run build --workspace @contributorops/site",
-    "site:preview": "npm run preview --workspace @contributorops/site"
+    "site:preview": "npm run preview --workspace @contributorops/site",
+    "site:check": "npm run build --workspace @contributorops/site",
+    "typecheck": "cd apps/api && npx tsc --noEmit && cd ../web && npx tsc --noEmit && cd ../site && npx tsc --noEmit",
+    "ci": "npm ci && npm run build:all"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

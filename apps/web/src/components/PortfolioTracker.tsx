@@ -1,4 +1,5 @@
 import { CheckCircle2, Save, Trash2 } from "lucide-react";
+import { CopyButton } from "./CopyButton";
 import type { PortfolioEntry, PortfolioStatus } from "../types";
 
 interface PortfolioTrackerProps {
@@ -108,16 +109,17 @@ export function PortfolioTracker({
               />
             </label>
 
-            <label>
-              Interview story
-              <textarea
-                rows={3}
-                value={selectedEntry.interviewStarStory}
-                onChange={(event) =>
-                  onChange({ ...selectedEntry, interviewStarStory: event.target.value })
-                }
-              />
-            </label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ color: "var(--muted)", fontSize: "0.9em" }}>Interview story</span>
+              <CopyButton text={selectedEntry.interviewStarStory} label="Resume Bullet" />
+            </div>
+            <textarea
+              rows={3}
+              value={selectedEntry.interviewStarStory}
+              onChange={(event) =>
+                onChange({ ...selectedEntry, interviewStarStory: event.target.value })
+              }
+            />
 
             <div className="editor-actions">
               <button type="button" className="primary-button" onClick={() => onSave(selectedEntry)}>

@@ -41,6 +41,72 @@ import type {
   UsageSnapshot
 } from "./types";
 
+function DemoModeBanner({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <div className="demo-mode-banner" role="status">
+      <span className="demo-badge">DEMO MODE</span>
+      <span>No GitHub token detected — showing sample data. Add a <code>GITHUB_TOKEN</code> to your <code>.env</code> to connect your account.</span>
+    </div>
+  );
+}
+
+interface OnboardingState {
+  hasToken: boolean;
+  hasGeneratedPlan: boolean;
+  hasSavedPortfolioEntry: boolean;
+  hasExportedBullet: boolean;
+}
+
+function OnboardingChecklist({
+  state,
+  onDismiss
+}: {
+  state: OnboardingState;
+  onDismiss: () => void;
+}) {
+  const steps = [
+    { key: 'hasToken', label: 'Add GitHub token', detail: 'Set GITHUB_TOKEN in your .env file for live issue discovery' },
+    { key: 'hasGeneratedPlan', label: 'Generate first daily plan', detail: 'Click "Generate Daily Plan" to discover job-matched issues' },
+    { key: 'hasSavedPortfolioEntry', label: 'Save first portfolio entry', detail: 'Track an issue by clicking "Track This" on any issue card' },
+    { key: 'hasExportedBullet', label: 'Export first resume bullet', detail: 'Go to Proof of Work → Export Center to get your first bullet' },
+  ] as const;
+
+  const completed = steps.filter((s) => state[s.key as keyof OnboardingState]).length;
+  const total = steps.length;
+
+  if (completed === total) return null;
+
+  return (
+    <div className="onboarding-checklist">
+      <div className="onboarding-header">
+        <div>
+          <h3 className="onboarding-title">Get started</h3>
+          <p className="onboarding-subtitle">{completed}/{total} steps complete</p>
+        </div>
+        <button className="icon-btn" onClick={onDismiss} aria-label="Dismiss checklist" title="Dismiss">✕</button>
+      </div>
+      <div className="onboarding-progress">
+        <div className="onboarding-bar" style={{ width: `${(completed / total) * 100}%` }} />
+      </div>
+      <div className="onboarding-steps">
+        {steps.map((step) => {
+          const done = state[step.key as keyof OnboardingState];
+          return (
+            <div key={step.key} className={`onboarding-step ${done ? 'step-done' : ''}`}>
+              <span className="step-check" aria-hidden="true">{done ? '✓' : '○'}</span>
+              <div>
+                <span className="step-label">{step.label}</span>
+                {!done && <span className="step-detail">{step.detail}</span>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 const defaultFilters: DiscoveryFilters = {
   topics: ["openapi", "sdk", "api-client", "graphql", "rest-api", "developer-tools"],
   languages: ["typescript", "javascript", "node", "python"],
@@ -115,6 +181,8 @@ function App() {
 
   const [activePage, setActivePage] = useState<AppPage>(initialPage);
   const [modeLabel, setModeLabel] = useState("demo mode");
+  const [mode, setMode] = useState<string>("demo");
+  const [checklistDismissed, setChecklistDismissed] = useState(false);
   const [autoContributeEnabled, setAutoContributeEnabled] = useState(false);
   const [filters, setFilters] = useState<DiscoveryFilters>(defaultFilters);
   const [controlMode, setControlMode] = useState<ControlModeState>({
@@ -177,6 +245,7 @@ function App() {
     ])
       .then(([health, plan, entries, runs, pricingResponse]) => {
         setModeLabel(health.mode === "github" ? "live GitHub mode" : "demo mode");
+        setMode(health.mode);
         setAutoContributeEnabled(health.autoContributeEnabled);
         setControlMode(health.controlMode);
         setApprovalReason(health.controlMode.approvalReason);
@@ -237,6 +306,7 @@ function App() {
     try {
       const result = await apiClient.discover(filters);
       setModeLabel(result.mode === "github" ? "live GitHub mode" : "demo mode");
+      setMode(result.mode);
       setIssues(result.issues);
       setSelectedIssueId(result.issues[0]?.id ?? null);
       setDailyPlan(result.dailyPlan);
@@ -623,6 +693,13 @@ function App() {
 
   const topOpportunityCount = useMemo(() => dailyPlan?.topOpportunities.length ?? 0, [dailyPlan]);
 
+  const onboardingState: OnboardingState = {
+    hasToken: mode !== "demo",
+    hasGeneratedPlan: dailyPlan !== null,
+    hasSavedPortfolioEntry: portfolio.length > 0,
+    hasExportedBullet: false,
+  };
+
   const navigateToPage = (page: AppPage) => {
     setActivePage(page);
     const targetPath = page === "pricing" ? "/pricing" : "/";
@@ -711,6 +788,7 @@ function App() {
         </aside>
 
         <main className="main-content">
+          <DemoModeBanner show={billing.plan === "free" && mode === "demo"} />
           <MissionCard plan={dailyPlan} modeLabel={modeLabel} planLabel={billing.plan} />
 
           {error ? (
@@ -722,6 +800,12 @@ function App() {
 
           {activePage === "dashboard" ? (
             <>
+              {!checklistDismissed && (
+                <OnboardingChecklist
+                  state={onboardingState}
+                  onDismiss={() => setChecklistDismissed(true)}
+                />
+              )}
               <div className="layout-grid">
                 <div className="main-column">
                   <ControlModePanel

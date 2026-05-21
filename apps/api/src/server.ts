@@ -53,6 +53,41 @@ import type {
   PortfolioEntry
 } from "./types.js";
 
+// ── Waitlist helpers ────────────────────────────────────────────────────────
+const WAITLIST_PATH = path.join(process.cwd(), "data", "waitlist.json");
+
+function readWaitlist(): Array<{
+  id: string;
+  name: string;
+  email: string;
+  targetRole: string;
+  planInterest: string;
+  source: string;
+  createdAt: string;
+}> {
+  try {
+    return JSON.parse(fs.readFileSync(WAITLIST_PATH, "utf-8"));
+  } catch {
+    return [];
+  }
+}
+
+function writeWaitlist(entries: ReturnType<typeof readWaitlist>): void {
+  const dir = path.dirname(WAITLIST_PATH);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(WAITLIST_PATH, JSON.stringify(entries, null, 2));
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
+
+function safeString(value: unknown, maxLength = 200): string {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, maxLength);
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 const app = express();
 
 app.use(cors());
@@ -534,6 +569,118 @@ app.post("/api/approved-pr", async (request, response, next) => {
 app.post("/api/run-daily", async (_request, response, next) => {
   try {
     response.json(await runDailyPlan());
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ── New endpoints ─────────────────────────────────────────────────────────
+
+app.get("/api/meta", (_request, response) => {
+  response.json({
+    appName: "ContributorOps",
+    version: "0.1.0",
+    repo: "https://github.com/AnkitParekh007/contributorOps",
+    mode: config.githubToken ? "github" : "demo",
+    publicAppUrl: "https://ankitparekh007.github.io/contributorOps/",
+    enabledFeatures: [
+      "issue-discovery",
+      "daily-plan",
+      "portfolio-tracker",
+      "pr-quality-checker",
+      "resume-export",
+      "linkedin-generator",
+      "interview-star-generator",
+      "safe-auto-contribute",
+      "public-portfolio",
+      "team-radar"
+    ]
+  });
+});
+
+app.get("/api/launch-offer", (_request, response) => {
+  response.json({
+    name: "Founder Lifetime",
+    price: 99,
+    currency: "USD",
+    billing: "one-time",
+    status: "waitlist",
+    tagline: "Lifetime access for early supporters",
+    benefits: [
+      "Everything in Career plan",
+      "Lifetime access — no recurring charges",
+      "Priority feature requests",
+      "Founder Discord channel access",
+      "Direct input on product roadmap",
+      "Grandfathered pricing forever"
+    ],
+    note: "Payments are not live yet. Join the waitlist to be notified at launch."
+  });
+});
+
+app.post("/api/waitlist", async (request, response, next) => {
+  try {
+    const body = request.body as Record<string, unknown>;
+    const name = safeString(body.name);
+    const email = safeString(body.email);
+    const targetRole = safeString(body.targetRole);
+    const planInterest = safeString(body.planInterest);
+    const source = safeString(body.source) || "site";
+
+    const errors: string[] = [];
+    if (!name) errors.push("name is required");
+    if (!email) errors.push("email is required");
+    else if (!isValidEmail(email)) errors.push("email is invalid");
+    if (!targetRole) errors.push("targetRole is required");
+
+    if (errors.length > 0) {
+      response.status(400).json({ message: errors.join(", ") });
+      return;
+    }
+
+    const entries = readWaitlist();
+    const existing = entries.find((e) => e.email.toLowerCase() === email.toLowerCase());
+    if (existing) {
+      response.status(200).json({ message: "Already on the waitlist.", id: existing.id, alreadyRegistered: true });
+      return;
+    }
+
+    const entry = {
+      id: crypto.randomUUID(),
+      name,
+      email,
+      targetRole,
+      planInterest: planInterest || "Free",
+      source,
+      createdAt: new Date().toISOString()
+    };
+
+    entries.push(entry);
+    writeWaitlist(entries);
+
+    response.status(201).json({
+      id: entry.id,
+      name: entry.name,
+      targetRole: entry.targetRole,
+      planInterest: entry.planInterest,
+      createdAt: entry.createdAt,
+      message: "Successfully joined the waitlist."
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/waitlist/stats", (_request, response, next) => {
+  try {
+    const entries = readWaitlist();
+    const byPlan: Record<string, number> = {};
+    const byRole: Record<string, number> = {};
+    for (const entry of entries) {
+      byPlan[entry.planInterest] = (byPlan[entry.planInterest] || 0) + 1;
+      byRole[entry.targetRole] = (byRole[entry.targetRole] || 0) + 1;
+    }
+    response.json({ total: entries.length, byPlan, byRole });
   } catch (error) {
     next(error);
   }

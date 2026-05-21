@@ -9,7 +9,7 @@ import { pricingPlans } from "../data/pricing";
 const outcomes = [
   "Build a public proof-of-work trail instead of relying on generic side-project claims.",
   "Translate one real contribution into resume bullets, LinkedIn posts, and interview stories.",
-  "Improve maintainer trust by showing preparation, validation, and honest contribution intent."
+  "Improve maintainer trust by showing preparation, validation, and honest contribution intent.",
 ];
 
 export function Home() {
@@ -99,6 +99,91 @@ export function Home() {
             <FeatureCard key={feature.title} feature={feature} />
           ))}
         </div>
+        <div className="section-cta">
+          <Link to="/features" className="button-secondary">
+            View all features →
+          </Link>
+        </div>
+      </Section>
+
+      <Section
+        id="comparison"
+        eyebrow="Why ContributorOps"
+        title="Not all contribution tools are the same."
+        description="ContributorOps is built around career proof, not activity metrics."
+      >
+        <div style={{ overflowX: "auto" }}>
+          <table className="comparison-table">
+            <thead>
+              <tr>
+                <th>Capability</th>
+                <th>Random GitHub Search</th>
+                <th>Generic AI Coding Bot</th>
+                <th className="col-accent">ContributorOps</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Issue targeting</td>
+                <td>Scattered, random</td>
+                <td>Not career-focused</td>
+                <td className="col-accent">Job-matched by role</td>
+              </tr>
+              <tr>
+                <td>Contribution planning</td>
+                <td>None</td>
+                <td>Generic suggestions</td>
+                <td className="col-accent">Scoped daily plan</td>
+              </tr>
+              <tr>
+                <td>PR quality feedback</td>
+                <td>No feedback</td>
+                <td>May look spammy</td>
+                <td className="col-accent">Quality checker + audit</td>
+              </tr>
+              <tr>
+                <td>Portfolio packaging</td>
+                <td>None</td>
+                <td>None</td>
+                <td className="col-accent">Portfolio + resume export</td>
+              </tr>
+              <tr>
+                <td>Safety model</td>
+                <td>N/A</td>
+                <td>Uncontrolled</td>
+                <td className="col-accent">Human-approved only</td>
+              </tr>
+              <tr>
+                <td>Hiring signal</td>
+                <td>Weak</td>
+                <td>Low-trust</td>
+                <td className="col-accent">Strong, verifiable proof</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Section>
+
+      <Section
+        id="trust"
+        eyebrow="Built for trust"
+        title="Not a spam bot. Not fake contribution farming."
+        description="ContributorOps is the only contribution intelligence platform built explicitly around maintainer trust, human approval, and real career proof."
+      >
+        <div className="trust-grid">
+          <article className="content-card">
+            <h3>Human-approved only</h3>
+            <p>Every external action — comments, branches, draft PRs — requires explicit human approval. Nothing is automated without your sign-off.</p>
+          </article>
+          <article className="content-card">
+            <h3>Real contributions</h3>
+            <p>ContributorOps helps you find, scope, and prepare real contributions. It does not fake activity, inflate stats, or generate low-quality noise.</p>
+          </article>
+          <article className="content-card">
+            <h3>Maintainer-first design</h3>
+            <p>Contribution plans include maintainer questions, validation steps, and scoped PRs — designed to respect maintainer time from the first message.</p>
+          </article>
+        </div>
       </Section>
 
       <Section
@@ -139,32 +224,10 @@ export function Home() {
       </Section>
 
       <Section
-        id="preview"
-        eyebrow="Product preview"
-        title="Designed for developers who want visible, credible outcomes."
-        description="The business site mirrors the actual product narrative: issue quality, PR quality, and proof-of-work packaging."
-      >
-        <div className="preview-card-grid">
-          <article className="preview-card">
-            <h3>Issue finder</h3>
-            <p>Job-matched discovery keeps your OSS work aligned with the role you actually want next.</p>
-          </article>
-          <article className="preview-card">
-            <h3>Portfolio page</h3>
-            <p>Publish best PRs, skills, resume bullets, and interview stories in one recruiter-ready surface.</p>
-          </article>
-          <article className="preview-card">
-            <h3>Export center</h3>
-            <p>Pull Markdown resume bullets, recruiter pitch drafts, and GitHub README snippets from tracked work.</p>
-          </article>
-        </div>
-      </Section>
-
-      <Section
         id="pricing-preview"
-        eyebrow="Pricing preview"
+        eyebrow="Pricing"
         title="Monetization-ready without real payments yet."
-        description="The product is packaged for Free, Pro, Career, and Team while keeping billing mocked for now."
+        description="Free, Pro, Career, and Team plans — billing coming soon."
       >
         <div className="pricing-grid">
           {pricingPlans.slice(0, 3).map((plan) => (
@@ -179,17 +242,17 @@ export function Home() {
       </Section>
 
       <Section
-        id="cta"
-        eyebrow="Start"
-        title="Build a stronger public story from real contribution work."
-        description="Use ContributorOps to discover higher-quality issues, ship better PRs, and publish proof that holds up in interviews."
+        id="waitlist-cta"
+        eyebrow="Early Access"
+        title="Get early access to ContributorOps."
+        description="Payments and accounts are not live yet. Join the waitlist to be notified at launch."
       >
         <div className="cta-panel">
-          <Link to="/docs" className="button-primary">
-            Start Building Your Portfolio
+          <Link to="/waitlist" className="button-primary">
+            Join the Waitlist
           </Link>
-          <Link to="/safety" className="button-secondary">
-            Review the safety model
+          <Link to="/demo" className="button-secondary">
+            See the Demo
           </Link>
         </div>
       </Section>

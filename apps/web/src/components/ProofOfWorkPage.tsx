@@ -8,6 +8,7 @@ import {
   Sparkles,
   UserSearch
 } from "lucide-react";
+import { CopyButton } from "./CopyButton";
 import type {
   BillingState,
   ExportBundle,
@@ -192,14 +193,14 @@ export function ProofOfWorkPage({
             ["GitHub README snippet", exportBundle?.githubReadmeSnippet || ""]
           ].map(([label, value]) => (
             <article key={label} className="copy-block">
-              <div className="info-card-title">
-                <ClipboardCopy size={16} />
-                <strong>{label}</strong>
+              <div className="info-card-title" style={{ justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <ClipboardCopy size={16} />
+                  <strong>{label}</strong>
+                </div>
+                <CopyButton text={value} label={label} />
               </div>
               <pre>{value || "Upgrade to Career and refresh the export center to generate this asset."}</pre>
-              <button type="button" className="secondary-button" disabled={!value} onClick={() => onCopy(value)}>
-                Copy
-              </button>
             </article>
           ))}
         </div>
@@ -289,9 +290,12 @@ export function ProofOfWorkPage({
         {selectedPortfolioEntry ? (
           <div className="job-mode-grid">
             <label className="job-card">
-              <div className="info-card-title">
-                <Sparkles size={16} />
-                <strong>LinkedIn short</strong>
+              <div className="info-card-title" style={{ justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Sparkles size={16} />
+                  <strong>LinkedIn short</strong>
+                </div>
+                <CopyButton text={selectedPortfolioEntry.linkedInShort} label="LinkedIn Post" />
               </div>
               <textarea
                 rows={4}
@@ -301,9 +305,12 @@ export function ProofOfWorkPage({
               />
             </label>
             <label className="job-card">
-              <div className="info-card-title">
-                <Sparkles size={16} />
-                <strong>LinkedIn medium</strong>
+              <div className="info-card-title" style={{ justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Sparkles size={16} />
+                  <strong>LinkedIn medium</strong>
+                </div>
+                <CopyButton text={selectedPortfolioEntry.linkedInMedium} label="LinkedIn Post" />
               </div>
               <textarea
                 rows={5}
@@ -313,9 +320,12 @@ export function ProofOfWorkPage({
               />
             </label>
             <label className="job-card job-card-full">
-              <div className="info-card-title">
-                <Sparkles size={16} />
-                <strong>LinkedIn detailed</strong>
+              <div className="info-card-title" style={{ justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Sparkles size={16} />
+                  <strong>LinkedIn detailed</strong>
+                </div>
+                <CopyButton text={selectedPortfolioEntry.linkedInDetailed} label="LinkedIn Post" />
               </div>
               <textarea
                 rows={6}
@@ -379,9 +389,12 @@ export function ProofOfWorkPage({
               />
             </label>
             <label className="job-card job-card-full">
-              <div className="info-card-title">
-                <Share2 size={16} />
-                <strong>Recruiter message</strong>
+              <div className="info-card-title" style={{ justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Share2 size={16} />
+                  <strong>Recruiter message</strong>
+                </div>
+                <CopyButton text={selectedPortfolioEntry.recruiterOutreach} label="Recruiter Message" />
               </div>
               <textarea
                 rows={4}

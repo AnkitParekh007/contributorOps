@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  install:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+
+  build-api:
+    name: Build API
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Build API
+        run: npm run build --workspace @contributorops/api
+
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Build Web
+        run: npm run build --workspace @contributorops/web
+
+  build-site:
+    name: Build Site
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Build Site
+        run: npm run site:build
+
+  typecheck:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: TypeScript check (API)
+        run: cd apps/api && npx tsc --noEmit
+      - name: TypeScript check (Web)
+        run: cd apps/web && npx tsc --noEmit
+      - name: TypeScript check (Site)
+        run: cd apps/site && npx tsc --noEmit
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for common secret patterns
+        run: |
+          if grep -rn --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" \
+            -E "(sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|AKIA[A-Z0-9]{16})" \
+            --exclude-dir=node_modules --exclude-dir=dist . ; then
+            echo "Potential secrets found — review before merging"
+            exit 1
+          fi
+          echo "No obvious secret patterns found"

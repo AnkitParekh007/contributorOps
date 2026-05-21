@@ -1,0 +1,10 @@
+{
+  "name": "ContributorOps",
+  "short_name": "ContributorOps",
+  "description": "Turn open-source contributions into job-ready proof of work.",
+  "start_url": "/contributorOps/",
+  "display": "standalone",
+  "background_color": "#07111d",
+  "theme_color": "#07111d",
+  "icons": []
+}
