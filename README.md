@@ -1,420 +1,210 @@
 # ContributorOps
 
-ContributorOps is a production-oriented contribution planning app for backend, API, and developer-tooling open source work. It helps you discover realistic issues, score them transparently, generate deterministic contribution plans, track progress, and turn every contribution into job-search proof.
+ContributorOps is a human-approved open-source contribution intelligence platform.
 
-It is intentionally **not** a spam bot.
+It helps developers discover high-quality open-source issues, prepare contribution plans, write better PRs, build proof-of-work portfolios, generate resume bullets, and turn GitHub contributions into job opportunities.
+
+The positioning is explicit:
+
+**ContributorOps helps developers turn real open-source contributions into job-ready proof of work.**
+
+It is not a spam bot. It is not fake contribution farming software.
+
+## Website preview
+
+This repo now includes a polished static business website and documentation site in `apps/site`, built for GitHub Pages deployment.
+
+The site covers:
+
+- product positioning
+- core features
+- pricing
+- safety model
+- roadmap
+- documentation landing page
 
 ## Product positioning
 
-ContributorOps helps developers turn open-source contributions into job-ready proof of work.
+ContributorOps is for developers who want stronger public evidence than generic project claims alone.
 
-## Plans
+Primary audiences:
 
-- `Free`: basic discovery and `3` generated plans per week
-- `Pro`: `$19/month`, daily plans, portfolio tracker, maintainer trust score, and approval-gated auto-contribute
-- `Career`: `$49/month`, GitHub resume export, LinkedIn post drafts, interview STAR stories, recruiter share links, public portfolio
-- `Team`: `$199/month`, team dashboard, shared repo radar, and shared sourcing seats
-
-The current implementation uses mock billing plus local JSON storage so Stripe or Lemon Squeezy can be added later without changing the entitlement model.
-
-## Controlled contribution mode
-
-ContributorOps supports three explicit safety levels.
-
-### Level 1: Research Mode
-
-- discover repos and issues
-- score opportunities
-- generate contribution plans
-- no GitHub writes except local portfolio tracking
-
-### Level 2: Draft Mode
-
-- generate suggested code changes locally
-- generate branch name, commit message, and PR body
-- generate maintainer comment draft
-- generate test instructions
-- create planning issues only in `contributorOps`
-- never push to external repos
-- never post comments
-- never open PRs
-- user must review everything
-
-### Level 3: Approved PR Mode
-
-- only after explicit user approval
-- uses the user's fork of the external repo, or creates a fork only when the authenticated GitHub account matches the requested fork owner
-- creates a branch in the user's fork
-- commits proposed changes to the user's fork
-- opens a **draft** pull request against upstream
-- never marks ready for review automatically
-- never comments repeatedly
-- never opens more than one PR per repo per day
-- always requires a clear human-written PR description and test evidence
-
-## Auto-Contribute
-
-ContributorOps includes an approval-gated Auto-Contribute page.
-
-- `POST /api/contribute/prepare` creates a traceable dry-run record
-- `POST /api/contribute/approve-comment` can post one issue comment only after explicit approval
-- `POST /api/contribute/approve-branch` can create a branch in the user's fork only after explicit approval
-- `POST /api/contribute/approve-draft-pr` can commit focused changes and open a **draft** PR only after explicit approval
-- `GET /api/contribute/runs` and `GET /api/contribute/runs/:id` expose run history
-- `POST /api/contribute/runs/:id/cancel` cancels a prepared run
-
-All external write actions are:
-
-- approval-gated
-- rate-limited
-- logged in `data/contribution-runs.json`
-- dry-run by default
-
-## What the app does
-
-- discovers daily contribution opportunities across API, SDK, GraphQL, REST, and developer-tooling repositories
-- scores issues from `0` to `100` using visible rules
-- generates a daily contribution mission and top-5 markdown plan
-- shows contribution detail for each issue:
-  - issue summary
-  - contribution plan
-  - likely files involved
-  - testing strategy
-  - maintainer question draft
-  - PR description draft
-  - resume bullet draft
-- tracks your portfolio progress locally
-- adds **Job Mode** outputs for each contribution:
-  - resume bullet
-  - LinkedIn post draft
-  - interview STAR story
-  - recruiter outreach message
-  - GitHub profile README snippet
-- can optionally create planning issues **only inside this repo**
-
-## Monetization-ready features
-
-- plan tiers with feature flags and usage limits
-- pricing page with mock billing state
-- public proof-of-work portfolio page
-- exportable GitHub resume markdown
-- LinkedIn post, interview STAR story, recruiter message, and GitHub profile snippet outputs
-- recruiter share link generation
-- maintainer trust score on issues
-- deterministic PR quality checker
-- Team plan repo radar
+- API Developers
+- Backend Engineers
+- Angular Developers
+- Platform Engineers
+- Developer Advocates
 
 ## Safety philosophy
 
-ContributorOps is built around human approval and safe automation.
+ContributorOps is built around human approval and maintainer trust.
 
-- It does **not** auto-comment on third-party repositories.
-- It does **not** auto-open PRs on third-party repositories.
-- It does **not** push code to external repositories.
-- GitHub Actions only generates a local daily plan artifact and may optionally create a planning issue in `contributorOps` itself.
-- Any actual contribution still requires you to read the repo, understand the issue, make a minimal change, run tests, and manually open a draft PR.
+- It does **not** mass-comment on third-party repositories.
+- It does **not** mass-open PRs.
+- Scheduled jobs cannot write to external repositories.
+- External comments require approval.
+- External draft PRs require approval.
+- It is designed to help users build maintainer trust, not exploit maintainers.
 
-## Tech stack
+Safety levels:
 
-- React + Vite + TypeScript frontend
-- Node.js + Express backend
-- GitHub REST API via Octokit
-- Local JSON storage in `data/`
-- GitHub Actions daily workflow
+1. `Research Mode`
+2. `Draft Mode`
+3. `Approved Auto-Contribute Mode`
 
-## Project structure
+## Local setup
 
-```text
-contributorOps/
-├─ apps/
-│  ├─ web/
-│  │  ├─ src/
-│  │  │  ├─ components/
-│  │  │  ├─ api/
-│  │  │  ├─ types/
-│  │  │  ├─ App.tsx
-│  │  │  ├─ main.tsx
-│  │  │  └─ styles.css
-│  │  ├─ package.json
-│  │  └─ vite.config.ts
-│  └─ api/
-│     ├─ src/
-│     │  ├─ server.ts
-│     │  ├─ daily.ts
-│     │  ├─ github.ts
-│     │  ├─ scorer.ts
-│     │  ├─ planner.ts
-│     │  ├─ storage.ts
-│     │  ├─ types.ts
-│     │  └─ config.ts
-│     ├─ package.json
-│     └─ tsconfig.json
-├─ data/
-│  ├─ portfolio.json
-│  └─ daily-plan.json
-├─ .github/
-│  └─ workflows/
-│     └─ daily-contributorops.yml
-├─ package.json
-├─ .env.example
-├─ .gitignore
-└─ README.md
-```
-
-## GitHub token permissions
-
-### Local app
-
-If you set `GITHUB_TOKEN`, use a token with:
-
-- `public_repo` or equivalent repository read access for GitHub search and issue discovery
-- issue comment permission if you intend to use approved comment mode
-- pull request and contents write permissions if you intend to use approved draft PR mode through your own fork
-
-### Optional planning issue creation
-
-If you want ContributorOps or GitHub Actions to create planning issues in this repo, the token must also be able to:
-
-- create issues in `AnkitParekh007/contributorOps`
-
-No broader permissions are required.
-
-## Setup
-
-1. Clone the repo.
-2. Copy `.env.example` to `.env`.
-3. Add `GITHUB_TOKEN` if you want live GitHub discovery.
-4. Leave it empty if you want demo mode.
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-## Running locally
-
-### Development
-
-Starts backend and frontend together:
+Run the main product app:
 
 ```bash
 npm run dev
 ```
 
-- frontend: `http://localhost:5173`
-- backend: `http://localhost:8787`
-
-### Build
+Run the static website:
 
 ```bash
-npm run build
+npm run site:dev
 ```
 
-### Production server
-
-After build:
+Build the static website:
 
 ```bash
-npm run start
+npm run site:build
 ```
 
-### Daily plan generation
+Preview the static website build:
+
+```bash
+npm run site:preview
+```
+
+Run the daily contribution planner:
 
 ```bash
 npm run daily
 ```
 
-This writes the latest plan to:
+## Commands
 
-- `data/daily-plan.json`
+- `npm run dev`
+- `npm run build`
+- `npm run start`
+- `npm run daily`
+- `npm run site:dev`
+- `npm run site:build`
+- `npm run site:preview`
 
-## Demo mode vs live mode
+## GitHub Pages deployment
 
-### Demo mode
+The business website deploys through:
 
-If `GITHUB_TOKEN` is missing:
+`/.github/workflows/deploy-site.yml`
 
-- the app still works
-- mock contribution opportunities are used
-- you can generate a daily plan
-- portfolio tracking still works
+Build output:
 
-### Live mode
+`apps/site/dist`
 
-If `GITHUB_TOKEN` is present:
+### How to enable GitHub Pages
 
-- ContributorOps searches GitHub repositories and issues using Octokit
-- issues are filtered by your selected topics, languages, and labels
-- plans are generated deterministically from real issue data
+1. Go to repo **Settings**
+2. Open **Pages**
+3. Set **Source** to **GitHub Actions**
+4. Push to `main`
 
-## API endpoints
+## Static site details
 
-- `GET /api/health`
-- `GET /api/control-mode`
-- `POST /api/control-mode`
-- `POST /api/discover`
-- `GET /api/daily-plan`
-- `POST /api/portfolio`
-- `GET /api/portfolio`
-- `PATCH /api/portfolio/:id`
-- `DELETE /api/portfolio/:id`
-- `POST /api/create-planning-issue`
-- `POST /api/draft-proposal`
-- `POST /api/approved-pr`
-- `POST /api/contribute/prepare`
-- `POST /api/contribute/approve-comment`
-- `POST /api/contribute/approve-branch`
-- `POST /api/contribute/approve-draft-pr`
-- `GET /api/contribute/runs`
-- `GET /api/contribute/runs/:id`
-- `POST /api/contribute/runs/:id/cancel`
+The site workspace is:
 
-## Scoring model
+`apps/site`
 
-Scoring is transparent and deterministic.
+Tech stack:
 
-- `+20` good first issue
-- `+15` help wanted
-- `+10` documentation/docs
-- `+10` bug
-- `+10` API/backend topic match
-- `+10` updated within 30 days
-- `+5` has discussion but fewer than 10 comments
-- `-10` stale issue older than 180 days
-- `-10` too many comments over 20
-- `-15` unclear or no body
+- React
+- Vite
+- TypeScript
+- plain CSS
+- static content only
 
-The app also returns a score explanation array for each issue.
+Routing uses `HashRouter` and the Vite base path is configured for:
 
-## Daily plan output
+`/contributorOps/`
 
-The daily plan includes:
+## Documentation
 
-- date
-- mission
-- rules
-- top 5 opportunities
-- repo
-- issue
-- score
-- labels
-- why it is useful
-- first action
-- contribution plan
-- test plan
-- PR draft
-- resume bullet
-- checklist
+Markdown docs live in:
 
-## Draft and approved PR flow
+- [docs/product-overview.md](docs/product-overview.md)
+- [docs/local-development.md](docs/local-development.md)
+- [docs/github-pages-deployment.md](docs/github-pages-deployment.md)
+- [docs/safety-policy.md](docs/safety-policy.md)
+- [docs/monetization-plan.md](docs/monetization-plan.md)
+- [docs/roadmap.md](docs/roadmap.md)
 
-### Draft Mode output
+## Monetization plan summary
 
-For a selected issue, ContributorOps generates:
+ContributorOps is monetization-ready, but real payments are intentionally not implemented yet.
 
-- suggested local file changes
-- branch name
-- commit message
-- draft PR title
-- draft PR body
-- test evidence template
+Plans:
 
-These stay local until you explicitly move into Approved PR Mode.
+- `Free`: basic discovery, 3 plans/week
+- `Pro`: $19/month, daily plans, PR checker, portfolio page
+- `Career`: $49/month, resume, LinkedIn, interview, recruiter tools
+- `Team`: $199/month, team dashboard
 
-### Approved PR Mode output
+The repo includes:
 
-Approved PR Mode can:
+- pricing page
+- mock upgrade buttons
+- local plan config
+- premium feature locking
+- upgrade prompts
 
-1. validate explicit human approval
-2. verify the daily PR rate limit for the target upstream repo
-3. create or use your fork
-4. create a branch in your fork
-5. commit the proposed files to your fork
-6. open a **draft** PR against upstream
+Stripe or Lemon Squeezy can be added later without changing the overall product packaging.
+
+## Roadmap
+
+### MVP
+
+- Business website
+- Docs
+- GitHub Pages deployment
+- Daily contribution planner
+- Portfolio tracker
+
+### Pro
+
+- Job-matched issue finder
+- PR quality checker
+- Resume generator
+- LinkedIn post generator
+- Public portfolio page
+
+### Career
+
+- GitHub profile audit
+- Interview story generator
+- Recruiter share link
+- Weekly career report
+
+### Team
+
+- Team dashboard
+- Bootcamp mode
+- Maintainer quality analytics
+- Shared contribution radar
+
+## What ContributorOps does not do
 
 It does **not**:
 
-- mark the PR ready for review
-- auto-comment on the issue or PR
-- open repeated PRs for the same upstream repo in one day
-
-## Environment variables
-
-- `GITHUB_TOKEN=`
-- `GITHUB_USERNAME=`
-- `CONTRIBUTOROPS_OWNER=AnkitParekh007`
-- `CONTRIBUTOROPS_REPO=contributorOps`
-- `PUBLIC_APP_URL=http://localhost:8787`
-- `AUTO_CONTRIBUTE_ENABLED=false`
-- `AUTO_PR_DAILY_LIMIT=3`
-- `AUTO_COMMENT_DAILY_LIMIT=5`
-- `CREATE_DAILY_ISSUE=false`
-
-## GitHub Actions setup
-
-Workflow file:
-
-- `.github/workflows/daily-contributorops.yml`
-
-### Required secret
-
-- `GH_CONTRIBUTOROPS_TOKEN`
-
-### Optional repository variable
-
-- `CREATE_DAILY_ISSUE=true`
-
-If `CREATE_DAILY_ISSUE=true`, the workflow may create a planning issue **only** in this repo.
-
-The workflow:
-
-1. checks out the repo
-2. installs dependencies
-3. runs `npm run daily`
-4. uploads `data/daily-plan.json` as an artifact
-5. optionally creates a planning issue in `contributorOps` through the daily script
-
-## How to use ContributorOps for a job search
-
-1. generate a daily plan
-2. pick one issue with good scope and strong career relevance
-3. inspect the detail panel
-4. read the target repo's README and CONTRIBUTING guide
-5. reproduce or understand the issue locally
-6. make a minimal change
-7. run tests
-8. open a draft PR manually
-9. track status in the portfolio
-10. refine the Job Mode outputs after progress or merge
-
-## Contribution workflow
-
-Recommended flow for each real OSS contribution:
-
-1. discover the issue
-2. validate score and recommendation reason
-3. read the repository documentation
-4. verify maintainers still want the issue worked on
-5. implement the smallest sensible change
-6. add or update tests
-7. open a draft PR manually
-8. update portfolio notes, STAR story, and resume bullet
-
-## Root commands
-
-- `npm install`
-- `npm run dev`
-- `npm run build`
-- `npm run daily`
-- `npm run start`
-
-## Future roadmap
-
-- repository-specific heuristics for popular backend ecosystems
-- richer maintainer-fit signals
-- local markdown export for weekly contribution reports
-- import of merged PR data back into portfolio tracker
-- deeper PR review preparation surfaces
-
-## License
-
-MIT
+- mass-comment on third-party repositories
+- mass-open PRs on third-party repositories
+- market fake contribution farming
+- present deceptive contribution automation as normal workflow
+- claim job outcomes without real proof-of-work
