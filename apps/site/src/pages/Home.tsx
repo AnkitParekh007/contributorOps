@@ -45,7 +45,7 @@ export function Home() {
         id="solution"
         eyebrow="Solution"
         title="A human-approved contribution intelligence platform."
-        description="No spam bot positioning. No fake contribution farming. Just structured OSS execution and career packaging."
+        description="Not a spam bot. Not fake contribution farming. Just structured OSS execution and career packaging."
       >
         <div className="solution-grid">
           <article className="content-card">
@@ -90,7 +90,7 @@ export function Home() {
 
       <Section
         id="features"
-        eyebrow="Features"
+        eyebrow="Core features"
         title="Core product modules"
         description="Everything is aligned around real contributions becoming visible career leverage."
       >
@@ -101,88 +101,8 @@ export function Home() {
         </div>
         <div className="section-cta">
           <Link to="/features" className="button-secondary">
-            View all features →
+            Explore all features
           </Link>
-        </div>
-      </Section>
-
-      <Section
-        id="comparison"
-        eyebrow="Why ContributorOps"
-        title="Not all contribution tools are the same."
-        description="ContributorOps is built around career proof, not activity metrics."
-      >
-        <div style={{ overflowX: "auto" }}>
-          <table className="comparison-table">
-            <thead>
-              <tr>
-                <th>Capability</th>
-                <th>Random GitHub Search</th>
-                <th>Generic AI Coding Bot</th>
-                <th className="col-accent">ContributorOps</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Issue targeting</td>
-                <td>Scattered, random</td>
-                <td>Not career-focused</td>
-                <td className="col-accent">Job-matched by role</td>
-              </tr>
-              <tr>
-                <td>Contribution planning</td>
-                <td>None</td>
-                <td>Generic suggestions</td>
-                <td className="col-accent">Scoped daily plan</td>
-              </tr>
-              <tr>
-                <td>PR quality feedback</td>
-                <td>No feedback</td>
-                <td>May look spammy</td>
-                <td className="col-accent">Quality checker + audit</td>
-              </tr>
-              <tr>
-                <td>Portfolio packaging</td>
-                <td>None</td>
-                <td>None</td>
-                <td className="col-accent">Portfolio + resume export</td>
-              </tr>
-              <tr>
-                <td>Safety model</td>
-                <td>N/A</td>
-                <td>Uncontrolled</td>
-                <td className="col-accent">Human-approved only</td>
-              </tr>
-              <tr>
-                <td>Hiring signal</td>
-                <td>Weak</td>
-                <td>Low-trust</td>
-                <td className="col-accent">Strong, verifiable proof</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Section>
-
-      <Section
-        id="trust"
-        eyebrow="Built for trust"
-        title="Not a spam bot. Not fake contribution farming."
-        description="ContributorOps is the only contribution intelligence platform built explicitly around maintainer trust, human approval, and real career proof."
-      >
-        <div className="trust-grid">
-          <article className="content-card">
-            <h3>Human-approved only</h3>
-            <p>Every external action — comments, branches, draft PRs — requires explicit human approval. Nothing is automated without your sign-off.</p>
-          </article>
-          <article className="content-card">
-            <h3>Real contributions</h3>
-            <p>ContributorOps helps you find, scope, and prepare real contributions. It does not fake activity, inflate stats, or generate low-quality noise.</p>
-          </article>
-          <article className="content-card">
-            <h3>Maintainer-first design</h3>
-            <p>Contribution plans include maintainer questions, validation steps, and scoped PRs — designed to respect maintainer time from the first message.</p>
-          </article>
         </div>
       </Section>
 
@@ -224,13 +144,35 @@ export function Home() {
       </Section>
 
       <Section
+        id="product-preview"
+        eyebrow="Product preview"
+        title="Preview the contribution workflow."
+        description="The product turns one real contribution into a plan, a reviewable PR package, and job-search-ready proof."
+      >
+        <div className="solution-grid">
+          <article className="content-card">
+            <h3>Job-matched discovery</h3>
+            <p>Filter and score issues by target role so the work aligns with the jobs you want next.</p>
+          </article>
+          <article className="content-card">
+            <h3>Contribution planning</h3>
+            <p>Surface likely files, testing strategy, maintainer question drafts, and PR body suggestions up front.</p>
+          </article>
+          <article className="content-card">
+            <h3>Proof-of-work exports</h3>
+            <p>Generate resume bullets, LinkedIn posts, interview STAR stories, and public portfolio assets from the same contribution.</p>
+          </article>
+        </div>
+      </Section>
+
+      <Section
         id="pricing-preview"
-        eyebrow="Pricing"
-        title="Monetization-ready without real payments yet."
-        description="Free, Pro, Career, and Team plans — billing coming soon."
+        eyebrow="Pricing preview"
+        title="Monetization-ready without live billing."
+        description="Free, Pro, Career, and Team tiers exist today as product packaging and feature-flag boundaries."
       >
         <div className="pricing-grid">
-          {pricingPlans.slice(0, 3).map((plan) => (
+          {pricingPlans.map((plan) => (
             <PricingCard key={plan.name} plan={plan} />
           ))}
         </div>
@@ -242,17 +184,17 @@ export function Home() {
       </Section>
 
       <Section
-        id="waitlist-cta"
-        eyebrow="Early Access"
-        title="Get early access to ContributorOps."
-        description="Payments and accounts are not live yet. Join the waitlist to be notified at launch."
+        id="cta"
+        eyebrow="Call to action"
+        title="Start building a public contribution record that hiring teams can verify."
+        description="Use the docs to understand the workflow, the safety model, and the GitHub Pages deployment setup."
       >
         <div className="cta-panel">
-          <Link to="/waitlist" className="button-primary">
-            Join the Waitlist
+          <Link to="/docs" className="button-primary">
+            Start Building Your Portfolio
           </Link>
-          <Link to="/demo" className="button-secondary">
-            See the Demo
+          <Link to="/safety" className="button-secondary">
+            Read the Safety Policy
           </Link>
         </div>
       </Section>

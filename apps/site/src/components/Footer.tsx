@@ -9,15 +9,15 @@ export function Footer() {
             <span className="brand-mark" />
             <span>ContributorOps</span>
           </Link>
-          <p>Human-approved contribution intelligence for job-ready proof of work.</p>
+          <p>ContributorOps helps developers turn real open-source contributions into job-ready proof of work.</p>
         </div>
 
         <div className="footer-col">
           <h4>Product</h4>
           <div className="footer-col-links">
+            <Link to="/">Home</Link>
             <Link to="/features">Features</Link>
             <Link to="/pricing">Pricing</Link>
-            <Link to="/demo">Demo</Link>
             <Link to="/roadmap">Roadmap</Link>
           </div>
         </div>
@@ -37,18 +37,16 @@ export function Footer() {
         </div>
 
         <div className="footer-col">
-          <h4>Company</h4>
+          <h4>Trust Model</h4>
           <div className="footer-col-links">
-            <Link to="/waitlist">Waitlist</Link>
-            <Link to="/contact">Contact</Link>
-            <Link to="/privacy">Privacy</Link>
-            <Link to="/terms">Terms</Link>
+            <span>Human-approved workflows</span>
+            <span>No mass-commenting</span>
+            <span>No mass-opened PRs</span>
+            <span>Real proof-of-work</span>
           </div>
         </div>
 
-        <div className="footer-bottom">
-          © 2026 ContributorOps · Open-source · Human-approved
-        </div>
+        <div className="footer-bottom">Copyright 2026 ContributorOps - Open-source - Human-approved</div>
       </div>
     </footer>
   );

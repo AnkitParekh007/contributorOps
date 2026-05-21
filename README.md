@@ -2,182 +2,134 @@
 
 **ContributorOps helps developers turn real open-source contributions into job-ready proof of work.**
 
-Not a spam bot. Not fake contribution farming. A human-approved contribution intelligence platform.
+ContributorOps is a human-approved open-source contribution intelligence platform. It helps developers discover high-quality issues, prepare better pull requests, build public proof-of-work portfolios, and convert real contributions into resume bullets, LinkedIn posts, and interview stories.
 
-![CI](https://github.com/AnkitParekh007/contributorOps/actions/workflows/ci.yml/badge.svg)
-![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-deployed-brightgreen?logo=github)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)
-![React](https://img.shields.io/badge/React-19-61dafb?logo=react)
-![Vite](https://img.shields.io/badge/Vite-7-646cff?logo=vite)
+It is **not** positioned as a spam bot or fake contribution farming tool.
 
-**[Live Site](https://ankitparekh007.github.io/contributorOps/)** | **[Docs](docs/)** | **[API Reference](docs/api-reference.md)** | **[Architecture](docs/architecture.md)**
+## Website
 
----
+The static business website and documentation site lives in `apps/site` and deploys to GitHub Pages.
 
-## What ContributorOps Does
+Live URL:
+[https://ankitparekh007.github.io/contributorOps/](https://ankitparekh007.github.io/contributorOps/)
 
-ContributorOps is a platform for developers who need more than GitHub activity — they need proof of work that is real, verifiable, and explainable in an interview.
+The website includes:
+- Home
+- Features
+- Pricing
+- Docs
+- Safety
+- Roadmap
 
-It discovers high-quality open-source issues matched to your skills and job target. It helps you prepare a professional contribution — a scoped proposal, a quality-checked PR, a maintainer comment that introduces you properly. It tracks what you contribute, generates resume bullets from real merged PRs, and produces a portfolio you can share with recruiters.
+## Local Setup
 
-Every external action requires your explicit approval. Nothing writes to someone else's repository automatically.
-
----
-
-## Monorepo Architecture
-
-| App | Path | Purpose | Port |
-|-----|------|---------|------|
-| API | `apps/api` | Node/Express backend, all business logic | 8787 |
-| Web | `apps/web` | React product dashboard | 5173 |
-| Site | `apps/site` | Static marketing site (GitHub Pages) | 4174 |
-
-All three apps share a single npm workspace. See [docs/architecture.md](docs/architecture.md) for full details.
-
----
-
-## Local Development
-
-Install all dependencies:
+Install dependencies from the repo root:
 
 ```bash
 npm install
 ```
 
-Run the product dashboard (API + Web):
-
-```bash
-npm run dev
-```
-
-Run the marketing site:
+Run the business website locally:
 
 ```bash
 npm run site:dev
 ```
 
-Build everything:
+Build the website:
 
 ```bash
-npm run build:all
+npm run site:build
 ```
 
-Run the daily contribution planner:
+Preview the built website:
 
 ```bash
+npm run site:preview
+```
+
+The main app still supports:
+
+```bash
+npm run dev
+npm run build
 npm run daily
+npm run start
 ```
-
-### Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start API (port 8787) and Web (port 5173) concurrently |
-| `npm run build` | Build API and Web |
-| `npm run build:all` | Build API, Web, and Site |
-| `npm run start` | Start the API server in production mode |
-| `npm run daily` | Run the daily contribution planner job |
-| `npm run site:dev` | Start the marketing site (port 4174) |
-| `npm run site:build` | Build the marketing site |
-| `npm run site:preview` | Preview the marketing site build |
-| `npm run typecheck` | TypeScript check all three apps |
-| `npm run ci` | Install and build everything (used in CI) |
-
----
 
 ## GitHub Pages Deployment
 
-The marketing site deploys automatically via `.github/workflows/deploy-site.yml` on every push to `main`.
+The site deploys from `apps/site/dist` through GitHub Actions using:
 
-### Setup
+[`/.github/workflows/deploy-site.yml`](./.github/workflows/deploy-site.yml)
 
-1. Go to repo **Settings > Pages**
-2. Set **Source** to **GitHub Actions**
-3. Push to `main` — the workflow handles the rest
+To enable GitHub Pages:
 
-**Build output:** `apps/site/dist/`
+1. Go to repository **Settings**
+2. Open **Pages**
+3. Set **Source** to **GitHub Actions**
+4. Push to `main`
 
-The site uses `HashRouter` and a Vite base path of `/contributorOps/` for GitHub Pages compatibility. See [docs/github-pages-deployment.md](docs/github-pages-deployment.md) for full details.
+The Vite config uses:
+- base path: `/contributorOps/`
+- `HashRouter` for GitHub Pages-safe routing
 
----
+## Product Positioning
 
-## Site Pages
+ContributorOps is built around one core message:
 
-The marketing site includes the following routes:
+> ContributorOps helps developers turn real open-source contributions into job-ready proof of work.
 
-| Route | Description |
-|-------|-------------|
-| `/#/` | Home — hero, value prop, how it works |
-| `/#/features` | Feature deep-dive |
-| `/#/use-cases` | Audience-specific use cases |
-| `/#/pricing` | Plan comparison with monthly/yearly toggle |
-| `/#/demo` | Polished mock demo |
-| `/#/waitlist` | Waitlist signup |
-| `/#/docs` | Documentation index |
-| `/#/safety` | Safety model explanation |
-| `/#/roadmap` | Public roadmap |
-| `/#/privacy` | Privacy policy |
-| `/#/terms` | Terms of service |
-| `/#/contact` | Contact |
+That means:
+- real issues
+- real pull requests
+- human-approved workflows
+- maintainer trust
+- honest career packaging
 
----
+It does **not**:
+- mass-comment on third-party repos
+- mass-open PRs
+- automate deceptive or low-effort contributions
+- claim proof that a developer cannot defend in an interview
 
-## Waitlist
+## Safety Philosophy
 
-The waitlist is available in two forms:
+ContributorOps uses three safety levels:
 
-- **Static site (`/#/waitlist`):** Stores submissions in localStorage. No API required. Works on GitHub Pages.
-- **API (`POST /api/waitlist`):** Persists to `data/waitlist.json`. Available when running locally.
+1. `Research Mode`
+   Discover repos and issues, score opportunities, and generate plans with no external writes.
+2. `Draft Mode`
+   Prepare local draft changes, PR content, and test plans without pushing externally.
+3. `Approved Auto-Contribute Mode`
+   External comments, fork branches, and draft PRs require explicit approval for exact actions.
 
-See [docs/api-reference.md](docs/api-reference.md#post-apiwaitlist) for the full API spec.
+Scheduled jobs cannot write to external repositories.
 
----
+## Monetization Summary
 
-## Safety Model
+The product is monetization-ready, but no real payment processing is implemented yet.
 
-ContributorOps is built around human approval and maintainer trust.
+Plans:
 
-Three safety levels:
+- `Free` - `$0`
+  Basic issue discovery, 3 plans per week, manual portfolio tracker, basic docs
+- `Pro` - `$19/month`
+  Daily contribution plans, job-matched issue finder, PR quality checker, portfolio page, resume bullets, LinkedIn drafts
+- `Career` - `$49/month`
+  Everything in Pro, interview stories, recruiter outreach drafts, GitHub profile audit, advanced proof-of-work exports, weekly career report
+- `Team` - `$199/month`
+  Team contribution dashboard, bootcamp/team tracking, shared repo radar, team portfolio reports, admin controls
 
-1. **Research Mode** — read-only discovery and planning. No writes to external repositories.
-2. **Draft Mode** — can create planning issues and draft proposals with your explicit approval.
-3. **Approved Auto-Contribute Mode** — full contribution workflow, with approval required before each external action.
-
-The product will not:
-- Mass-comment on third-party repositories
-- Mass-open PRs
-- Write to external repos without your explicit per-action approval
-- Generate fake activity or game contribution graphs
-
-See [docs/safety-policy.md](docs/safety-policy.md) for the full safety policy.
-
----
-
-## Monetization
-
-ContributorOps is monetization-ready. Real payments are not implemented yet — billing runs on local state with mock plan selection.
-
-| Plan | Price | Target |
-|------|-------|--------|
-| Free | $0 | Getting started — 3 discovery runs/week |
-| Pro | $19/month | Daily plans, PR checker, portfolio page |
-| Career | $49/month | Resume export, LinkedIn bullets, profile audit |
-| Team | $199/month | Team dashboard, bootcamp mode, shared radar |
-
-A Founder Lifetime Deal at $99 (Career plan forever) is planned for early adopters.
-
-Payment integration (Stripe or Lemon Squeezy) can be added without changing the plan structure. See [docs/monetization-plan.md](docs/monetization-plan.md) for details.
-
----
+The code is structured so Stripe or Lemon Squeezy can be added later.
 
 ## Roadmap
 
-### MVP (Current)
-- Marketing site with GitHub Pages deployment
-- Full documentation
+### MVP
+- Business website
+- Documentation
+- GitHub Pages deployment
 - Daily contribution planner
 - Portfolio tracker
-- File-based persistence
 
 ### Pro
 - Job-matched issue finder
@@ -198,45 +150,13 @@ Payment integration (Stripe or Lemon Squeezy) can be added without changing the 
 - Maintainer quality analytics
 - Shared contribution radar
 
-See [docs/roadmap.md](docs/roadmap.md) for the full roadmap.
+## Docs
 
----
+Detailed docs live in [`/docs`](./docs):
 
-## Documentation
-
-| Doc | Description |
-|-----|-------------|
-| [docs/architecture.md](docs/architecture.md) | Monorepo structure, app details, data storage |
-| [docs/api-reference.md](docs/api-reference.md) | All API endpoints with request/response shapes |
-| [docs/local-development.md](docs/local-development.md) | Detailed local setup guide |
-| [docs/github-pages-deployment.md](docs/github-pages-deployment.md) | GitHub Pages deployment details |
-| [docs/safety-policy.md](docs/safety-policy.md) | Full safety model and policy |
-| [docs/monetization-plan.md](docs/monetization-plan.md) | Monetization strategy and plan details |
-| [docs/roadmap.md](docs/roadmap.md) | Product roadmap |
-| [docs/founder-notes.md](docs/founder-notes.md) | Why this product exists |
-| [docs/customer-development.md](docs/customer-development.md) | Target segments and validation plan |
-| [docs/launch-checklist.md](docs/launch-checklist.md) | Pre-launch checklist |
-
----
-
-## What ContributorOps Does Not Do
-
-It does **not**:
-- Mass-comment on third-party repositories
-- Mass-open PRs on third-party repositories
-- Market fake contribution farming
-- Present deceptive contribution automation as normal workflow
-- Claim job outcomes without real proof-of-work
-- Generate activity that the developer cannot explain or defend in an interview
-
----
-
-## Contributing
-
-Open an issue to report bugs or propose features. Follow the three-level safety model when discussing contribution workflows — any new automation feature must not lower the floor on human approval.
-
----
-
-## License
-
-MIT
+- [`product-overview.md`](./docs/product-overview.md)
+- [`local-development.md`](./docs/local-development.md)
+- [`github-pages-deployment.md`](./docs/github-pages-deployment.md)
+- [`safety-policy.md`](./docs/safety-policy.md)
+- [`monetization-plan.md`](./docs/monetization-plan.md)
+- [`roadmap.md`](./docs/roadmap.md)

@@ -46,13 +46,11 @@ export function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        {/* Brand */}
         <Link to="/" className="brand">
           <span className="brand-mark" />
           <span>ContributorOps</span>
         </Link>
 
-        {/* Nav links — middle/right on desktop, dropdown on mobile */}
         <nav className={`nav-links${menuOpen ? " nav-links-open" : ""}`} aria-label="Main navigation">
           <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Home
@@ -60,14 +58,8 @@ export function Navbar() {
           <NavLink to="/features" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Features
           </NavLink>
-          <NavLink to="/use-cases" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
-            Use Cases
-          </NavLink>
           <NavLink to="/pricing" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Pricing
-          </NavLink>
-          <NavLink to="/demo" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
-            Demo
           </NavLink>
           <NavLink to="/docs" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Docs
@@ -78,7 +70,6 @@ export function Navbar() {
           <NavLink to="/roadmap" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
             Roadmap
           </NavLink>
-          {/* Divider + actions */}
           <a
             className="nav-link nav-icon-btn"
             href="https://github.com/AnkitParekh007/contributorOps"
@@ -89,12 +80,8 @@ export function Navbar() {
           >
             <GitHubIcon />
           </a>
-          <NavLink to="/waitlist" className="nav-link nav-link-cta">
-            Join Waitlist
-          </NavLink>
         </nav>
 
-        {/* Always-visible end controls */}
         <div className="nav-end">
           <button
             type="button"
@@ -110,7 +97,7 @@ export function Navbar() {
             className="nav-hamburger"
             aria-label="Toggle navigation"
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((o) => !o)}
+            onClick={() => setMenuOpen((open) => !open)}
           >
             <span className="ham-bar" />
             <span className="ham-bar" />
