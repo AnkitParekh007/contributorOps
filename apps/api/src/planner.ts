@@ -4,6 +4,9 @@ import type {
   DraftProposal,
   IssueCandidate,
   JobModeDrafts,
+  MaintainerTrustReport,
+  PrQualityReport,
+  QualityCheck,
   RawIssueCandidate,
   SuggestedFileChange
 } from "./types.js";
@@ -76,6 +79,44 @@ function buildJobMode(candidate: RawIssueCandidate, firstAction: string): JobMod
   };
 }
 
+function buildMaintainerTrust(candidate: RawIssueCandidate): MaintainerTrustReport {
+  let score = 40;
+  const reasons: string[] = [];
+
+  if (candidate.labels.some((label) => /good first issue|help wanted/i.test(label))) {
+    score += 20;
+    reasons.push("Maintainers explicitly labeled the issue as contribution-friendly.");
+  }
+
+  if (candidate.comments > 0 && candidate.comments < 10) {
+    score += 10;
+    reasons.push("The discussion is active but still tractable.");
+  }
+
+  if (new Date(candidate.updatedAt).getTime() > Date.now() - 30 * 86_400_000) {
+    score += 15;
+    reasons.push("The issue was updated recently, which is a strong sign of maintainer attention.");
+  }
+
+  if (!candidate.issueBody.trim()) {
+    score -= 20;
+    reasons.push("The issue body is sparse, which raises the risk of unclear expectations.");
+  }
+
+  if (candidate.comments > 20) {
+    score -= 10;
+    reasons.push("Long discussion threads can hide historical context and competing fixes.");
+  }
+
+  score = Math.max(0, Math.min(100, score));
+
+  return {
+    score,
+    band: score >= 75 ? "trusted" : score >= 55 ? "promising" : "guarded",
+    reasons
+  };
+}
+
 export function buildIssueCandidate(candidate: RawIssueCandidate): IssueCandidate {
   const { score, difficulty, reasons } = scoreIssue(candidate);
   const summary = summarizeBody(candidate.issueBody);
@@ -83,6 +124,7 @@ export function buildIssueCandidate(candidate: RawIssueCandidate): IssueCandidat
   const likelyFiles = inferLikelyFiles(candidate);
   const testingStrategy = buildTestingStrategy(candidate);
   const firstAction = contributionPlan[0];
+  const maintainerTrust = buildMaintainerTrust(candidate);
   const prDescriptionDraft = [
     `## What`,
     `Fixes or advances ${candidate.repoFullName}#${candidate.issueNumber} by addressing the smallest viable scope first.`,
@@ -117,6 +159,7 @@ export function buildIssueCandidate(candidate: RawIssueCandidate): IssueCandidat
     prDescriptionDraft,
     resumeBulletDraft: `Planned a focused contribution for ${candidate.repoFullName} issue #${candidate.issueNumber} with clear scope, likely files, and a regression-oriented test plan.`,
     jobMode: buildJobMode(candidate, firstAction),
+    maintainerTrust,
     updatedAt: candidate.updatedAt,
     comments: candidate.comments
   };
@@ -231,6 +274,45 @@ function buildSuggestedChanges(issue: IssueCandidate): SuggestedFileChange[] {
   });
 }
 
+export function buildPrQualityReport(issue: IssueCandidate, suggestedChanges: SuggestedFileChange[]): PrQualityReport {
+  const checks: QualityCheck[] = [
+    {
+      label: "Issue alignment",
+      passed: issue.summary.length > 40,
+      detail: "The PR should stay tightly aligned to a clearly described issue."
+    },
+    {
+      label: "Focused diff size",
+      passed: suggestedChanges.length <= 3,
+      detail: "Smaller focused diffs are easier for maintainers to review."
+    },
+    {
+      label: "Test evidence present",
+      passed: issue.testingStrategy.length >= 2,
+      detail: "Each draft should include concrete validation steps."
+    },
+    {
+      label: "Maintainer question included",
+      passed: issue.maintainerQuestionDraft.trim().length > 20,
+      detail: "A respectful maintainer question reduces wasted implementation effort."
+    },
+    {
+      label: "Human-readable PR summary",
+      passed: issue.prDescriptionDraft.includes("## Validation"),
+      detail: "The draft should explain what changed and how it was checked."
+    }
+  ];
+
+  const passedCount = checks.filter((check) => check.passed).length;
+  const score = Math.round((passedCount / checks.length) * 100);
+
+  return {
+    score,
+    verdict: score >= 85 ? "strong" : score >= 60 ? "solid" : "needs-review",
+    checks
+  };
+}
+
 export function buildDraftProposal(issue: IssueCandidate): DraftProposal {
   const repoSlug = slugify(issue.repoFullName.replace("/", "-"));
   const issueSlug = slugify(issue.issueTitle);
@@ -254,6 +336,8 @@ export function buildDraftProposal(issue: IssueCandidate): DraftProposal {
     `## Maintainer question`,
     issue.maintainerQuestionDraft
   ].join("\n");
+  const suggestedChanges = buildSuggestedChanges(issue);
+  const prQuality = buildPrQualityReport(issue, suggestedChanges);
 
   return {
     proposalId: issue.id,
@@ -265,9 +349,10 @@ export function buildDraftProposal(issue: IssueCandidate): DraftProposal {
     prTitle,
     prBody,
     testEvidence: issue.testingStrategy.join("\n"),
-    suggestedChanges: buildSuggestedChanges(issue),
+    suggestedChanges,
     generatedAt: new Date().toISOString(),
     mode: "draft",
+    prQuality,
     ...issue.jobMode
   };
 }

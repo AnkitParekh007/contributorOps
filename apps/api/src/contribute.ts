@@ -134,7 +134,8 @@ export async function prepareContributionRun(request: PrepareContributionRequest
     dryRun: !config.autoContributeEnabled,
     proposal,
     issue: request.issue,
-    testPlan: request.issue.testingStrategy
+    testPlan: request.issue.testingStrategy,
+    prQuality: proposal.prQuality
   };
 
   const runs = await readContributionRuns();

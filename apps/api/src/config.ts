@@ -18,6 +18,7 @@ export const config = {
   autoCommentDailyLimit: Number(process.env.AUTO_COMMENT_DAILY_LIMIT || 5),
   owner: process.env.CONTRIBUTOROPS_OWNER || "AnkitParekh007",
   repo: process.env.CONTRIBUTOROPS_REPO || "contributorOps",
+  publicAppUrl: process.env.PUBLIC_APP_URL || `http://localhost:${process.env.PORT || 8787}`,
   repoRoot,
   dataDir: path.join(repoRoot, "data"),
   portfolioPath: path.join(repoRoot, "data", "portfolio.json"),
@@ -25,6 +26,8 @@ export const config = {
   controlModePath: path.join(repoRoot, "data", "control-mode.json"),
   prActivityPath: path.join(repoRoot, "data", "pr-activity.json"),
   contributionRunsPath: path.join(repoRoot, "data", "contribution-runs.json"),
+  billingPath: path.join(repoRoot, "data", "billing.json"),
+  usagePath: path.join(repoRoot, "data", "usage.json"),
   webDistPath: path.join(repoRoot, "apps", "web", "dist")
 };
 

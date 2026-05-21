@@ -1,4 +1,6 @@
 import type {
+  BillingPlan,
+  BillingState,
   ContributionExecutionMode,
   ContributionRun,
   ControlModeState,
@@ -6,9 +8,15 @@ import type {
   DiscoverResponse,
   DiscoveryFilters,
   DraftProposal,
+  FeatureFlags,
   HealthResponse,
   IssueCandidate,
-  PortfolioEntry
+  PortfolioEntry,
+  PricingTier,
+  PrQualityReport,
+  PublicPortfolioProfile,
+  TeamRadarItem,
+  UsageSnapshot
 } from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
@@ -35,6 +43,20 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const apiClient = {
   health: () => request<HealthResponse>("/api/health"),
+  getPricing: () => request<PricingTier[]>("/api/pricing"),
+  getBilling: () =>
+    request<{ billing: BillingState; entitlements: FeatureFlags }>("/api/billing"),
+  selectPlan: (plan: BillingPlan) =>
+    request<{ billing: BillingState; entitlements: FeatureFlags }>("/api/billing/mock-select-plan", {
+      method: "POST",
+      body: JSON.stringify({ plan })
+    }),
+  updateBillingProfile: (payload: Partial<BillingState>) =>
+    request<{ billing: BillingState; entitlements: FeatureFlags }>("/api/billing/profile", {
+      method: "PATCH",
+      body: JSON.stringify(payload)
+    }),
+  getUsage: () => request<UsageSnapshot>("/api/usage"),
   discover: (filters: DiscoveryFilters) =>
     request<DiscoverResponse>("/api/discover", {
       method: "POST",
@@ -130,5 +152,19 @@ export const apiClient = {
     request<ContributionRun>(`/api/contribute/runs/${id}/cancel`, {
       method: "POST",
       body: JSON.stringify({ reason })
-    })
+    }),
+  createPortfolioShare: () =>
+    request<{ slug: string; recruiterShareUrl: string }>("/api/portfolio/share", {
+      method: "POST"
+    }),
+  getPublicPortfolio: (slug: string) =>
+    request<PublicPortfolioProfile>(`/api/public/portfolio/${slug}`),
+  exportGithubResume: () =>
+    request<{ markdown: string; fileName: string }>("/api/export/github-resume"),
+  getPrQualityCheck: (issue: IssueCandidate) =>
+    request<PrQualityReport>("/api/pr-quality-check", {
+      method: "POST",
+      body: JSON.stringify({ issue })
+    }),
+  getTeamRadar: () => request<TeamRadarItem[]>("/api/team/radar")
 };

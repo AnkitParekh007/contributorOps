@@ -1,6 +1,22 @@
 export type Difficulty = "starter" | "steady" | "stretch";
 export type ContributionSafetyLevel = "research" | "draft" | "approved-pr";
 export type ContributionExecutionMode = "research" | "draft" | "approved-auto-contribute";
+export type BillingPlan = "free" | "pro" | "career" | "team";
+export type BillingStatus = "active" | "trialing" | "past_due" | "cancelled";
+export type FeatureKey =
+  | "basic-discovery"
+  | "daily-plans"
+  | "portfolio-tracker"
+  | "public-portfolio"
+  | "github-resume-export"
+  | "linkedin-generator"
+  | "interview-star-generator"
+  | "recruiter-share-link"
+  | "maintainer-trust-score"
+  | "pr-quality-checker"
+  | "team-dashboard"
+  | "shared-repo-radar"
+  | "approved-auto-contribute";
 export type ContributionRunStatus =
   | "prepared"
   | "comment approved"
@@ -47,6 +63,24 @@ export interface SafetyCheckResult {
   severity: "info" | "warning" | "error";
 }
 
+export interface MaintainerTrustReport {
+  score: number;
+  band: "guarded" | "promising" | "trusted";
+  reasons: string[];
+}
+
+export interface QualityCheck {
+  label: string;
+  passed: boolean;
+  detail: string;
+}
+
+export interface PrQualityReport {
+  score: number;
+  verdict: "needs-review" | "solid" | "strong";
+  checks: QualityCheck[];
+}
+
 export interface IssueCandidate {
   id: string;
   repoName: string;
@@ -69,6 +103,7 @@ export interface IssueCandidate {
   prDescriptionDraft: string;
   resumeBulletDraft: string;
   jobMode: JobModeDrafts;
+  maintainerTrust: MaintainerTrustReport;
   updatedAt: string;
   comments: number;
 }
@@ -131,6 +166,7 @@ export interface DraftProposal extends JobModeDrafts {
   suggestedChanges: SuggestedFileChange[];
   generatedAt: string;
   mode: "draft";
+  prQuality: PrQualityReport;
 }
 
 export interface ContributionRunApprovalEvent {
@@ -167,6 +203,83 @@ export interface ContributionRun {
   issue: IssueCandidate;
   testPlan: string[];
   commentUrl?: string;
+  prQuality: PrQualityReport;
+}
+
+export interface PricingTier {
+  plan: BillingPlan;
+  name: string;
+  priceLabel: string;
+  monthlyPrice: number;
+  tagline: string;
+  features: string[];
+  limits: {
+    weeklyPlans: number | null;
+    dailyPlans: boolean;
+    sharedSeats: number;
+  };
+}
+
+export interface BillingState {
+  plan: BillingPlan;
+  status: BillingStatus;
+  provider: "mock" | "stripe" | "lemonsqueezy";
+  customerName: string;
+  customerEmail: string;
+  renewalAt: string | null;
+  seatCount: number;
+  publicPortfolioSlug: string;
+  publicPortfolioEnabled: boolean;
+  profileHeadline: string;
+  profileSummary: string;
+  featureOverrides: Partial<Record<FeatureKey, boolean>>;
+  lastUpdatedAt: string;
+}
+
+export interface UsageSnapshot {
+  weekKey: string;
+  generatedPlans: number;
+  recruiterShares: number;
+  resumeExports: number;
+  publicPortfolioViews: number;
+}
+
+export interface FeatureFlags {
+  plan: BillingPlan;
+  features: Record<FeatureKey, boolean>;
+  weeklyPlanLimit: number | null;
+}
+
+export interface PublicPortfolioEntry {
+  selectedRepo: string;
+  issueUrl: string;
+  prUrl: string;
+  status: PortfolioStatus;
+  notes: string;
+  resumeBullet: string;
+  linkedInPost: string;
+  interviewStarStory: string;
+  recruiterOutreach: string;
+  githubProfileSnippet: string;
+  updatedAt: string;
+}
+
+export interface PublicPortfolioProfile {
+  slug: string;
+  owner: string;
+  headline: string;
+  summary: string;
+  recruiterShareUrl: string;
+  githubResumeMarkdown: string;
+  entries: PublicPortfolioEntry[];
+}
+
+export interface TeamRadarItem {
+  repoFullName: string;
+  openOpportunities: number;
+  averageScore: number;
+  topLabels: string[];
+  whyNow: string;
 }
 
 export interface DiscoverResponse {
@@ -181,4 +294,7 @@ export interface HealthResponse {
   createDailyIssue: boolean;
   autoContributeEnabled: boolean;
   controlMode: ControlModeState;
+  billing: BillingState;
+  usage: UsageSnapshot;
+  entitlements: FeatureFlags;
 }

@@ -1,0 +1,15 @@
+{
+  "plan": "free",
+  "status": "trialing",
+  "provider": "mock",
+  "customerName": "Ankit Parekh",
+  "customerEmail": "ankit@example.com",
+  "renewalAt": null,
+  "seatCount": 1,
+  "publicPortfolioSlug": "ankit-proof-of-work",
+  "publicPortfolioEnabled": false,
+  "profileHeadline": "ContributorOps helps developers turn open-source contributions into job-ready proof of work.",
+  "profileSummary": "I use ContributorOps to source backend and developer-tooling issues, build credible contribution plans, and package the final work into recruiter-ready proof.",
+  "featureOverrides": {},
+  "lastUpdatedAt": "1970-01-01T00:00:00.000Z"
+}

@@ -4,15 +4,17 @@ import type { DailyPlan } from "../types";
 interface MissionCardProps {
   plan: DailyPlan | null;
   modeLabel: string;
+  planLabel: string;
 }
 
-export function MissionCard({ plan, modeLabel }: MissionCardProps) {
+export function MissionCard({ plan, modeLabel, planLabel }: MissionCardProps) {
   return (
     <section className="panel hero-panel">
       <div className="hero-copy">
         <div className="eyebrow-row">
           <span className="eyebrow">ContributorOps</span>
           <span className="mode-pill">{modeLabel}</span>
+          <span className="mode-pill">{planLabel} plan</span>
         </div>
         <h1>Daily contribution ops for backend and developer-tooling OSS.</h1>
         <p>

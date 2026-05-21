@@ -150,6 +150,11 @@ a {
   padding: 24px;
 }
 
+.page-stack {
+  display: grid;
+  gap: 24px;
+}
+
 .panel {
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
@@ -337,6 +342,27 @@ a {
 .table-shell {
   padding: 18px 22px 22px;
   overflow-x: auto;
+}
+
+.candidate-stack {
+  display: grid;
+  gap: 12px;
+  padding: 18px 22px 22px;
+}
+
+.candidate-card {
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(132, 164, 211, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.candidate-card-top,
+.candidate-card-bottom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .issue-table {
@@ -703,6 +729,92 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.editor-full {
+  grid-column: 1 / -1;
+}
+
+.pricing-grid,
+.feature-flag-grid,
+.public-portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pricing-card,
+.public-portfolio-card {
+  padding: 18px;
+  border: 1px solid rgba(132, 164, 211, 0.12);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pricing-card-active {
+  border-color: rgba(79, 209, 197, 0.32);
+  background: rgba(79, 209, 197, 0.06);
+}
+
+.pricing-card-head,
+.pricing-meta,
+.button-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.button-row {
+  flex-wrap: wrap;
+}
+
+.feature-list,
+.public-entry-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.feature-list {
+  margin: 18px 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.feature-list li {
+  display: flex;
+  gap: 8px;
+}
+
+.price-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.public-portfolio-shell {
+  min-height: 100vh;
+  padding: 40px 24px;
+  background:
+    radial-gradient(circle at top, rgba(79, 209, 197, 0.14), transparent 30%),
+    radial-gradient(circle at right, rgba(139, 125, 255, 0.14), transparent 34%),
+    #06101d;
+}
+
+.public-portfolio-card {
+  max-width: 1080px;
+  margin: 0 auto 20px;
+}
+
+.public-headline {
+  font-size: 1.18rem;
+  color: var(--text);
+}
+
+.public-entry-card {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(132, 164, 211, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+}
+
 label {
   display: grid;
   gap: 8px;
@@ -784,7 +896,10 @@ select {
   .mode-grid,
   .draft-layout,
   .auto-summary-grid,
-  .mode-selector-grid {
+  .mode-selector-grid,
+  .pricing-grid,
+  .feature-flag-grid,
+  .public-portfolio-grid {
     grid-template-columns: 1fr;
   }
 

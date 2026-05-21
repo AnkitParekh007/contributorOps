@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, Bot, GitBranchPlus, LayoutDashboard } from "lucide-react";
+import {
+  AlertTriangle,
+  BadgeDollarSign,
+  Bot,
+  BriefcaseBusiness,
+  GitBranchPlus,
+  LayoutDashboard,
+  Radar
+} from "lucide-react";
 import { apiClient } from "./api/client";
 import { AutoContributePage } from "./components/AutoContributePage";
 import { CandidateList } from "./components/CandidateList";
@@ -10,15 +18,25 @@ import { IssueDetailPanel } from "./components/IssueDetailPanel";
 import { JobModePanel } from "./components/JobModePanel";
 import { MissionCard } from "./components/MissionCard";
 import { PortfolioTracker } from "./components/PortfolioTracker";
+import { PricingPage } from "./components/PricingPage";
+import { ProofOfWorkPage } from "./components/ProofOfWorkPage";
+import { PublicPortfolioPage } from "./components/PublicPortfolioPage";
+import { TeamRadarPage } from "./components/TeamRadarPage";
 import type {
+  BillingState,
   ControlModeState,
   ContributionExecutionMode,
   ContributionRun,
   DailyPlan,
   DiscoveryFilters,
   DraftProposal,
+  FeatureFlags,
   IssueCandidate,
-  PortfolioEntry
+  PortfolioEntry,
+  PricingTier,
+  PublicPortfolioProfile,
+  TeamRadarItem,
+  UsageSnapshot
 } from "./types";
 
 const defaultFilters: DiscoveryFilters = {
@@ -27,8 +45,65 @@ const defaultFilters: DiscoveryFilters = {
   labels: ["good first issue", "help wanted", "documentation", "bug"]
 };
 
+type AppPage = "dashboard" | "auto-contribute" | "proof-of-work" | "pricing" | "team-radar";
+
+function emptyBillingState(): BillingState {
+  return {
+    plan: "free",
+    status: "trialing",
+    provider: "mock",
+    customerName: "Ankit Parekh",
+    customerEmail: "ankit@example.com",
+    renewalAt: null,
+    seatCount: 1,
+    publicPortfolioSlug: "ankit-proof-of-work",
+    publicPortfolioEnabled: false,
+    profileHeadline: "ContributorOps helps developers turn open-source contributions into job-ready proof of work.",
+    profileSummary:
+      "I use ContributorOps to source backend and developer-tooling issues, build credible contribution plans, and package the final work into recruiter-ready proof.",
+    featureOverrides: {},
+    lastUpdatedAt: ""
+  };
+}
+
+function emptyEntitlements(): FeatureFlags {
+  return {
+    plan: "free",
+    weeklyPlanLimit: 3,
+    features: {
+      "basic-discovery": true,
+      "daily-plans": false,
+      "portfolio-tracker": false,
+      "public-portfolio": false,
+      "github-resume-export": false,
+      "linkedin-generator": false,
+      "interview-star-generator": false,
+      "recruiter-share-link": false,
+      "maintainer-trust-score": false,
+      "pr-quality-checker": false,
+      "team-dashboard": false,
+      "shared-repo-radar": false,
+      "approved-auto-contribute": false
+    }
+  };
+}
+
+function emptyUsage(): UsageSnapshot {
+  return {
+    weekKey: "",
+    generatedPlans: 0,
+    recruiterShares: 0,
+    resumeExports: 0,
+    publicPortfolioViews: 0
+  };
+}
+
 function App() {
-  const [activePage, setActivePage] = useState<"dashboard" | "auto-contribute">("dashboard");
+  const publicMatch =
+    typeof window !== "undefined" ? window.location.pathname.match(/^\/portfolio\/([^/]+)$/) : null;
+  const publicSlug = publicMatch?.[1] || "";
+
+  const [activePage, setActivePage] = useState<AppPage>("dashboard");
   const [modeLabel, setModeLabel] = useState("demo mode");
   const [autoContributeEnabled, setAutoContributeEnabled] = useState(false);
   const [filters, setFilters] = useState<DiscoveryFilters>(defaultFilters);
@@ -39,12 +114,16 @@ function App() {
     approvalReason: "",
     lastUpdatedAt: ""
   });
+  const [billing, setBilling] = useState<BillingState>(emptyBillingState());
+  const [entitlements, setEntitlements] = useState<FeatureFlags>(emptyEntitlements());
+  const [usage, setUsage] = useState<UsageSnapshot>(emptyUsage());
+  const [pricing, setPricing] = useState<PricingTier[]>([]);
   const [issues, setIssues] = useState<IssueCandidate[]>([]);
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioEntry[]>([]);
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(null);
-  const [planningIssueMessage, setPlanningIssueMessage] = useState<string>("");
+  const [planningIssueMessage, setPlanningIssueMessage] = useState("");
   const [approvalReason, setApprovalReason] = useState("");
   const [draftProposal, setDraftProposal] = useState<DraftProposal | null>(null);
   const [contributionMode, setContributionMode] = useState<ContributionExecutionMode>("research");
@@ -52,8 +131,13 @@ function App() {
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [forkOwner, setForkOwner] = useState("");
   const [prResultMessage, setPrResultMessage] = useState("");
+  const [githubResumeMarkdown, setGithubResumeMarkdown] = useState("");
+  const [recruiterShareUrl, setRecruiterShareUrl] = useState("");
+  const [teamRadar, setTeamRadar] = useState<TeamRadarItem[]>([]);
+  const [publicProfile, setPublicProfile] = useState<PublicPortfolioProfile | null>(null);
+  const [publicError, setPublicError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
 
   const selectedIssue = issues.find((issue) => issue.id === selectedIssueId) || null;
   const selectedPortfolioEntry =
@@ -61,13 +145,24 @@ function App() {
   const selectedRun = contributionRuns.find((run) => run.id === selectedRunId) || contributionRuns[0] || null;
 
   useEffect(() => {
+    if (publicSlug) {
+      apiClient
+        .getPublicPortfolio(publicSlug)
+        .then((profile) => setPublicProfile(profile))
+        .catch((requestError) => {
+          setPublicError(requestError instanceof Error ? requestError.message : "Failed to load public portfolio.");
+        });
+      return;
+    }
+
     Promise.all([
       apiClient.health(),
       apiClient.getDailyPlan(),
       apiClient.getPortfolio(),
-      apiClient.getContributionRuns()
+      apiClient.getContributionRuns().catch(() => []),
+      apiClient.getPricing()
     ])
-      .then(([health, plan, entries, runs]) => {
+      .then(([health, plan, entries, runs, pricingResponse]) => {
         setModeLabel(health.mode === "github" ? "live GitHub mode" : "demo mode");
         setAutoContributeEnabled(health.autoContributeEnabled);
         setControlMode(health.controlMode);
@@ -77,11 +172,29 @@ function App() {
         setSelectedPortfolioId(entries[0]?.id ?? null);
         setContributionRuns(runs);
         setSelectedRunId(runs[0]?.id ?? null);
+        setBilling(health.billing);
+        setEntitlements(health.entitlements);
+        setUsage(health.usage);
+        setPricing(pricingResponse);
+        if (health.billing.publicPortfolioEnabled) {
+          setRecruiterShareUrl(`${window.location.origin}/portfolio/${health.billing.publicPortfolioSlug}`);
+        }
       })
       .catch((requestError) => {
         setError(requestError instanceof Error ? requestError.message : "Failed to load app.");
       });
-  }, []);
+  }, [publicSlug]);
+
+  useEffect(() => {
+    if (activePage === "team-radar" && entitlements.features["team-dashboard"] && teamRadar.length === 0) {
+      apiClient
+        .getTeamRadar()
+        .then(setTeamRadar)
+        .catch((requestError) => {
+          setError(requestError instanceof Error ? requestError.message : "Failed to load team radar.");
+        });
+    }
+  }, [activePage, entitlements, teamRadar.length]);
 
   const refreshPortfolio = async () => {
     const entries = await apiClient.getPortfolio();
@@ -93,6 +206,16 @@ function App() {
     const runs = await apiClient.getContributionRuns();
     setContributionRuns(runs);
     setSelectedRunId(runs[0]?.id ?? null);
+  };
+
+  const refreshBillingState = async () => {
+    const [billingResponse, usageResponse] = await Promise.all([apiClient.getBilling(), apiClient.getUsage()]);
+    setBilling(billingResponse.billing);
+    setEntitlements(billingResponse.entitlements);
+    setUsage(usageResponse);
+    if (billingResponse.billing.publicPortfolioEnabled) {
+      setRecruiterShareUrl(`${window.location.origin}/portfolio/${billingResponse.billing.publicPortfolioSlug}`);
+    }
   };
 
   const generateDailyPlan = async () => {
@@ -107,6 +230,7 @@ function App() {
       setPlanningIssueMessage("");
       setDraftProposal(null);
       setPrResultMessage("");
+      await refreshBillingState();
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Failed to generate plan.");
     } finally {
@@ -146,20 +270,24 @@ function App() {
   };
 
   const saveIssueToPortfolio = async (issue: IssueCandidate) => {
-    const entry = await apiClient.createPortfolio({
-      selectedRepo: issue.repoFullName,
-      issueUrl: issue.issueUrl,
-      prUrl: "",
-      status: "planned",
-      notes: issue.reasonForRecommendation,
-      interviewStarStory: issue.jobMode.interviewStarStory,
-      resumeBullet: issue.jobMode.resumeBullet,
-      linkedInPost: issue.jobMode.linkedInPost,
-      recruiterOutreach: issue.jobMode.recruiterOutreach,
-      githubProfileSnippet: issue.jobMode.githubProfileSnippet
-    });
-    setPortfolio((current) => [entry, ...current]);
-    setSelectedPortfolioId(entry.id);
+    try {
+      const entry = await apiClient.createPortfolio({
+        selectedRepo: issue.repoFullName,
+        issueUrl: issue.issueUrl,
+        prUrl: "",
+        status: "planned",
+        notes: issue.reasonForRecommendation,
+        interviewStarStory: issue.jobMode.interviewStarStory,
+        resumeBullet: issue.jobMode.resumeBullet,
+        linkedInPost: issue.jobMode.linkedInPost,
+        recruiterOutreach: issue.jobMode.recruiterOutreach,
+        githubProfileSnippet: issue.jobMode.githubProfileSnippet
+      });
+      setPortfolio((current) => [entry, ...current]);
+      setSelectedPortfolioId(entry.id);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to save to portfolio.");
+    }
   };
 
   const updatePortfolioEntry = (entry: PortfolioEntry) => {
@@ -372,7 +500,74 @@ function App() {
     }
   };
 
+  const selectPlan = async (plan: BillingState["plan"]) => {
+    setError("");
+    setIsLoading(true);
+    try {
+      const response = await apiClient.selectPlan(plan);
+      setBilling(response.billing);
+      setEntitlements(response.entitlements);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to switch plan.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const createRecruiterShare = async () => {
+    setError("");
+    setIsLoading(true);
+    try {
+      await apiClient.updateBillingProfile({
+        profileHeadline: billing.profileHeadline,
+        profileSummary: billing.profileSummary,
+        publicPortfolioSlug: billing.publicPortfolioSlug,
+        publicPortfolioEnabled: true
+      });
+      const result = await apiClient.createPortfolioShare();
+      setRecruiterShareUrl(result.recruiterShareUrl);
+      const response = await apiClient.getBilling();
+      setBilling(response.billing);
+      setEntitlements(response.entitlements);
+      await refreshBillingState();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to create recruiter share link.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const exportResume = async () => {
+    setError("");
+    setIsLoading(true);
+    try {
+      const result = await apiClient.exportGithubResume();
+      setGithubResumeMarkdown(result.markdown);
+      await refreshBillingState();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to export GitHub resume.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const refreshTeamRadar = async () => {
+    setError("");
+    setIsLoading(true);
+    try {
+      setTeamRadar(await apiClient.getTeamRadar());
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to refresh team radar.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const topOpportunityCount = useMemo(() => dailyPlan?.topOpportunities.length ?? 0, [dailyPlan]);
+
+  if (publicSlug) {
+    return <PublicPortfolioPage profile={publicProfile} error={publicError} />;
+  }
 
   return (
     <div className="app-shell">
@@ -388,12 +583,17 @@ function App() {
           </div>
 
           <div className="sidebar-card">
-            <span>Workflow rules</span>
-            <ul>
-              <li>No auto-comments on third-party repos</li>
-              <li>No auto-PRs without human approval</li>
-              <li>Planning issues only inside contributorOps</li>
-            </ul>
+            <span>Positioning</span>
+            <p>ContributorOps helps developers turn open-source contributions into job-ready proof of work.</p>
+          </div>
+
+          <div className="sidebar-card">
+            <span>Plan</span>
+            <strong>{billing.plan.toUpperCase()}</strong>
+            <p>
+              {usage.generatedPlans} plan runs this week
+              {entitlements.weeklyPlanLimit !== null ? ` / ${entitlements.weeklyPlanLimit}` : " / unlimited"}
+            </p>
           </div>
 
           <div className="sidebar-card">
@@ -419,11 +619,35 @@ function App() {
               <Bot size={16} />
               Auto-Contribute
             </button>
+            <button
+              type="button"
+              className={`sidebar-nav-button ${activePage === "proof-of-work" ? "active" : ""}`}
+              onClick={() => setActivePage("proof-of-work")}
+            >
+              <BriefcaseBusiness size={16} />
+              Proof of Work
+            </button>
+            <button
+              type="button"
+              className={`sidebar-nav-button ${activePage === "pricing" ? "active" : ""}`}
+              onClick={() => setActivePage("pricing")}
+            >
+              <BadgeDollarSign size={16} />
+              Pricing
+            </button>
+            <button
+              type="button"
+              className={`sidebar-nav-button ${activePage === "team-radar" ? "active" : ""}`}
+              onClick={() => setActivePage("team-radar")}
+            >
+              <Radar size={16} />
+              Team Radar
+            </button>
           </div>
         </aside>
 
         <main className="main-content">
-          <MissionCard plan={dailyPlan} modeLabel={modeLabel} />
+          <MissionCard plan={dailyPlan} modeLabel={modeLabel} planLabel={billing.plan} />
 
           {error ? (
             <section className="alert-banner">
@@ -468,7 +692,11 @@ function App() {
                     onCreatePlanningIssue={createPlanningIssue}
                     onOpenDraftPullRequest={openApprovedDraftPullRequest}
                   />
-                  <IssueDetailPanel issue={selectedIssue} onSaveToPortfolio={saveIssueToPortfolio} />
+                  <IssueDetailPanel
+                    issue={selectedIssue}
+                    onSaveToPortfolio={saveIssueToPortfolio}
+                    entitlements={entitlements}
+                  />
                 </div>
 
                 <div className="side-column">
@@ -489,20 +717,30 @@ function App() {
                     issue={selectedIssue}
                     portfolioEntry={selectedPortfolioEntry}
                     onPortfolioChange={updatePortfolioEntry}
+                    entitlements={entitlements}
                   />
                 </div>
               </div>
 
-              <PortfolioTracker
-                entries={portfolio}
-                selectedEntryId={selectedPortfolioId}
-                onSelect={(entry) => setSelectedPortfolioId(entry.id)}
-                onDelete={deletePortfolioEntry}
-                onChange={updatePortfolioEntry}
-                onSave={persistPortfolioEntry}
-              />
+              {entitlements.features["portfolio-tracker"] ? (
+                <PortfolioTracker
+                  entries={portfolio}
+                  selectedEntryId={selectedPortfolioId}
+                  onSelect={(entry) => setSelectedPortfolioId(entry.id)}
+                  onDelete={deletePortfolioEntry}
+                  onChange={updatePortfolioEntry}
+                  onSave={persistPortfolioEntry}
+                />
+              ) : (
+                <section className="panel empty-panel">
+                  <h2>Portfolio tracker</h2>
+                  <p>Upgrade to Pro to save opportunities and turn them into long-lived proof-of-work assets.</p>
+                </section>
+              )}
             </>
-          ) : (
+          ) : null}
+
+          {activePage === "auto-contribute" ? (
             <AutoContributePage
               selectedIssue={selectedIssue}
               mode={contributionMode}
@@ -511,6 +749,7 @@ function App() {
               forkOwner={forkOwner}
               approvalReason={approvalReason}
               autoContributeEnabled={autoContributeEnabled}
+              entitlements={entitlements}
               isLoading={isLoading}
               onModeChange={setContributionMode}
               onForkOwnerChange={setForkOwner}
@@ -525,7 +764,43 @@ function App() {
                 setDraftProposal(run.proposal);
               }}
             />
-          )}
+          ) : null}
+
+          {activePage === "proof-of-work" ? (
+            <ProofOfWorkPage
+              billing={billing}
+              entitlements={entitlements}
+              portfolio={portfolio}
+              selectedPortfolioEntry={selectedPortfolioEntry}
+              githubResumeMarkdown={githubResumeMarkdown}
+              recruiterShareUrl={recruiterShareUrl}
+              isLoading={isLoading}
+              onCreateShare={createRecruiterShare}
+              onExportResume={exportResume}
+              onBillingProfileChange={setBilling}
+              onPortfolioChange={updatePortfolioEntry}
+            />
+          ) : null}
+
+          {activePage === "pricing" ? (
+            <PricingPage
+              billing={billing}
+              entitlements={entitlements}
+              pricing={pricing}
+              usage={usage}
+              isLoading={isLoading}
+              onSelectPlan={selectPlan}
+            />
+          ) : null}
+
+          {activePage === "team-radar" ? (
+            <TeamRadarPage
+              entitlements={entitlements}
+              radar={teamRadar}
+              isLoading={isLoading}
+              onRefresh={refreshTeamRadar}
+            />
+          ) : null}
         </main>
       </div>
     </div>

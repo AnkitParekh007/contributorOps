@@ -1,12 +1,13 @@
-import { FileText, FolderTree, FlaskConical, MessageSquareQuote, PencilLine } from "lucide-react";
-import type { IssueCandidate } from "../types";
+import { FileText, FolderTree, FlaskConical, MessageSquareQuote, PencilLine, ShieldCheck } from "lucide-react";
+import type { FeatureFlags, IssueCandidate } from "../types";
 
 interface IssueDetailPanelProps {
   issue: IssueCandidate | null;
   onSaveToPortfolio: (issue: IssueCandidate) => void;
+  entitlements: FeatureFlags;
 }
 
-export function IssueDetailPanel({ issue, onSaveToPortfolio }: IssueDetailPanelProps) {
+export function IssueDetailPanel({ issue, onSaveToPortfolio, entitlements }: IssueDetailPanelProps) {
   if (!issue) {
     return (
       <section className="panel detail-panel empty-panel">
@@ -72,6 +73,27 @@ export function IssueDetailPanel({ issue, onSaveToPortfolio }: IssueDetailPanelP
               <li key={step}>{step}</li>
             ))}
           </ul>
+        </article>
+
+        <article className="info-card">
+          <div className="info-card-title">
+            <ShieldCheck size={16} />
+            <strong>Maintainer trust score</strong>
+          </div>
+          {entitlements.features["maintainer-trust-score"] ? (
+            <>
+              <p>
+                {issue.maintainerTrust.score}/100 · {issue.maintainerTrust.band}
+              </p>
+              <ul>
+                {issue.maintainerTrust.reasons.map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>Upgrade to Pro to unlock maintainer trust scoring.</p>
+          )}
         </article>
       </div>
 

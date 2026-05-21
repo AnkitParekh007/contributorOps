@@ -3,6 +3,7 @@ import type {
   ContributionExecutionMode,
   ContributionRun,
   ContributionRunStatus,
+  FeatureFlags,
   IssueCandidate
 } from "../types";
 
@@ -14,6 +15,7 @@ interface AutoContributePageProps {
   forkOwner: string;
   approvalReason: string;
   autoContributeEnabled: boolean;
+  entitlements: FeatureFlags;
   isLoading: boolean;
   onModeChange: (mode: ContributionExecutionMode) => void;
   onForkOwnerChange: (value: string) => void;
@@ -41,6 +43,7 @@ export function AutoContributePage({
   forkOwner,
   approvalReason,
   autoContributeEnabled,
+  entitlements,
   isLoading,
   onModeChange,
   onForkOwnerChange,
@@ -52,6 +55,8 @@ export function AutoContributePage({
   onCancelRun,
   onSelectRun
 }: AutoContributePageProps) {
+  const locked = !entitlements.features["approved-auto-contribute"];
+
   return (
     <div className="auto-page-grid">
       <section className="panel">
@@ -62,6 +67,7 @@ export function AutoContributePage({
             <p className="muted-copy">
               Dry-run is the default. External writes require explicit per-action approval and are logged.
             </p>
+            {locked ? <p className="muted-copy">Upgrade to Pro to unlock approval-gated auto-contribute flows.</p> : null}
           </div>
           <span className={`mode-pill ${autoContributeEnabled ? "" : "pill-warning"}`}>
             {autoContributeEnabled ? "external writes enabled" : "dry run only"}
@@ -132,13 +138,13 @@ export function AutoContributePage({
         </div>
 
         <div className="contribution-actions">
-          <button type="button" className="primary-button" disabled={!selectedIssue || isLoading} onClick={onPrepare}>
+          <button type="button" className="primary-button" disabled={!selectedIssue || isLoading || locked} onClick={onPrepare}>
             Prepare final confirmation
           </button>
           <button
             type="button"
             className="secondary-button"
-            disabled={!selectedRun || isLoading}
+            disabled={!selectedRun || isLoading || locked}
             onClick={onApproveComment}
           >
             Approve Comment
@@ -146,7 +152,7 @@ export function AutoContributePage({
           <button
             type="button"
             className="secondary-button"
-            disabled={!selectedRun || isLoading}
+            disabled={!selectedRun || isLoading || locked}
             onClick={onApproveBranch}
           >
             Approve Fork Branch
@@ -154,7 +160,7 @@ export function AutoContributePage({
           <button
             type="button"
             className="secondary-button"
-            disabled={!selectedRun || isLoading}
+            disabled={!selectedRun || isLoading || locked}
             onClick={onApproveDraftPr}
           >
             Approve Draft PR
@@ -162,7 +168,7 @@ export function AutoContributePage({
           <button
             type="button"
             className="ghost-button"
-            disabled={!selectedRun || isLoading}
+            disabled={!selectedRun || isLoading || locked}
             onClick={onCancelRun}
           >
             Cancel Run
@@ -234,6 +240,29 @@ export function AutoContributePage({
               </div>
               <p className="muted-copy">{selectedRun.prTitle}</p>
               <pre>{selectedRun.prBody}</pre>
+            </article>
+
+            <article className="copy-block">
+              <div className="info-card-title">
+                <ShieldCheck size={16} />
+                <strong>PR quality checker</strong>
+              </div>
+              {entitlements.features["pr-quality-checker"] ? (
+                <>
+                  <p className="muted-copy">
+                    {selectedRun.prQuality.score}/100 · {selectedRun.prQuality.verdict}
+                  </p>
+                  <ul>
+                    {selectedRun.prQuality.checks.map((check) => (
+                      <li key={check.label}>
+                        <strong>{check.label}:</strong> {check.detail}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p className="muted-copy">Career plan unlocks deterministic PR quality checking.</p>
+              )}
             </article>
 
             <article className="copy-block">

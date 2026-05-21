@@ -1,13 +1,14 @@
 import { BriefcaseBusiness, Github, MessageSquareMore, Sparkles } from "lucide-react";
-import type { IssueCandidate, PortfolioEntry } from "../types";
+import type { FeatureFlags, IssueCandidate, PortfolioEntry } from "../types";
 
 interface JobModePanelProps {
   issue: IssueCandidate | null;
   portfolioEntry: PortfolioEntry | null;
   onPortfolioChange: (entry: PortfolioEntry) => void;
+  entitlements: FeatureFlags;
 }
 
-export function JobModePanel({ issue, portfolioEntry, onPortfolioChange }: JobModePanelProps) {
+export function JobModePanel({ issue, portfolioEntry, onPortfolioChange, entitlements }: JobModePanelProps) {
   const source = portfolioEntry
     ? {
         resumeBullet: portfolioEntry.resumeBullet,
@@ -28,6 +29,7 @@ export function JobModePanel({ issue, portfolioEntry, onPortfolioChange }: JobMo
   }
 
   const editable = Boolean(portfolioEntry);
+  const locked = !entitlements.features["linkedin-generator"];
 
   return (
     <section className="panel">
@@ -37,6 +39,7 @@ export function JobModePanel({ issue, portfolioEntry, onPortfolioChange }: JobMo
           <h2>Turn each contribution into career proof.</h2>
         </div>
       </div>
+      {locked ? <p className="muted-copy">Career plan unlocks editable LinkedIn, interview, recruiter, and GitHub profile assets.</p> : null}
 
       <div className="job-mode-grid">
         <label className="job-card">
@@ -47,7 +50,7 @@ export function JobModePanel({ issue, portfolioEntry, onPortfolioChange }: JobMo
           <textarea
             rows={4}
             value={source.resumeBullet}
-            readOnly={!editable}
+            readOnly={!editable || locked}
             onChange={(event) =>
               portfolioEntry && onPortfolioChange({ ...portfolioEntry, resumeBullet: event.target.value })
             }
@@ -62,7 +65,7 @@ export function JobModePanel({ issue, portfolioEntry, onPortfolioChange }: JobMo
           <textarea
             rows={5}
             value={source.linkedInPost}
-            readOnly={!editable}
+            readOnly={!editable || locked}
             onChange={(event) =>
               portfolioEntry && onPortfolioChange({ ...portfolioEntry, linkedInPost: event.target.value })
             }
@@ -77,7 +80,7 @@ export function JobModePanel({ issue, portfolioEntry, onPortfolioChange }: JobMo
           <textarea
             rows={6}
             value={source.interviewStarStory}
-            readOnly={!editable}
+            readOnly={!editable || locked}
             onChange={(event) =>
               portfolioEntry &&
               onPortfolioChange({ ...portfolioEntry, interviewStarStory: event.target.value })
@@ -93,7 +96,7 @@ export function JobModePanel({ issue, portfolioEntry, onPortfolioChange }: JobMo
           <textarea
             rows={5}
             value={source.recruiterOutreach}
-            readOnly={!editable}
+            readOnly={!editable || locked}
             onChange={(event) =>
               portfolioEntry && onPortfolioChange({ ...portfolioEntry, recruiterOutreach: event.target.value })
             }
@@ -108,7 +111,7 @@ export function JobModePanel({ issue, portfolioEntry, onPortfolioChange }: JobMo
           <textarea
             rows={4}
             value={source.githubProfileSnippet}
-            readOnly={!editable}
+            readOnly={!editable || locked}
             onChange={(event) =>
               portfolioEntry && onPortfolioChange({ ...portfolioEntry, githubProfileSnippet: event.target.value })
             }

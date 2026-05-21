@@ -4,6 +4,19 @@ ContributorOps is a production-oriented contribution planning app for backend, A
 
 It is intentionally **not** a spam bot.
 
+## Product positioning
+
+ContributorOps helps developers turn open-source contributions into job-ready proof of work.
+
+## Plans
+
+- `Free`: basic discovery and `3` generated plans per week
+- `Pro`: `$19/month`, daily plans, portfolio tracker, maintainer trust score, and approval-gated auto-contribute
+- `Career`: `$49/month`, GitHub resume export, LinkedIn post drafts, interview STAR stories, recruiter share links, public portfolio
+- `Team`: `$199/month`, team dashboard, shared repo radar, and shared sourcing seats
+
+The current implementation uses mock billing plus local JSON storage so Stripe or Lemon Squeezy can be added later without changing the entitlement model.
+
 ## Controlled contribution mode
 
 ContributorOps supports three explicit safety levels.
@@ -78,6 +91,18 @@ All external write actions are:
   - recruiter outreach message
   - GitHub profile README snippet
 - can optionally create planning issues **only inside this repo**
+
+## Monetization-ready features
+
+- plan tiers with feature flags and usage limits
+- pricing page with mock billing state
+- public proof-of-work portfolio page
+- exportable GitHub resume markdown
+- LinkedIn post, interview STAR story, recruiter message, and GitHub profile snippet outputs
+- recruiter share link generation
+- maintainer trust score on issues
+- deterministic PR quality checker
+- Team plan repo radar
 
 ## Safety philosophy
 
@@ -318,6 +343,7 @@ It does **not**:
 - `GITHUB_USERNAME=`
 - `CONTRIBUTOROPS_OWNER=AnkitParekh007`
 - `CONTRIBUTOROPS_REPO=contributorOps`
+- `PUBLIC_APP_URL=http://localhost:8787`
 - `AUTO_CONTRIBUTE_ENABLED=false`
 - `AUTO_PR_DAILY_LIMIT=3`
 - `AUTO_COMMENT_DAILY_LIMIT=5`

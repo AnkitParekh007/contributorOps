@@ -2,11 +2,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { config } from "./config.js";
 import type {
+  BillingState,
   ContributionRun,
   ControlModeState,
   DailyPlan,
   PortfolioEntry,
-  PullRequestActivity
+  PullRequestActivity,
+  UsageSnapshot
 } from "./types.js";
 
 async function ensureFile<T>(filePath: string, fallback: T): Promise<void> {
@@ -81,4 +83,41 @@ export async function readContributionRuns(): Promise<ContributionRun[]> {
 
 export async function writeContributionRuns(runs: ContributionRun[]): Promise<ContributionRun[]> {
   return writeJsonFile(config.contributionRunsPath, runs);
+}
+
+export async function readBillingState(): Promise<BillingState> {
+  return readJsonFile(config.billingPath, {
+    plan: "free",
+    status: "trialing",
+    provider: "mock",
+    customerName: "Ankit Parekh",
+    customerEmail: "ankit@example.com",
+    renewalAt: null,
+    seatCount: 1,
+    publicPortfolioSlug: "ankit-proof-of-work",
+    publicPortfolioEnabled: false,
+    profileHeadline: "ContributorOps helps developers turn open-source contributions into job-ready proof of work.",
+    profileSummary:
+      "I use ContributorOps to source backend and developer-tooling issues, build credible contribution plans, and package the final work into recruiter-ready proof.",
+    featureOverrides: {},
+    lastUpdatedAt: new Date(0).toISOString()
+  });
+}
+
+export async function writeBillingState(state: BillingState): Promise<BillingState> {
+  return writeJsonFile(config.billingPath, state);
+}
+
+export async function readUsageSnapshot(): Promise<UsageSnapshot> {
+  return readJsonFile(config.usagePath, {
+    weekKey: "",
+    generatedPlans: 0,
+    recruiterShares: 0,
+    resumeExports: 0,
+    publicPortfolioViews: 0
+  });
+}
+
+export async function writeUsageSnapshot(usage: UsageSnapshot): Promise<UsageSnapshot> {
+  return writeJsonFile(config.usagePath, usage);
 }
