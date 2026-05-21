@@ -21,6 +21,17 @@
     <link rel="canonical" href="https://ankitparekh007.github.io/contributorOps/" />
     <link rel="manifest" href="/contributorOps/site.webmanifest" />
     <title>ContributorOps — Turn Open-Source Work Into Career Proof</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("contributorops_theme");
+          var theme = (stored === "light" || stored === "dark")
+            ? stored
+            : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

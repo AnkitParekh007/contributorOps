@@ -1,4 +1,5 @@
 import { HashRouter, Route, Routes } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/Navbar";
 import { Contact } from "./pages/Contact";
@@ -17,6 +18,7 @@ import { Waitlist } from "./pages/Waitlist";
 
 function App() {
   return (
+    <ThemeProvider>
     <HashRouter>
       <div className="site-shell">
         <Navbar />
@@ -40,6 +42,7 @@ function App() {
         <Footer />
       </div>
     </HashRouter>
+    </ThemeProvider>
   );
 }
 
