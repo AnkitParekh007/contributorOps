@@ -8,4 +8,5 @@ coverage/
 .env.local
 apps/*/dist/
 apps/*/node_modules/
+*.tsbuildinfo
 data/*.backup.json
