@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { config } from "./config.js";
-import type { DailyPlan, PortfolioEntry } from "./types.js";
+import type { ControlModeState, DailyPlan, PortfolioEntry, PullRequestActivity } from "./types.js";
 
 async function ensureFile<T>(filePath: string, fallback: T): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -43,4 +43,28 @@ export async function readDailyPlan(): Promise<DailyPlan> {
 
 export async function writeDailyPlan(plan: DailyPlan): Promise<DailyPlan> {
   return writeJsonFile(config.dailyPlanPath, plan);
+}
+
+export async function readControlMode(): Promise<ControlModeState> {
+  return readJsonFile(config.controlModePath, {
+    safetyLevel: "research",
+    approvalRequired: true,
+    approvalGrantedAt: null,
+    approvalReason: "",
+    lastUpdatedAt: new Date(0).toISOString()
+  });
+}
+
+export async function writeControlMode(state: ControlModeState): Promise<ControlModeState> {
+  return writeJsonFile(config.controlModePath, state);
+}
+
+export async function readPullRequestActivity(): Promise<PullRequestActivity[]> {
+  return readJsonFile(config.prActivityPath, []);
+}
+
+export async function writePullRequestActivity(
+  activity: PullRequestActivity[]
+): Promise<PullRequestActivity[]> {
+  return writeJsonFile(config.prActivityPath, activity);
 }

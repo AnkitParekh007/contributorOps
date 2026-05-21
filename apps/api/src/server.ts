@@ -5,22 +5,72 @@ import cors from "cors";
 import express from "express";
 import { config } from "./config.js";
 import { runDailyPlan } from "./daily.js";
-import { createPlanningIssue, discoverIssues } from "./github.js";
-import { buildDailyPlan, buildIssueCandidate } from "./planner.js";
-import { readDailyPlan, readPortfolio, writeDailyPlan, writePortfolio } from "./storage.js";
-import type { DailyPlan, DiscoveryFilters, PlanningIssueRequest, PortfolioEntry } from "./types.js";
+import { createApprovedDraftPullRequest, createPlanningIssue, discoverIssues } from "./github.js";
+import { buildDailyPlan, buildDraftProposal, buildIssueCandidate } from "./planner.js";
+import {
+  readControlMode,
+  readDailyPlan,
+  readPortfolio,
+  readPullRequestActivity,
+  writeControlMode,
+  writeDailyPlan,
+  writePortfolio,
+  writePullRequestActivity
+} from "./storage.js";
+import type {
+  ApprovedPullRequestRequest,
+  ControlModeUpdateRequest,
+  DailyPlan,
+  DraftProposalRequest,
+  DiscoveryFilters,
+  PlanningIssueRequest,
+  PortfolioEntry
+} from "./types.js";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
-app.get("/api/health", (_request, response) => {
-  response.json({
-    ok: true,
-    mode: config.githubToken ? "github" : "demo",
-    createDailyIssue: config.createDailyIssue
-  });
+app.get("/api/health", async (_request, response, next) => {
+  try {
+    const controlMode = await readControlMode();
+    response.json({
+      ok: true,
+      mode: config.githubToken ? "github" : "demo",
+      createDailyIssue: config.createDailyIssue,
+      controlMode
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/control-mode", async (_request, response, next) => {
+  try {
+    response.json(await readControlMode());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/control-mode", async (request, response, next) => {
+  try {
+    const body = request.body as ControlModeUpdateRequest;
+    const now = new Date().toISOString();
+    const nextState = {
+      safetyLevel: body.safetyLevel,
+      approvalRequired: body.safetyLevel === "approved-pr",
+      approvalGrantedAt:
+        body.safetyLevel === "approved-pr" && body.explicitApproval ? now : null,
+      approvalReason:
+        body.safetyLevel === "approved-pr" ? body.approvalReason?.trim() || "" : "",
+      lastUpdatedAt: now
+    };
+    response.json(await writeControlMode(nextState));
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.post("/api/discover", async (request, response, next) => {
@@ -120,11 +170,57 @@ app.delete("/api/portfolio/:id", async (request, response, next) => {
 
 app.post("/api/create-planning-issue", async (request, response, next) => {
   try {
+    const controlMode = await readControlMode();
+    if (controlMode.safetyLevel === "research") {
+      response.status(403).json({
+        message: "Planning issues are disabled in Research Mode."
+      });
+      return;
+    }
+
     const body = request.body as PlanningIssueRequest;
     const plan: DailyPlan = await readDailyPlan();
     const title = body.title || `ContributorOps daily plan ${new Date().toISOString().slice(0, 10)}`;
     const issueBody = body.body || plan.markdown;
     const result = await createPlanningIssue(title, issueBody);
+    response.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/draft-proposal", async (request, response, next) => {
+  try {
+    const controlMode = await readControlMode();
+    if (controlMode.safetyLevel === "research") {
+      response.status(403).json({
+        message: "Draft proposal generation requires Draft Mode or Approved PR Mode."
+      });
+      return;
+    }
+
+    const body = request.body as DraftProposalRequest;
+    response.json(buildDraftProposal(body.issue));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/approved-pr", async (request, response, next) => {
+  try {
+    const controlMode = await readControlMode();
+    const activity = await readPullRequestActivity();
+    const body = request.body as ApprovedPullRequestRequest;
+    const result = await createApprovedDraftPullRequest(body, controlMode, activity);
+    const updatedActivity = [
+      {
+        upstreamRepoFullName: body.issue.repoFullName,
+        draftPullRequestUrl: result.draftPullRequestUrl,
+        createdAt: new Date().toISOString()
+      },
+      ...activity
+    ];
+    await writePullRequestActivity(updatedActivity);
     response.json(result);
   } catch (error) {
     next(error);

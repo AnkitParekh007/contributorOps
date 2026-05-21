@@ -1,4 +1,13 @@
-import type { DailyPlan, DiscoverResponse, DiscoveryFilters, PortfolioEntry } from "../types";
+import type {
+  ControlModeState,
+  DailyPlan,
+  DiscoverResponse,
+  DiscoveryFilters,
+  DraftProposal,
+  HealthResponse,
+  IssueCandidate,
+  PortfolioEntry
+} from "../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -23,11 +32,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const apiClient = {
-  health: () => request<{ ok: boolean; mode: "demo" | "github" }>("/api/health"),
+  health: () => request<HealthResponse>("/api/health"),
   discover: (filters: DiscoveryFilters) =>
     request<DiscoverResponse>("/api/discover", {
       method: "POST",
       body: JSON.stringify(filters)
+    }),
+  getControlMode: () => request<ControlModeState>("/api/control-mode"),
+  updateControlMode: (payload: {
+    safetyLevel: ControlModeState["safetyLevel"];
+    approvalReason?: string;
+    explicitApproval?: boolean;
+  }) =>
+    request<ControlModeState>("/api/control-mode", {
+      method: "POST",
+      body: JSON.stringify(payload)
     }),
   getDailyPlan: () => request<DailyPlan>("/api/daily-plan"),
   getPortfolio: () => request<PortfolioEntry[]>("/api/portfolio"),
@@ -49,5 +68,21 @@ export const apiClient = {
     request<{ created: boolean; message: string; issueUrl?: string }>("/api/create-planning-issue", {
       method: "POST",
       body: JSON.stringify({ title, body })
+    }),
+  createDraftProposal: (issue: IssueCandidate) =>
+    request<DraftProposal>("/api/draft-proposal", {
+      method: "POST",
+      body: JSON.stringify({ issue })
+    }),
+  createApprovedPullRequest: (payload: {
+    issue: IssueCandidate;
+    proposal: DraftProposal;
+    forkOwner: string;
+    approvalReason: string;
+    explicitApproval: boolean;
+  }) =>
+    request<{ draftPullRequestUrl: string; branchName: string }>("/api/approved-pr", {
+      method: "POST",
+      body: JSON.stringify(payload)
     })
 };

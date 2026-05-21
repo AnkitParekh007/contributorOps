@@ -1,9 +1,11 @@
 import type {
   DailyPlan,
   DailyPlanOpportunity,
+  DraftProposal,
   IssueCandidate,
   JobModeDrafts,
-  RawIssueCandidate
+  RawIssueCandidate,
+  SuggestedFileChange
 } from "./types.js";
 import { scoreIssue } from "./scorer.js";
 
@@ -183,4 +185,89 @@ export function buildDailyPlan(candidates: IssueCandidate[]): DailyPlan {
   ].join("\n");
 
   return { generatedAt, mission, markdown, topOpportunities };
+}
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+}
+
+function normalizeSuggestedPath(rawPath: string): string {
+  if (rawPath.endsWith("/")) {
+    return `${rawPath}TODO.md`;
+  }
+
+  if (rawPath.includes(".")) {
+    return rawPath;
+  }
+
+  return `${rawPath}/TODO.md`;
+}
+
+function buildSuggestedChanges(issue: IssueCandidate): SuggestedFileChange[] {
+  return issue.likelyFiles.slice(0, 3).map((filePath, index) => {
+    const normalizedPath = normalizeSuggestedPath(filePath);
+    const content = [
+      `# ContributorOps draft proposal for ${issue.repoFullName}`,
+      ``,
+      `Issue: ${issue.issueUrl}`,
+      `Target area: ${filePath}`,
+      ``,
+      `Planned change ${index + 1}:`,
+      `- ${issue.contributionPlan[Math.min(index, issue.contributionPlan.length - 1)]}`,
+      ``,
+      `Validation notes:`,
+      ...issue.testingStrategy.map((step) => `- ${step}`)
+    ].join("\n");
+
+    return {
+      path: normalizedPath,
+      content,
+      rationale: `ContributorOps suggests touching ${filePath} based on the issue labels, topic match, and likely contribution surface.`
+    };
+  });
+}
+
+export function buildDraftProposal(issue: IssueCandidate): DraftProposal {
+  const repoSlug = slugify(issue.repoFullName.replace("/", "-"));
+  const issueSlug = slugify(issue.issueTitle);
+  const branchName = `contributorops/${repoSlug}-issue-${issue.issueNumber}-${issueSlug}`.slice(0, 110);
+  const commitMessage = `chore: prepare draft contribution for ${issue.repoFullName}#${issue.issueNumber}`;
+  const prTitle = `[ContributorOps draft] ${issue.issueTitle}`;
+  const prBody = [
+    `## Summary`,
+    issue.summary,
+    ``,
+    `## Why this draft exists`,
+    `This draft PR was prepared through ContributorOps in Approved PR Mode after explicit human approval.`,
+    `It is intentionally opened as a draft and will not be marked ready for review automatically.`,
+    ``,
+    `## Proposed approach`,
+    ...issue.contributionPlan.map((step) => `- ${step}`),
+    ``,
+    `## Testing evidence`,
+    ...issue.testingStrategy.map((step) => `- ${step}`),
+    ``,
+    `## Maintainer question`,
+    issue.maintainerQuestionDraft
+  ].join("\n");
+
+  return {
+    proposalId: issue.id,
+    issueId: issue.id,
+    upstreamRepoFullName: issue.repoFullName,
+    upstreamIssueUrl: issue.issueUrl,
+    branchName,
+    commitMessage,
+    prTitle,
+    prBody,
+    testEvidence: issue.testingStrategy.join("\n"),
+    suggestedChanges: buildSuggestedChanges(issue),
+    generatedAt: new Date().toISOString(),
+    mode: "draft",
+    ...issue.jobMode
+  };
 }

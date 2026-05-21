@@ -1,4 +1,5 @@
 export type Difficulty = "starter" | "steady" | "stretch";
+export type ContributionSafetyLevel = "research" | "draft" | "approved-pr";
 
 export type PortfolioStatus =
   | "discovered"
@@ -39,6 +40,12 @@ export interface JobModeDrafts {
   interviewStarStory: string;
   recruiterOutreach: string;
   githubProfileSnippet: string;
+}
+
+export interface SuggestedFileChange {
+  path: string;
+  content: string;
+  rationale: string;
 }
 
 export interface ContributionPlan {
@@ -91,6 +98,35 @@ export interface DailyPlan {
   topOpportunities: DailyPlanOpportunity[];
 }
 
+export interface ControlModeState {
+  safetyLevel: ContributionSafetyLevel;
+  approvalRequired: boolean;
+  approvalGrantedAt: string | null;
+  approvalReason: string;
+  lastUpdatedAt: string;
+}
+
+export interface DraftProposal extends JobModeDrafts {
+  proposalId: string;
+  issueId: string;
+  upstreamRepoFullName: string;
+  upstreamIssueUrl: string;
+  branchName: string;
+  commitMessage: string;
+  prTitle: string;
+  prBody: string;
+  testEvidence: string;
+  suggestedChanges: SuggestedFileChange[];
+  generatedAt: string;
+  mode: Extract<ContributionSafetyLevel, "draft">;
+}
+
+export interface PullRequestActivity {
+  upstreamRepoFullName: string;
+  draftPullRequestUrl: string;
+  createdAt: string;
+}
+
 export interface PortfolioEntry extends JobModeDrafts {
   id: string;
   selectedRepo: string;
@@ -107,4 +143,22 @@ export interface PortfolioEntry extends JobModeDrafts {
 export interface PlanningIssueRequest {
   title?: string;
   body?: string;
+}
+
+export interface ControlModeUpdateRequest {
+  safetyLevel: ContributionSafetyLevel;
+  approvalReason?: string;
+  explicitApproval?: boolean;
+}
+
+export interface DraftProposalRequest {
+  issue: IssueCandidate;
+}
+
+export interface ApprovedPullRequestRequest {
+  issue: IssueCandidate;
+  proposal: DraftProposal;
+  forkOwner: string;
+  approvalReason: string;
+  explicitApproval: boolean;
 }

@@ -1,6 +1,13 @@
 import { Octokit } from "@octokit/rest";
 import { config, defaultFilters } from "./config.js";
-import type { DiscoveryFilters, RawIssueCandidate } from "./types.js";
+import type {
+  ApprovedPullRequestRequest,
+  ControlModeState,
+  DiscoveryFilters,
+  DraftProposal,
+  PullRequestActivity,
+  RawIssueCandidate
+} from "./types.js";
 
 const mockIssues: RawIssueCandidate[] = [
   {
@@ -61,6 +68,16 @@ const mockIssues: RawIssueCandidate[] = [
 
 function getOctokit(token: string): Octokit | null {
   return token ? new Octokit({ auth: token }) : null;
+}
+
+function requireOctokit(): Octokit {
+  const octokit = getOctokit(config.githubToken);
+
+  if (!octokit) {
+    throw new Error("A GitHub token is required for this action.");
+  }
+
+  return octokit;
 }
 
 function normalizeFilters(filters?: Partial<DiscoveryFilters>): DiscoveryFilters {
@@ -196,5 +213,133 @@ export async function createPlanningIssue(title: string, body: string): Promise<
     created: true,
     issueUrl: issue.data.html_url,
     message: "Planning issue created in contributorOps."
+  };
+}
+
+async function ensureForkRepository(
+  octokit: Octokit,
+  upstreamOwner: string,
+  upstreamRepo: string,
+  forkOwner: string
+) {
+  try {
+    const fork = await octokit.repos.get({
+      owner: forkOwner,
+      repo: upstreamRepo
+    });
+    return fork.data;
+  } catch {
+    const createdFork = await octokit.repos.createFork({
+      owner: upstreamOwner,
+      repo: upstreamRepo
+    });
+
+    if (createdFork.data.owner?.login?.toLowerCase() !== forkOwner.toLowerCase()) {
+      throw new Error(
+        `ContributorOps could not confirm a fork under ${forkOwner}. Create the fork manually first, then retry Approved PR Mode.`
+      );
+    }
+
+    return createdFork.data;
+  }
+}
+
+export async function createApprovedDraftPullRequest(
+  request: ApprovedPullRequestRequest,
+  controlMode: ControlModeState,
+  activity: PullRequestActivity[]
+): Promise<{ draftPullRequestUrl: string; branchName: string }> {
+  if (controlMode.safetyLevel !== "approved-pr") {
+    throw new Error("Approved PR Mode is required before ContributorOps can write to a fork.");
+  }
+
+  if (!request.explicitApproval || !request.approvalReason.trim()) {
+    throw new Error("Explicit user approval and a human approval reason are required.");
+  }
+
+  if (!request.proposal.prBody.trim() || !request.proposal.testEvidence.trim()) {
+    throw new Error("PR body and test evidence must be present before opening a draft PR.");
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const alreadyOpenedToday = activity.some(
+    (entry) =>
+      entry.upstreamRepoFullName === request.issue.repoFullName &&
+      entry.createdAt.slice(0, 10) === today
+  );
+
+  if (alreadyOpenedToday) {
+    throw new Error("ContributorOps will not open more than one draft PR per upstream repo per day.");
+  }
+
+  const [upstreamOwner, upstreamRepo] = request.issue.repoFullName.split("/");
+  const octokit = requireOctokit();
+  const upstream = await octokit.repos.get({
+    owner: upstreamOwner,
+    repo: upstreamRepo
+  });
+  const fork = await ensureForkRepository(octokit, upstreamOwner, upstreamRepo, request.forkOwner);
+  const baseBranch = upstream.data.default_branch;
+  const forkBaseRef = await octokit.git.getRef({
+    owner: request.forkOwner,
+    repo: upstreamRepo,
+    ref: `heads/${fork.default_branch || baseBranch}`
+  });
+  const branchName = `${request.proposal.branchName}-${Date.now().toString().slice(-6)}`;
+
+  await octokit.git.createRef({
+    owner: request.forkOwner,
+    repo: upstreamRepo,
+    ref: `refs/heads/${branchName}`,
+    sha: forkBaseRef.data.object.sha
+  });
+
+  const baseCommit = await octokit.git.getCommit({
+    owner: request.forkOwner,
+    repo: upstreamRepo,
+    commit_sha: forkBaseRef.data.object.sha
+  });
+
+  const tree = await octokit.git.createTree({
+    owner: request.forkOwner,
+    repo: upstreamRepo,
+    base_tree: baseCommit.data.tree.sha,
+    tree: request.proposal.suggestedChanges.map((change) => ({
+      path: change.path,
+      mode: "100644",
+      type: "blob",
+      content: change.content
+    }))
+  });
+
+  const commit = await octokit.git.createCommit({
+    owner: request.forkOwner,
+    repo: upstreamRepo,
+    message: request.proposal.commitMessage,
+    tree: tree.data.sha,
+    parents: [forkBaseRef.data.object.sha]
+  });
+
+  await octokit.git.updateRef({
+    owner: request.forkOwner,
+    repo: upstreamRepo,
+    ref: `heads/${branchName}`,
+    sha: commit.data.sha,
+    force: true
+  });
+
+  const pullRequest = await octokit.pulls.create({
+    owner: upstreamOwner,
+    repo: upstreamRepo,
+    head: `${request.forkOwner}:${branchName}`,
+    base: baseBranch,
+    title: request.proposal.prTitle,
+    body: `${request.proposal.prBody}\n\n## Human approval note\n${request.approvalReason}`,
+    draft: true
+  });
+
+  return {
+    draftPullRequestUrl: pullRequest.data.html_url,
+    branchName
   };
 }

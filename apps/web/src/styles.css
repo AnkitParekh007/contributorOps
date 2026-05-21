@@ -395,6 +395,69 @@ a {
   padding-bottom: 22px;
 }
 
+.mode-grid,
+.draft-layout {
+  display: grid;
+  gap: 16px;
+  padding: 18px 22px 22px;
+}
+
+.mode-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mode-card {
+  min-width: 0;
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(132, 164, 211, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.mode-card.active {
+  border-color: rgba(79, 209, 197, 0.32);
+  background: rgba(79, 209, 197, 0.08);
+}
+
+.mode-card p,
+.approval-box .muted-copy,
+.padded-note {
+  color: var(--muted);
+}
+
+.approval-box {
+  display: grid;
+  gap: 14px;
+  padding: 0 22px 22px;
+}
+
+.contribution-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px 22px 0;
+}
+
+.draft-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.full-span {
+  grid-column: 1 / -1;
+}
+
+.suggested-change-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.padded-note {
+  padding: 18px 22px 22px;
+}
+
 .detail-grid,
 .job-mode-grid {
   display: grid;
@@ -588,7 +651,9 @@ select {
 
   .detail-grid,
   .job-mode-grid,
-  .editor-grid {
+  .editor-grid,
+  .mode-grid,
+  .draft-layout {
     grid-template-columns: 1fr;
   }
 

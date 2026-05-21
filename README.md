@@ -4,6 +4,36 @@ ContributorOps is a production-oriented contribution planning app for backend, A
 
 It is intentionally **not** a spam bot.
 
+## Controlled contribution mode
+
+ContributorOps supports three explicit safety levels.
+
+### Level 1: Research Mode
+
+- discover repos and issues
+- score opportunities
+- generate contribution plans
+- no GitHub writes except local portfolio tracking
+
+### Level 2: Draft Mode
+
+- generate suggested code changes locally
+- generate branch name, commit message, and PR body
+- create planning issues only in `contributorOps`
+- never push to external repos
+
+### Level 3: Approved PR Mode
+
+- only after explicit user approval
+- uses the user's fork of the external repo, or creates a fork only when the authenticated GitHub account matches the requested fork owner
+- creates a branch in the user's fork
+- commits proposed changes to the user's fork
+- opens a **draft** pull request against upstream
+- never marks ready for review automatically
+- never comments repeatedly
+- never opens more than one PR per repo per day
+- always requires a clear human-written PR description and test evidence
+
 ## What the app does
 
 - discovers daily contribution opportunities across API, SDK, GraphQL, REST, and developer-tooling repositories
@@ -169,6 +199,8 @@ If `GITHUB_TOKEN` is present:
 ## API endpoints
 
 - `GET /api/health`
+- `GET /api/control-mode`
+- `POST /api/control-mode`
 - `POST /api/discover`
 - `GET /api/daily-plan`
 - `POST /api/portfolio`
@@ -176,6 +208,8 @@ If `GITHUB_TOKEN` is present:
 - `PATCH /api/portfolio/:id`
 - `DELETE /api/portfolio/:id`
 - `POST /api/create-planning-issue`
+- `POST /api/draft-proposal`
+- `POST /api/approved-pr`
 
 ## Scoring model
 
@@ -213,6 +247,38 @@ The daily plan includes:
 - PR draft
 - resume bullet
 - checklist
+
+## Draft and approved PR flow
+
+### Draft Mode output
+
+For a selected issue, ContributorOps generates:
+
+- suggested local file changes
+- branch name
+- commit message
+- draft PR title
+- draft PR body
+- test evidence template
+
+These stay local until you explicitly move into Approved PR Mode.
+
+### Approved PR Mode output
+
+Approved PR Mode can:
+
+1. validate explicit human approval
+2. verify the daily PR rate limit for the target upstream repo
+3. create or use your fork
+4. create a branch in your fork
+5. commit the proposed files to your fork
+6. open a **draft** PR against upstream
+
+It does **not**:
+
+- mark the PR ready for review
+- auto-comment on the issue or PR
+- open repeated PRs for the same upstream repo in one day
 
 ## GitHub Actions setup
 

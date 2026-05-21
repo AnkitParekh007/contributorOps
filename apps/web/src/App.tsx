@@ -2,12 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, GitBranchPlus } from "lucide-react";
 import { apiClient } from "./api/client";
 import { CandidateList } from "./components/CandidateList";
+import { ControlModePanel } from "./components/ControlModePanel";
+import { ContributionModePanel } from "./components/ContributionModePanel";
 import { DiscoveryControls } from "./components/DiscoveryControls";
 import { IssueDetailPanel } from "./components/IssueDetailPanel";
 import { JobModePanel } from "./components/JobModePanel";
 import { MissionCard } from "./components/MissionCard";
 import { PortfolioTracker } from "./components/PortfolioTracker";
-import type { DailyPlan, DiscoveryFilters, IssueCandidate, PortfolioEntry } from "./types";
+import type {
+  ControlModeState,
+  DailyPlan,
+  DiscoveryFilters,
+  DraftProposal,
+  IssueCandidate,
+  PortfolioEntry
+} from "./types";
 
 const defaultFilters: DiscoveryFilters = {
   topics: ["openapi", "sdk", "api-client", "graphql", "rest-api", "developer-tools"],
@@ -18,12 +27,23 @@ const defaultFilters: DiscoveryFilters = {
 function App() {
   const [modeLabel, setModeLabel] = useState("demo mode");
   const [filters, setFilters] = useState<DiscoveryFilters>(defaultFilters);
+  const [controlMode, setControlMode] = useState<ControlModeState>({
+    safetyLevel: "research",
+    approvalRequired: true,
+    approvalGrantedAt: null,
+    approvalReason: "",
+    lastUpdatedAt: ""
+  });
   const [issues, setIssues] = useState<IssueCandidate[]>([]);
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [dailyPlan, setDailyPlan] = useState<DailyPlan | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioEntry[]>([]);
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(null);
   const [planningIssueMessage, setPlanningIssueMessage] = useState<string>("");
+  const [approvalReason, setApprovalReason] = useState("");
+  const [draftProposal, setDraftProposal] = useState<DraftProposal | null>(null);
+  const [forkOwner, setForkOwner] = useState("");
+  const [prResultMessage, setPrResultMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -35,6 +55,8 @@ function App() {
     Promise.all([apiClient.health(), apiClient.getDailyPlan(), apiClient.getPortfolio()])
       .then(([health, plan, entries]) => {
         setModeLabel(health.mode === "github" ? "live GitHub mode" : "demo mode");
+        setControlMode(health.controlMode);
+        setApprovalReason(health.controlMode.approvalReason);
         setDailyPlan(plan.generatedAt ? plan : null);
         setPortfolio(entries);
         setSelectedPortfolioId(entries[0]?.id ?? null);
@@ -60,8 +82,34 @@ function App() {
       setSelectedIssueId(result.issues[0]?.id ?? null);
       setDailyPlan(result.dailyPlan);
       setPlanningIssueMessage("");
+      setDraftProposal(null);
+      setPrResultMessage("");
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Failed to generate plan.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const changeControlMode = async (
+    safetyLevel: ControlModeState["safetyLevel"],
+    options?: { explicitApproval?: boolean; approvalReason?: string }
+  ) => {
+    setError("");
+    setIsLoading(true);
+    try {
+      const updated = await apiClient.updateControlMode({
+        safetyLevel,
+        explicitApproval: options?.explicitApproval,
+        approvalReason: options?.approvalReason ?? approvalReason
+      });
+      setControlMode(updated);
+      setApprovalReason(updated.approvalReason);
+      if (updated.safetyLevel === "research") {
+        setDraftProposal(null);
+      }
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to update safety mode.");
     } finally {
       setIsLoading(false);
     }
@@ -104,11 +152,69 @@ function App() {
       return;
     }
 
-    const result = await apiClient.createPlanningIssue(
-      `ContributorOps daily plan ${new Date().toISOString().slice(0, 10)}`,
-      dailyPlan.markdown
-    );
-    setPlanningIssueMessage(result.issueUrl ? `${result.message} ${result.issueUrl}` : result.message);
+    try {
+      const result = await apiClient.createPlanningIssue(
+        `ContributorOps daily plan ${new Date().toISOString().slice(0, 10)}`,
+        dailyPlan.markdown
+      );
+      setPlanningIssueMessage(result.issueUrl ? `${result.message} ${result.issueUrl}` : result.message);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to create planning issue.");
+    }
+  };
+
+  const generateDraftProposal = async () => {
+    if (!selectedIssue) {
+      return;
+    }
+
+    setError("");
+    setIsLoading(true);
+    try {
+      const proposal = await apiClient.createDraftProposal(selectedIssue);
+      setDraftProposal(proposal);
+      setPrResultMessage("");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to generate draft proposal.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const openApprovedDraftPullRequest = async () => {
+    if (!selectedIssue || !draftProposal) {
+      return;
+    }
+
+    setError("");
+    setIsLoading(true);
+    try {
+      const result = await apiClient.createApprovedPullRequest({
+        issue: selectedIssue,
+        proposal: draftProposal,
+        forkOwner,
+        approvalReason,
+        explicitApproval: true
+      });
+      setPrResultMessage(`Draft PR opened: ${result.draftPullRequestUrl}`);
+      const matchingEntry =
+        selectedPortfolioEntry?.issueUrl === selectedIssue.issueUrl
+          ? selectedPortfolioEntry
+          : portfolio.find((entry) => entry.issueUrl === selectedIssue.issueUrl) || null;
+
+      if (matchingEntry) {
+        const nextEntry = {
+          ...matchingEntry,
+          prUrl: result.draftPullRequestUrl,
+          status: "PR opened" as const
+        };
+        await persistPortfolioEntry(nextEntry);
+      }
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to open draft PR.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const topOpportunityCount = useMemo(() => dailyPlan?.topOpportunities.length ?? 0, [dailyPlan]);
@@ -154,6 +260,13 @@ function App() {
 
           <div className="layout-grid">
             <div className="main-column">
+              <ControlModePanel
+                controlMode={controlMode}
+                approvalReason={approvalReason}
+                isUpdating={isLoading}
+                onApprovalReasonChange={setApprovalReason}
+                onChangeMode={changeControlMode}
+              />
               <DiscoveryControls
                 filters={filters}
                 isLoading={isLoading}
@@ -164,6 +277,20 @@ function App() {
                 issues={issues}
                 selectedId={selectedIssueId}
                 onSelect={(issue) => setSelectedIssueId(issue.id)}
+              />
+              <ContributionModePanel
+                controlMode={controlMode}
+                issue={selectedIssue}
+                proposal={draftProposal}
+                isLoading={isLoading}
+                forkOwner={forkOwner}
+                approvalReason={approvalReason}
+                prResultMessage={prResultMessage}
+                onForkOwnerChange={setForkOwner}
+                onProposalChange={setDraftProposal}
+                onGenerateDraft={generateDraftProposal}
+                onCreatePlanningIssue={createPlanningIssue}
+                onOpenDraftPullRequest={openApprovedDraftPullRequest}
               />
               <IssueDetailPanel issue={selectedIssue} onSaveToPortfolio={saveIssueToPortfolio} />
             </div>

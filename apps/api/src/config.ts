@@ -18,6 +18,8 @@ export const config = {
   dataDir: path.join(repoRoot, "data"),
   portfolioPath: path.join(repoRoot, "data", "portfolio.json"),
   dailyPlanPath: path.join(repoRoot, "data", "daily-plan.json"),
+  controlModePath: path.join(repoRoot, "data", "control-mode.json"),
+  prActivityPath: path.join(repoRoot, "data", "pr-activity.json"),
   webDistPath: path.join(repoRoot, "apps", "web", "dist")
 };
 
