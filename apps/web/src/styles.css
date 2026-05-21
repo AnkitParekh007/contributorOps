@@ -122,6 +122,30 @@ a {
   color: var(--muted);
 }
 
+.sidebar-nav {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.sidebar-nav-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(132, 164, 211, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.sidebar-nav-button.active {
+  border-color: rgba(79, 209, 197, 0.32);
+  background: rgba(79, 209, 197, 0.1);
+}
+
 .main-content {
   padding: 24px;
 }
@@ -181,6 +205,10 @@ a {
   background: rgba(255, 255, 255, 0.04);
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.pill-warning {
+  color: #f6d98c;
 }
 
 .mission-card {
@@ -458,6 +486,107 @@ a {
   padding: 18px 22px 22px;
 }
 
+.auto-page-grid,
+.auto-summary-grid,
+.run-detail-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.auto-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 18px 22px 0;
+}
+
+.run-detail-grid {
+  padding: 18px 22px 22px;
+}
+
+.mode-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 18px 22px 0;
+}
+
+.run-history-list {
+  display: grid;
+  gap: 10px;
+  padding: 18px 22px 22px;
+}
+
+.run-history-item {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(132, 164, 211, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.run-history-item strong,
+.run-history-item span,
+.run-history-item small {
+  display: block;
+}
+
+.check-list {
+  display: grid;
+  gap: 10px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.check-item {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(132, 164, 211, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.check-item strong,
+.check-item span {
+  display: block;
+}
+
+.check-item span {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.check-item.passed.info {
+  border-color: rgba(74, 222, 128, 0.2);
+}
+
+.check-item.failed.warning {
+  border-color: rgba(247, 198, 92, 0.22);
+}
+
+.check-item.failed.error {
+  border-color: rgba(255, 117, 135, 0.22);
+}
+
+.diff-block + .diff-block {
+  margin-top: 14px;
+}
+
+.tone-success {
+  color: #aaf0be;
+}
+
+.tone-warning {
+  color: #f6d98c;
+}
+
+.tone-danger {
+  color: #ffb7c2;
+}
+
+.tone-info {
+  color: #8fdcff;
+}
+
 .detail-grid,
 .job-mode-grid {
   display: grid;
@@ -653,7 +782,9 @@ select {
   .job-mode-grid,
   .editor-grid,
   .mode-grid,
-  .draft-layout {
+  .draft-layout,
+  .auto-summary-grid,
+  .mode-selector-grid {
     grid-template-columns: 1fr;
   }
 

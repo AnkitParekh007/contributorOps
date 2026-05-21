@@ -11,6 +11,7 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GH_CONTRIBUTOROPS_TOKEN }}
       GH_CONTRIBUTOROPS_TOKEN: ${{ secrets.GH_CONTRIBUTOROPS_TOKEN }}
+      AUTO_CONTRIBUTE_ENABLED: "false"
       CREATE_DAILY_ISSUE: ${{ vars.CREATE_DAILY_ISSUE || 'false' }}
       CONTRIBUTOROPS_OWNER: AnkitParekh007
       CONTRIBUTOROPS_REPO: contributorOps

@@ -1,12 +1,14 @@
 import { Octokit } from "@octokit/rest";
 import { config, defaultFilters } from "./config.js";
+import { readPullRequestActivity } from "./storage.js";
 import type {
   ApprovedPullRequestRequest,
+  ContributionRun,
   ControlModeState,
   DiscoveryFilters,
-  DraftProposal,
   PullRequestActivity,
-  RawIssueCandidate
+  RawIssueCandidate,
+  SafetyCheckResult
 } from "./types.js";
 
 const mockIssues: RawIssueCandidate[] = [
@@ -244,6 +246,182 @@ async function ensureForkRepository(
   }
 }
 
+function sameDayCount(urls: PullRequestActivity[], date: string): number {
+  return urls.filter((entry) => entry.createdAt.slice(0, 10) === date).length;
+}
+
+function addCheck(
+  checks: SafetyCheckResult[],
+  key: string,
+  passed: boolean,
+  detail: string,
+  severity: SafetyCheckResult["severity"]
+) {
+  checks.push({ key, passed, detail, severity });
+}
+
+export async function fetchIssueSafetyContext(
+  issue: RawIssueCandidate | ContributionRun["issue"],
+  _controlMode: ControlModeState
+): Promise<{ safetyChecks: SafetyCheckResult[] }> {
+  const checks: SafetyCheckResult[] = [];
+  const [owner, repo] = issue.repoFullName.split("/");
+
+  if (!config.githubToken || !config.githubUsername) {
+    addCheck(checks, "auth", false, "GitHub token or username missing. ContributorOps will stay in dry-run mode.", "warning");
+    addCheck(checks, "issue-open", true, "Demo mode cannot verify live issue state. Assuming issue remains open for preview.", "info");
+    return { safetyChecks: checks };
+  }
+
+  const octokit = requireOctokit();
+  const repoData = await octokit.repos.get({ owner, repo });
+  const issueData = await octokit.issues.get({ owner, repo, issue_number: issue.issueNumber });
+  const userOpenPulls = await octokit.pulls.list({
+    owner,
+    repo,
+    state: "open",
+    per_page: 100
+  });
+  const issueComments = await octokit.issues.listComments({
+    owner,
+    repo,
+    issue_number: issue.issueNumber,
+    per_page: 100
+  });
+
+  const today = new Date().toISOString().slice(0, 10);
+  const userOpenPrForIssue = userOpenPulls.data.some(
+    (pullRequest) =>
+      pullRequest.user?.login?.toLowerCase() === config.githubUsername.toLowerCase() &&
+      (pullRequest.body || "").includes(`#${issue.issueNumber}`)
+  );
+  const duplicateComment = issueComments.data.some(
+    (comment) => comment.user?.login?.toLowerCase() === config.githubUsername.toLowerCase()
+  );
+
+  addCheck(checks, "issue-open", issueData.data.state === "open", "Issue must be open.", issueData.data.state === "open" ? "info" : "error");
+  addCheck(checks, "repo-active", !repoData.data.archived, "Repository must not be archived.", !repoData.data.archived ? "info" : "error");
+  addCheck(
+    checks,
+    "recent-activity",
+    new Date(repoData.data.updated_at).getTime() > Date.now() - 90 * 86_400_000,
+    "Repository should have recent activity within the last 90 days.",
+    new Date(repoData.data.updated_at).getTime() > Date.now() - 90 * 86_400_000 ? "info" : "warning"
+  );
+  addCheck(
+    checks,
+    "issue-fit",
+    issue.labels.some((label) => /good first issue|help wanted|documentation|bug/i.test(label)) ||
+      ("summary" in issue ? issue.summary.length > 100 : issue.issueBody.trim().length > 120),
+    "Issue should have a helpful label or a clear reproducible description.",
+    issue.labels.some((label) => /good first issue|help wanted|documentation|bug/i.test(label)) ||
+      ("summary" in issue ? issue.summary.length > 100 : issue.issueBody.trim().length > 120)
+      ? "info"
+      : "warning"
+  );
+  addCheck(
+    checks,
+    "duplicate-pr",
+    !userOpenPrForIssue,
+    "No existing open PR from this user should target the same issue.",
+    !userOpenPrForIssue ? "info" : "error"
+  );
+  addCheck(
+    checks,
+    "duplicate-comment",
+    !duplicateComment,
+    "No duplicate user comment should already exist on the issue.",
+    !duplicateComment ? "info" : "error"
+  );
+
+  const activityCountsToday = sameDayCount(await readPullRequestActivity(), today);
+  addCheck(
+    checks,
+    "daily-pr-limit",
+    activityCountsToday < config.autoPrDailyLimit,
+    `No more than ${config.autoPrDailyLimit} external PRs per day.`,
+    activityCountsToday < config.autoPrDailyLimit ? "info" : "error"
+  );
+
+  return { safetyChecks: checks };
+}
+
+export async function postApprovedIssueComment(
+  run: ContributionRun,
+  approvalReason: string
+): Promise<{ commentUrl: string }> {
+  const [owner, repo] = run.targetRepo.split("/");
+  const octokit = requireOctokit();
+
+  const comments = await octokit.issues.listComments({
+    owner,
+    repo,
+    issue_number: run.issueNumber,
+    per_page: 100
+  });
+
+  const duplicateComment = comments.data.some(
+    (comment) => comment.user?.login?.toLowerCase() === config.githubUsername.toLowerCase()
+  );
+
+  if (duplicateComment) {
+    throw new Error("ContributorOps will not post a duplicate comment on this issue.");
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const todayCommentCount = comments.data.filter(
+    (comment) =>
+      comment.user?.login?.toLowerCase() === config.githubUsername.toLowerCase() &&
+      comment.created_at.slice(0, 10) === today
+  ).length;
+
+  if (todayCommentCount >= config.autoCommentDailyLimit) {
+    throw new Error(`ContributorOps reached the daily comment limit of ${config.autoCommentDailyLimit}.`);
+  }
+
+  const comment = await octokit.issues.createComment({
+    owner,
+    repo,
+    issue_number: run.issueNumber,
+    body: `${run.commentDraft}\n\nApproval note: ${approvalReason}`
+  });
+
+  return {
+    commentUrl: comment.data.html_url
+  };
+}
+
+export async function createApprovedForkBranch(
+  request: ApprovedPullRequestRequest
+): Promise<{ branchName: string; forkRepo: string }> {
+  const [upstreamOwner, upstreamRepo] = request.issue.repoFullName.split("/");
+  const octokit = requireOctokit();
+  const upstream = await octokit.repos.get({
+    owner: upstreamOwner,
+    repo: upstreamRepo
+  });
+  const fork = await ensureForkRepository(octokit, upstreamOwner, upstreamRepo, request.forkOwner);
+  const baseBranch = fork.default_branch || upstream.data.default_branch;
+  const baseRef = await octokit.git.getRef({
+    owner: request.forkOwner,
+    repo: upstreamRepo,
+    ref: `heads/${baseBranch}`
+  });
+  const branchName = `${request.proposal.branchName}-${Date.now().toString().slice(-6)}`;
+
+  await octokit.git.createRef({
+    owner: request.forkOwner,
+    repo: upstreamRepo,
+    ref: `refs/heads/${branchName}`,
+    sha: baseRef.data.object.sha
+  });
+
+  return {
+    branchName,
+    forkRepo: `${request.forkOwner}/${upstreamRepo}`
+  };
+}
+
 export async function createApprovedDraftPullRequest(
   request: ApprovedPullRequestRequest,
   controlMode: ControlModeState,
@@ -267,9 +445,13 @@ export async function createApprovedDraftPullRequest(
       entry.upstreamRepoFullName === request.issue.repoFullName &&
       entry.createdAt.slice(0, 10) === today
   );
+  const totalPrsToday = sameDayCount(activity, today);
 
   if (alreadyOpenedToday) {
     throw new Error("ContributorOps will not open more than one draft PR per upstream repo per day.");
+  }
+  if (totalPrsToday >= config.autoPrDailyLimit) {
+    throw new Error(`ContributorOps will not open more than ${config.autoPrDailyLimit} external PRs per day.`);
   }
 
   const [upstreamOwner, upstreamRepo] = request.issue.repoFullName.split("/");
@@ -280,19 +462,30 @@ export async function createApprovedDraftPullRequest(
   });
   const fork = await ensureForkRepository(octokit, upstreamOwner, upstreamRepo, request.forkOwner);
   const baseBranch = upstream.data.default_branch;
-  const forkBaseRef = await octokit.git.getRef({
-    owner: request.forkOwner,
-    repo: upstreamRepo,
-    ref: `heads/${fork.default_branch || baseBranch}`
-  });
-  const branchName = `${request.proposal.branchName}-${Date.now().toString().slice(-6)}`;
+  let branchName = request.proposal.branchName;
+  let forkBaseRef;
 
-  await octokit.git.createRef({
-    owner: request.forkOwner,
-    repo: upstreamRepo,
-    ref: `refs/heads/${branchName}`,
-    sha: forkBaseRef.data.object.sha
-  });
+  try {
+    forkBaseRef = await octokit.git.getRef({
+      owner: request.forkOwner,
+      repo: upstreamRepo,
+      ref: `heads/${branchName}`
+    });
+  } catch {
+    forkBaseRef = await octokit.git.getRef({
+      owner: request.forkOwner,
+      repo: upstreamRepo,
+      ref: `heads/${fork.default_branch || baseBranch}`
+    });
+    branchName = `${request.proposal.branchName}-${Date.now().toString().slice(-6)}`;
+
+    await octokit.git.createRef({
+      owner: request.forkOwner,
+      repo: upstreamRepo,
+      ref: `refs/heads/${branchName}`,
+      sha: forkBaseRef.data.object.sha
+    });
+  }
 
   const baseCommit = await octokit.git.getCommit({
     owner: request.forkOwner,
@@ -334,7 +527,7 @@ export async function createApprovedDraftPullRequest(
     head: `${request.forkOwner}:${branchName}`,
     base: baseBranch,
     title: request.proposal.prTitle,
-    body: `${request.proposal.prBody}\n\n## Human approval note\n${request.approvalReason}`,
+    body: `${request.proposal.prBody}\n\n## Human approval note\n${request.approvalReason}\n\nI used AI assistance to help draft and review this change, and manually reviewed the final diff.`,
     draft: true
   });
 

@@ -4,11 +4,20 @@ import path from "node:path";
 import cors from "cors";
 import express from "express";
 import { config } from "./config.js";
+import {
+  approveContributionBranch,
+  approveContributionComment,
+  approveContributionDraftPr,
+  cancelContributionRun,
+  markContributionRunError,
+  prepareContributionRun
+} from "./contribute.js";
 import { runDailyPlan } from "./daily.js";
 import { createApprovedDraftPullRequest, createPlanningIssue, discoverIssues } from "./github.js";
 import { buildDailyPlan, buildDraftProposal, buildIssueCandidate } from "./planner.js";
 import {
   readControlMode,
+  readContributionRuns,
   readDailyPlan,
   readPortfolio,
   readPullRequestActivity,
@@ -19,10 +28,12 @@ import {
 } from "./storage.js";
 import type {
   ApprovedPullRequestRequest,
+  ContributionApprovalRequest,
   ControlModeUpdateRequest,
   DailyPlan,
   DraftProposalRequest,
   DiscoveryFilters,
+  PrepareContributionRequest,
   PlanningIssueRequest,
   PortfolioEntry
 } from "./types.js";
@@ -39,6 +50,7 @@ app.get("/api/health", async (_request, response, next) => {
       ok: true,
       mode: config.githubToken ? "github" : "demo",
       createDailyIssue: config.createDailyIssue,
+      autoContributeEnabled: config.autoContributeEnabled,
       controlMode
     });
   } catch (error) {
@@ -201,6 +213,88 @@ app.post("/api/draft-proposal", async (request, response, next) => {
 
     const body = request.body as DraftProposalRequest;
     response.json(buildDraftProposal(body.issue));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/contribute/prepare", async (request, response, next) => {
+  try {
+    const body = request.body as PrepareContributionRequest;
+    response.json(await prepareContributionRun(body));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/contribute/approve-comment", async (request, response, next) => {
+  try {
+    response.json(await approveContributionComment(request.body as ContributionApprovalRequest));
+  } catch (error) {
+    const body = request.body as Partial<ContributionApprovalRequest>;
+    if (body.runId) {
+      await markContributionRunError(body.runId, error instanceof Error ? error.message : "Unknown comment approval error.");
+    }
+    next(error);
+  }
+});
+
+app.post("/api/contribute/approve-branch", async (request, response, next) => {
+  try {
+    response.json(
+      await approveContributionBranch(
+        request.body as ContributionApprovalRequest & { forkOwner: string }
+      )
+    );
+  } catch (error) {
+    const body = request.body as Partial<ContributionApprovalRequest>;
+    if (body.runId) {
+      await markContributionRunError(body.runId, error instanceof Error ? error.message : "Unknown branch approval error.");
+    }
+    next(error);
+  }
+});
+
+app.post("/api/contribute/approve-draft-pr", async (request, response, next) => {
+  try {
+    response.json(
+      await approveContributionDraftPr(
+        request.body as ContributionApprovalRequest & { forkOwner: string }
+      )
+    );
+  } catch (error) {
+    const body = request.body as Partial<ContributionApprovalRequest>;
+    if (body.runId) {
+      await markContributionRunError(body.runId, error instanceof Error ? error.message : "Unknown draft PR approval error.");
+    }
+    next(error);
+  }
+});
+
+app.get("/api/contribute/runs", async (_request, response, next) => {
+  try {
+    response.json(await readContributionRuns());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/contribute/runs/:id", async (request, response, next) => {
+  try {
+    const run = (await readContributionRuns()).find((entry) => entry.id === request.params.id);
+    if (!run) {
+      response.status(404).json({ message: "Contribution run not found." });
+      return;
+    }
+    response.json(run);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/contribute/runs/:id/cancel", async (request, response, next) => {
+  try {
+    response.json(await cancelContributionRun(request.params.id, request.body?.reason || "Cancelled by user."));
   } catch (error) {
     next(error);
   }

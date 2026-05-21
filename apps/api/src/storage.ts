@@ -1,7 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { config } from "./config.js";
-import type { ControlModeState, DailyPlan, PortfolioEntry, PullRequestActivity } from "./types.js";
+import type {
+  ContributionRun,
+  ControlModeState,
+  DailyPlan,
+  PortfolioEntry,
+  PullRequestActivity
+} from "./types.js";
 
 async function ensureFile<T>(filePath: string, fallback: T): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -67,4 +73,12 @@ export async function writePullRequestActivity(
   activity: PullRequestActivity[]
 ): Promise<PullRequestActivity[]> {
   return writeJsonFile(config.prActivityPath, activity);
+}
+
+export async function readContributionRuns(): Promise<ContributionRun[]> {
+  return readJsonFile(config.contributionRunsPath, []);
+}
+
+export async function writeContributionRuns(runs: ContributionRun[]): Promise<ContributionRun[]> {
+  return writeJsonFile(config.contributionRunsPath, runs);
 }

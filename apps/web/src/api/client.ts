@@ -1,4 +1,6 @@
 import type {
+  ContributionExecutionMode,
+  ContributionRun,
   ControlModeState,
   DailyPlan,
   DiscoverResponse,
@@ -84,5 +86,49 @@ export const apiClient = {
     request<{ draftPullRequestUrl: string; branchName: string }>("/api/approved-pr", {
       method: "POST",
       body: JSON.stringify(payload)
+    }),
+  prepareContributionRun: (payload: { mode: ContributionExecutionMode; issue: IssueCandidate }) =>
+    request<ContributionRun>("/api/contribute/prepare", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  approveContributionComment: (payload: {
+    runId: string;
+    userApprovalToken: string;
+    approvalReason: string;
+    explicitApproval: boolean;
+  }) =>
+    request<ContributionRun>("/api/contribute/approve-comment", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  approveContributionBranch: (payload: {
+    runId: string;
+    userApprovalToken: string;
+    approvalReason: string;
+    explicitApproval: boolean;
+    forkOwner: string;
+  }) =>
+    request<ContributionRun>("/api/contribute/approve-branch", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  approveContributionDraftPr: (payload: {
+    runId: string;
+    userApprovalToken: string;
+    approvalReason: string;
+    explicitApproval: boolean;
+    forkOwner: string;
+  }) =>
+    request<ContributionRun>("/api/contribute/approve-draft-pr", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    }),
+  getContributionRuns: () => request<ContributionRun[]>("/api/contribute/runs"),
+  getContributionRun: (id: string) => request<ContributionRun>(`/api/contribute/runs/${id}`),
+  cancelContributionRun: (id: string, reason: string) =>
+    request<ContributionRun>(`/api/contribute/runs/${id}/cancel`, {
+      method: "POST",
+      body: JSON.stringify({ reason })
     })
 };

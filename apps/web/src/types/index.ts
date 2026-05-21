@@ -1,5 +1,16 @@
 export type Difficulty = "starter" | "steady" | "stretch";
 export type ContributionSafetyLevel = "research" | "draft" | "approved-pr";
+export type ContributionExecutionMode = "research" | "draft" | "approved-auto-contribute";
+export type ContributionRunStatus =
+  | "prepared"
+  | "comment approved"
+  | "branch approved"
+  | "draft pr approved"
+  | "completed"
+  | "cancelled"
+  | "dry-run"
+  | "blocked"
+  | "error";
 
 export type PortfolioStatus =
   | "discovered"
@@ -27,6 +38,13 @@ export interface SuggestedFileChange {
   path: string;
   content: string;
   rationale: string;
+}
+
+export interface SafetyCheckResult {
+  key: string;
+  passed: boolean;
+  detail: string;
+  severity: "info" | "warning" | "error";
 }
 
 export interface IssueCandidate {
@@ -115,6 +133,42 @@ export interface DraftProposal extends JobModeDrafts {
   mode: "draft";
 }
 
+export interface ContributionRunApprovalEvent {
+  action: "prepare" | "approve-comment" | "approve-branch" | "approve-draft-pr" | "cancel";
+  approved: boolean;
+  actor: string;
+  reason: string;
+  createdAt: string;
+}
+
+export interface ContributionRun {
+  id: string;
+  createdAt: string;
+  mode: ContributionExecutionMode;
+  targetRepo: string;
+  issueNumber: number;
+  issueUrl: string;
+  status: ContributionRunStatus;
+  plannedFiles: string[];
+  generatedDiffSummary: string;
+  commentDraft: string;
+  prTitle: string;
+  prBody: string;
+  branchName: string;
+  forkRepo: string;
+  prUrl: string;
+  safetyChecks: SafetyCheckResult[];
+  approvalEvents: ContributionRunApprovalEvent[];
+  errors: string[];
+  userApprovalToken: string;
+  riskScore: number;
+  dryRun: boolean;
+  proposal: DraftProposal;
+  issue: IssueCandidate;
+  testPlan: string[];
+  commentUrl?: string;
+}
+
 export interface DiscoverResponse {
   mode: "demo" | "github";
   issues: IssueCandidate[];
@@ -125,5 +179,6 @@ export interface HealthResponse {
   ok: boolean;
   mode: "demo" | "github";
   createDailyIssue: boolean;
+  autoContributeEnabled: boolean;
   controlMode: ControlModeState;
 }

@@ -19,8 +19,13 @@ ContributorOps supports three explicit safety levels.
 
 - generate suggested code changes locally
 - generate branch name, commit message, and PR body
+- generate maintainer comment draft
+- generate test instructions
 - create planning issues only in `contributorOps`
 - never push to external repos
+- never post comments
+- never open PRs
+- user must review everything
 
 ### Level 3: Approved PR Mode
 
@@ -33,6 +38,24 @@ ContributorOps supports three explicit safety levels.
 - never comments repeatedly
 - never opens more than one PR per repo per day
 - always requires a clear human-written PR description and test evidence
+
+## Auto-Contribute
+
+ContributorOps includes an approval-gated Auto-Contribute page.
+
+- `POST /api/contribute/prepare` creates a traceable dry-run record
+- `POST /api/contribute/approve-comment` can post one issue comment only after explicit approval
+- `POST /api/contribute/approve-branch` can create a branch in the user's fork only after explicit approval
+- `POST /api/contribute/approve-draft-pr` can commit focused changes and open a **draft** PR only after explicit approval
+- `GET /api/contribute/runs` and `GET /api/contribute/runs/:id` expose run history
+- `POST /api/contribute/runs/:id/cancel` cancels a prepared run
+
+All external write actions are:
+
+- approval-gated
+- rate-limited
+- logged in `data/contribution-runs.json`
+- dry-run by default
 
 ## What the app does
 
@@ -120,6 +143,8 @@ contributorOps/
 If you set `GITHUB_TOKEN`, use a token with:
 
 - `public_repo` or equivalent repository read access for GitHub search and issue discovery
+- issue comment permission if you intend to use approved comment mode
+- pull request and contents write permissions if you intend to use approved draft PR mode through your own fork
 
 ### Optional planning issue creation
 
@@ -210,6 +235,13 @@ If `GITHUB_TOKEN` is present:
 - `POST /api/create-planning-issue`
 - `POST /api/draft-proposal`
 - `POST /api/approved-pr`
+- `POST /api/contribute/prepare`
+- `POST /api/contribute/approve-comment`
+- `POST /api/contribute/approve-branch`
+- `POST /api/contribute/approve-draft-pr`
+- `GET /api/contribute/runs`
+- `GET /api/contribute/runs/:id`
+- `POST /api/contribute/runs/:id/cancel`
 
 ## Scoring model
 
@@ -279,6 +311,17 @@ It does **not**:
 - mark the PR ready for review
 - auto-comment on the issue or PR
 - open repeated PRs for the same upstream repo in one day
+
+## Environment variables
+
+- `GITHUB_TOKEN=`
+- `GITHUB_USERNAME=`
+- `CONTRIBUTOROPS_OWNER=AnkitParekh007`
+- `CONTRIBUTOROPS_REPO=contributorOps`
+- `AUTO_CONTRIBUTE_ENABLED=false`
+- `AUTO_PR_DAILY_LIMIT=3`
+- `AUTO_COMMENT_DAILY_LIMIT=5`
+- `CREATE_DAILY_ISSUE=false`
 
 ## GitHub Actions setup
 
