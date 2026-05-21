@@ -6,7 +6,7 @@ import { writeDailyPlan } from "./storage.js";
 export async function runDailyPlan() {
   const { mode, candidates } = await discoverIssues(defaultFilters);
   const plannedCandidates = candidates
-    .map(buildIssueCandidate)
+    .map((candidate) => buildIssueCandidate(candidate, { targetRole: defaultFilters.targetRole }))
     .sort((left, right) => right.score - left.score)
     .slice(0, 12);
 

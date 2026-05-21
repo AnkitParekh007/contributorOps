@@ -71,6 +71,26 @@ export function DiscoveryControls({ filters, isLoading, onChange, onGenerate }: 
         filters.labels,
         (value) => onChange({ ...filters, labels: updateArray(filters.labels, value) })
       )}
+
+      <div className="filter-group">
+        <span>Target role</span>
+        <select
+          value={filters.targetRole || "Backend Engineer"}
+          onChange={(event) => onChange({ ...filters, targetRole: event.target.value as DiscoveryFilters["targetRole"] })}
+        >
+          {[
+            "API Developer",
+            "Backend Engineer",
+            "Angular Developer",
+            "Platform Engineer",
+            "Developer Advocate"
+          ].map((role) => (
+            <option key={role} value={role}>
+              {role}
+            </option>
+          ))}
+        </select>
+      </div>
     </section>
   );
 }

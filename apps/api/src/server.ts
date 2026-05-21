@@ -9,6 +9,7 @@ import {
   ensureFeature,
   ensurePlanGenerationAllowed,
   exportGithubResume,
+  exportAllCareerAssets,
   getBillingState,
   getPublicPortfolioProfileBySlug,
   getUsageSnapshot,
@@ -28,7 +29,7 @@ import {
 } from "./contribute.js";
 import { runDailyPlan } from "./daily.js";
 import { createApprovedDraftPullRequest, createPlanningIssue, discoverIssues } from "./github.js";
-import { buildDailyPlan, buildDraftProposal, buildIssueCandidate } from "./planner.js";
+import { buildDailyPlan, buildDraftProposal, buildGithubProfileAudit, buildIssueCandidate } from "./planner.js";
 import {
   readControlMode,
   readContributionRuns,
@@ -161,7 +162,7 @@ app.post("/api/discover", async (request, response, next) => {
     const filters = request.body as Partial<DiscoveryFilters>;
     const discovery = await discoverIssues(filters);
     const issues = discovery.candidates
-      .map(buildIssueCandidate)
+      .map((candidate) => buildIssueCandidate(candidate, { targetRole: filters.targetRole }))
       .sort((left, right) => right.score - left.score);
     const dailyPlan = buildDailyPlan(issues);
     await writeDailyPlan(dailyPlan);
@@ -203,8 +204,15 @@ app.post("/api/portfolio", async (request, response, next) => {
       status: payload.status || "discovered",
       notes: payload.notes || "",
       interviewStarStory: payload.interviewStarStory || "",
+      interviewSituation: payload.interviewSituation || "",
+      interviewTask: payload.interviewTask || "",
+      interviewAction: payload.interviewAction || "",
+      interviewResult: payload.interviewResult || "",
       resumeBullet: payload.resumeBullet || "",
       linkedInPost: payload.linkedInPost || "",
+      linkedInShort: payload.linkedInShort || payload.linkedInPost || "",
+      linkedInMedium: payload.linkedInMedium || payload.linkedInPost || "",
+      linkedInDetailed: payload.linkedInDetailed || payload.linkedInPost || "",
       recruiterOutreach: payload.recruiterOutreach || "",
       githubProfileSnippet: payload.githubProfileSnippet || "",
       createdAt: now,
@@ -413,9 +421,32 @@ app.get("/api/public/portfolio/:slug", async (request, response, next) => {
   }
 });
 
+app.get("/api/public/user/:username", async (request, response, next) => {
+  try {
+    const profile = await getPublicPortfolioProfileBySlug(request.params.username);
+    const billing = await getBillingState();
+    if (!billing.publicPortfolioEnabled) {
+      response.status(404).json({ message: "Public portfolio is disabled." });
+      return;
+    }
+    await incrementUsage("publicPortfolioViews");
+    response.json(profile);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/export/github-resume", async (_request, response, next) => {
   try {
     response.json(await exportGithubResume());
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/export-center", async (_request, response, next) => {
+  try {
+    response.json(await exportAllCareerAssets());
   } catch (error) {
     next(error);
   }
@@ -436,11 +467,25 @@ app.post("/api/pr-quality-check", async (request, response, next) => {
   }
 });
 
+app.get("/api/github-profile-audit", async (request, response, next) => {
+  try {
+    await ensureFeature("github-profile-audit");
+    const username = String(request.query.username || "").trim();
+    if (!username) {
+      response.status(400).json({ message: "GitHub username is required." });
+      return;
+    }
+    response.json(buildGithubProfileAudit(username));
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/team/radar", async (_request, response, next) => {
   try {
     await ensureFeature("shared-repo-radar");
     const discovery = await discoverIssues({});
-    const issues = discovery.candidates.map(buildIssueCandidate);
+    const issues = discovery.candidates.map((candidate) => buildIssueCandidate(candidate, { targetRole: "Platform Engineer" }));
     const grouped = new Map<string, { scores: number[]; labels: string[] }>();
 
     for (const issue of issues) {

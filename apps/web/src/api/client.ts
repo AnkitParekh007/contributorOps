@@ -8,7 +8,9 @@ import type {
   DiscoverResponse,
   DiscoveryFilters,
   DraftProposal,
+  ExportBundle,
   FeatureFlags,
+  GithubProfileAudit,
   HealthResponse,
   IssueCandidate,
   PortfolioEntry,
@@ -159,12 +161,17 @@ export const apiClient = {
     }),
   getPublicPortfolio: (slug: string) =>
     request<PublicPortfolioProfile>(`/api/public/portfolio/${slug}`),
+  getPublicUserPortfolio: (username: string) =>
+    request<PublicPortfolioProfile>(`/api/public/user/${username}`),
   exportGithubResume: () =>
     request<{ markdown: string; fileName: string }>("/api/export/github-resume"),
+  getExportCenter: () => request<ExportBundle>("/api/export-center"),
   getPrQualityCheck: (issue: IssueCandidate) =>
     request<PrQualityReport>("/api/pr-quality-check", {
       method: "POST",
       body: JSON.stringify({ issue })
     }),
-  getTeamRadar: () => request<TeamRadarItem[]>("/api/team/radar")
+  getTeamRadar: () => request<TeamRadarItem[]>("/api/team/radar"),
+  getGithubProfileAudit: (username: string) =>
+    request<GithubProfileAudit>(`/api/github-profile-audit?username=${encodeURIComponent(username)}`)
 };

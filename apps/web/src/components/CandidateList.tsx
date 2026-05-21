@@ -30,6 +30,7 @@ export function CandidateList({ issues, selectedId, onSelect }: CandidateListPro
               <th>Labels</th>
               <th>Score</th>
               <th>Difficulty</th>
+              <th>Role fit</th>
               <th>Reason</th>
             </tr>
           </thead>
@@ -70,6 +71,11 @@ export function CandidateList({ issues, selectedId, onSelect }: CandidateListPro
                 <td>
                   <span className={`difficulty-pill ${difficultyClassName(issue.difficulty)}`}>
                     {issue.difficulty}
+                  </span>
+                </td>
+                <td>
+                  <span className={`score-badge score-${issue.roleMatch.score >= 75 ? "high" : issue.roleMatch.score >= 50 ? "mid" : "low"}`}>
+                    {issue.roleMatch.score}
                   </span>
                 </td>
                 <td>{issue.reasonForRecommendation}</td>

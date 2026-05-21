@@ -2,15 +2,18 @@ import type {
   DailyPlan,
   DailyPlanOpportunity,
   DraftProposal,
+  DiscoveryFilters,
+  GithubProfileAudit,
   IssueCandidate,
   JobModeDrafts,
   MaintainerTrustReport,
   PrQualityReport,
   QualityCheck,
+  RoleMatchReport,
   RawIssueCandidate,
   SuggestedFileChange
 } from "./types.js";
-import { scoreIssue } from "./scorer.js";
+import { scoreIssue, scoreRoleFit } from "./scorer.js";
 
 function summarizeBody(body: string): string {
   const normalized = body.replace(/\s+/g, " ").trim();
@@ -70,10 +73,21 @@ function buildTestingStrategy(candidate: RawIssueCandidate): string[] {
 }
 
 function buildJobMode(candidate: RawIssueCandidate, firstAction: string): JobModeDrafts {
+  const situation = `I wanted stronger OSS signal in API and developer-tooling work through ${candidate.repoFullName}.`;
+  const task = `Find a realistic issue with maintainable scope around issue #${candidate.issueNumber}.`;
+  const action = `I mapped the likely files, shaped a minimal test-backed plan, and drafted reviewer-friendly contribution notes before coding.`;
+  const result = `I created a credible contribution path that could become portfolio proof, a resume bullet, and an interview story.`;
   return {
     resumeBullet: `Targeted ${candidate.repoFullName} issue #${candidate.issueNumber}, scoped a minimal contribution path, and translated backend or developer-tooling context into a test-backed open-source plan.`,
     linkedInPost: `Today I used ContributorOps to break down ${candidate.repoFullName} issue #${candidate.issueNumber}. The value was not "finding any issue" but identifying one tractable backend or developer-tooling problem, mapping the likely files, and writing the smallest test-backed contribution plan before coding.`,
-    interviewStarStory: `Situation: I wanted stronger OSS signal in API and backend tooling. Task: Find a realistic issue with maintainable scope. Action: I evaluated ${candidate.repoFullName} issue #${candidate.issueNumber}, wrote a deterministic plan, identified likely files, and defined a test strategy before touching code. Result: I created a contribution path I could execute with less thrash and a clearer story for interviews.`,
+    linkedInShort: `Scoped ${candidate.repoFullName} issue #${candidate.issueNumber} into a minimal, test-backed open-source contribution plan.`,
+    linkedInMedium: `I used ContributorOps to evaluate ${candidate.repoFullName} issue #${candidate.issueNumber}, map the likely files, and define the smallest credible contribution path before touching code.`,
+    linkedInDetailed: `Today I turned ${candidate.repoFullName} issue #${candidate.issueNumber} into job-search proof. I scored the issue, outlined the likely files, drafted the maintainer question, and defined the validation path so the eventual contribution can be specific, reviewable, and interview-ready.`,
+    interviewStarStory: `Situation: ${situation} Task: ${task} Action: ${action} Result: ${result}`,
+    interviewSituation: situation,
+    interviewTask: task,
+    interviewAction: action,
+    interviewResult: result,
     recruiterOutreach: `Hi, I've been building ContributorOps to help me make higher-signal open-source contributions in API and developer-tooling repos. One recent example is ${candidate.repoFullName} issue #${candidate.issueNumber}, where I mapped the fix path, test strategy, and PR narrative before implementation. I'd value the chance to bring that same structured execution to a backend or platform role.`,
     githubProfileSnippet: `- Planned a contribution for [${candidate.repoFullName}#${candidate.issueNumber}](${candidate.issueUrl}) with a concrete first action: ${firstAction}`
   };
@@ -117,8 +131,23 @@ function buildMaintainerTrust(candidate: RawIssueCandidate): MaintainerTrustRepo
   };
 }
 
-export function buildIssueCandidate(candidate: RawIssueCandidate): IssueCandidate {
+function buildRoleMatch(candidate: RawIssueCandidate, targetRole?: DiscoveryFilters["targetRole"]): RoleMatchReport {
+  const role = targetRole || "Backend Engineer";
+  const roleFit = scoreRoleFit(candidate, role);
+  return {
+    targetRole: role,
+    score: roleFit.score,
+    reasons: roleFit.reasons
+  };
+}
+
+export function buildIssueCandidate(
+  candidate: RawIssueCandidate,
+  options?: { targetRole?: DiscoveryFilters["targetRole"] }
+): IssueCandidate {
   const { score, difficulty, reasons } = scoreIssue(candidate);
+  const roleMatch = buildRoleMatch(candidate, options?.targetRole);
+  const adjustedScore = Math.max(0, Math.min(100, Math.round(score * 0.7 + roleMatch.score * 0.3)));
   const summary = summarizeBody(candidate.issueBody);
   const contributionPlan = buildContributionPlan(candidate);
   const likelyFiles = inferLikelyFiles(candidate);
@@ -146,11 +175,11 @@ export function buildIssueCandidate(candidate: RawIssueCandidate): IssueCandidat
     issueNumber: candidate.issueNumber,
     issueUrl: candidate.issueUrl,
     labels: candidate.labels,
-    score,
+    score: adjustedScore,
     difficulty,
     reasonForRecommendation:
-      reasons[0] || "Strong overlap with backend, API, or developer-tooling contribution goals.",
-    scoreExplanation: reasons,
+      roleMatch.reasons[0] || reasons[0] || "Strong overlap with backend, API, or developer-tooling contribution goals.",
+    scoreExplanation: [...reasons, ...roleMatch.reasons],
     summary,
     contributionPlan,
     likelyFiles,
@@ -160,6 +189,7 @@ export function buildIssueCandidate(candidate: RawIssueCandidate): IssueCandidat
     resumeBulletDraft: `Planned a focused contribution for ${candidate.repoFullName} issue #${candidate.issueNumber} with clear scope, likely files, and a regression-oriented test plan.`,
     jobMode: buildJobMode(candidate, firstAction),
     maintainerTrust,
+    roleMatch,
     updatedAt: candidate.updatedAt,
     comments: candidate.comments
   };
@@ -305,11 +335,40 @@ export function buildPrQualityReport(issue: IssueCandidate, suggestedChanges: Su
 
   const passedCount = checks.filter((check) => check.passed).length;
   const score = Math.round((passedCount / checks.length) * 100);
+  const suggestions = checks
+    .filter((check) => !check.passed)
+    .map((check) => `Improve ${check.label.toLowerCase()} before opening the draft PR.`);
 
   return {
     score,
     verdict: score >= 85 ? "strong" : score >= 60 ? "solid" : "needs-review",
-    checks
+    riskLevel: score >= 85 ? "low" : score >= 60 ? "medium" : "high",
+    checks,
+    suggestions
+  };
+}
+
+export function buildGithubProfileAudit(username: string): GithubProfileAudit {
+  const normalized = username.trim() || "unknown";
+  const baseScore = normalized.length >= 4 ? 72 : 55;
+  return {
+    username: normalized,
+    score: baseScore,
+    strengths: [
+      "The username is presentable and easy to share.",
+      "ContributorOps can turn contributions into reusable GitHub README proof."
+    ],
+    checklist: [
+      "Add a GitHub profile README with a clear backend or platform positioning statement.",
+      "Pin 3 to 6 repositories that show real implementation depth, not only forks.",
+      "Link merged PRs or contribution writeups directly from the profile README.",
+      "Keep one section for OSS proof, one for core stack, and one for current focus."
+    ],
+    readmeSuggestions: [
+      "Open with the role you want next and the systems you build.",
+      "Add a short proof-of-work section with merged PR links.",
+      "Include one sentence on what kinds of OSS issues you contribute to."
+    ]
   };
 }
 

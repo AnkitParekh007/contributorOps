@@ -1,4 +1,12 @@
-import type { Difficulty, RawIssueCandidate } from "./types.js";
+import type { Difficulty, RawIssueCandidate, TargetRole } from "./types.js";
+
+const roleSignals: Record<TargetRole, RegExp[]> = {
+  "API Developer": [/openapi|sdk|api-client|rest-api|graphql|schema|client/i, /api|graphql|rest/i],
+  "Backend Engineer": [/backend|server|node|python|bug|database|api/i, /node|python|go|java|backend/i],
+  "Angular Developer": [/angular|typescript|ui|component|docs/i, /typescript|javascript|angular/i],
+  "Platform Engineer": [/cli|tooling|developer-tools|infra|platform|automation/i, /developer-tools|cli|platform/i],
+  "Developer Advocate": [/documentation|docs|example|guide|tutorial/i, /documentation|docs|guide/i]
+};
 
 function hasLabel(candidate: RawIssueCandidate, matcher: RegExp): boolean {
   return candidate.labels.some((label) => matcher.test(label));
@@ -81,4 +89,43 @@ export function scoreIssue(candidate: RawIssueCandidate): {
   }
 
   return { score, difficulty, reasons };
+}
+
+export function scoreRoleFit(
+  candidate: RawIssueCandidate,
+  targetRole: TargetRole
+): { score: number; reasons: string[] } {
+  const patterns = roleSignals[targetRole];
+  let score = 35;
+  const reasons: string[] = [];
+
+  if (patterns[0].test(candidate.issueTitle) || patterns[0].test(candidate.issueBody)) {
+    score += 30;
+    reasons.push(`Issue title or body matches ${targetRole} work.`);
+  }
+
+  if (candidate.repoTopics.some((topic) => patterns[1].test(topic))) {
+    score += 20;
+    reasons.push(`Repository topics line up with ${targetRole} priorities.`);
+  }
+
+  if (targetRole === "Developer Advocate" && hasLabel(candidate, /docs|documentation/i)) {
+    score += 10;
+    reasons.push("Documentation issues create visible developer education proof.");
+  }
+
+  if (targetRole === "Angular Developer" && /typescript|javascript/i.test(candidate.repoLanguage)) {
+    score += 10;
+    reasons.push("The language stack is friendly for Angular ecosystem work.");
+  }
+
+  if (candidate.comments > 15) {
+    score -= 10;
+    reasons.push("Long issue threads lower clarity for role-targeted execution.");
+  }
+
+  return {
+    score: Math.max(0, Math.min(100, score)),
+    reasons
+  };
 }

@@ -95,6 +95,21 @@ export function IssueDetailPanel({ issue, onSaveToPortfolio, entitlements }: Iss
             <p>Upgrade to Pro to unlock maintainer trust scoring.</p>
           )}
         </article>
+
+        <article className="info-card">
+          <div className="info-card-title">
+            <ShieldCheck size={16} />
+            <strong>Job-matched role fit</strong>
+          </div>
+          <p>
+            {issue.roleMatch.targetRole}: {issue.roleMatch.score}/100
+          </p>
+          <ul>
+            {issue.roleMatch.reasons.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </article>
       </div>
 
       <div className="stack-section">

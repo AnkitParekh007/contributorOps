@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
+import type { DiscoveryFilters } from "./types.js";
 
 dotenv.config();
 
@@ -31,8 +32,9 @@ export const config = {
   webDistPath: path.join(repoRoot, "apps", "web", "dist")
 };
 
-export const defaultFilters = {
+export const defaultFilters: DiscoveryFilters = {
   topics: ["openapi", "sdk", "api-client", "graphql", "rest-api", "developer-tools"],
   languages: ["typescript", "javascript", "node", "python"],
-  labels: ["good first issue", "help wanted", "documentation", "bug"]
+  labels: ["good first issue", "help wanted", "documentation", "bug"],
+  targetRole: "Backend Engineer"
 };

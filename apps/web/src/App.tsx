@@ -30,7 +30,9 @@ import type {
   DailyPlan,
   DiscoveryFilters,
   DraftProposal,
+  ExportBundle,
   FeatureFlags,
+  GithubProfileAudit,
   IssueCandidate,
   PortfolioEntry,
   PricingTier,
@@ -42,7 +44,8 @@ import type {
 const defaultFilters: DiscoveryFilters = {
   topics: ["openapi", "sdk", "api-client", "graphql", "rest-api", "developer-tools"],
   languages: ["typescript", "javascript", "node", "python"],
-  labels: ["good first issue", "help wanted", "documentation", "bug"]
+  labels: ["good first issue", "help wanted", "documentation", "bug"],
+  targetRole: "Backend Engineer"
 };
 
 type AppPage = "dashboard" | "auto-contribute" | "proof-of-work" | "pricing" | "team-radar";
@@ -58,6 +61,7 @@ function emptyBillingState(): BillingState {
     seatCount: 1,
     publicPortfolioSlug: "ankit-proof-of-work",
     publicPortfolioEnabled: false,
+    premiumThemeEnabled: false,
     profileHeadline: "ContributorOps helps developers turn open-source contributions into job-ready proof of work.",
     profileSummary:
       "I use ContributorOps to source backend and developer-tooling issues, build credible contribution plans, and package the final work into recruiter-ready proof.",
@@ -83,7 +87,10 @@ function emptyEntitlements(): FeatureFlags {
       "pr-quality-checker": false,
       "team-dashboard": false,
       "shared-repo-radar": false,
-      "approved-auto-contribute": false
+      "approved-auto-contribute": false,
+      "premium-public-theme": false,
+      "github-profile-audit": false,
+      "export-center": false
     }
   };
 }
@@ -99,11 +106,14 @@ function emptyUsage(): UsageSnapshot {
 }
 
 function App() {
-  const publicMatch =
-    typeof window !== "undefined" ? window.location.pathname.match(/^\/portfolio\/([^/]+)$/) : null;
-  const publicSlug = publicMatch?.[1] || "";
+  const publicUsername = "AnkitParekh007";
+  const usernameMatch =
+    typeof window !== "undefined" ? window.location.pathname.match(/^\/u\/([^/]+)$/) : null;
+  const usernameSlug = usernameMatch?.[1] || "";
+  const initialPage =
+    typeof window !== "undefined" && window.location.pathname === "/pricing" ? "pricing" : "dashboard";
 
-  const [activePage, setActivePage] = useState<AppPage>("dashboard");
+  const [activePage, setActivePage] = useState<AppPage>(initialPage);
   const [modeLabel, setModeLabel] = useState("demo mode");
   const [autoContributeEnabled, setAutoContributeEnabled] = useState(false);
   const [filters, setFilters] = useState<DiscoveryFilters>(defaultFilters);
@@ -133,6 +143,9 @@ function App() {
   const [prResultMessage, setPrResultMessage] = useState("");
   const [githubResumeMarkdown, setGithubResumeMarkdown] = useState("");
   const [recruiterShareUrl, setRecruiterShareUrl] = useState("");
+  const [exportBundle, setExportBundle] = useState<ExportBundle | null>(null);
+  const [profileAuditUsername, setProfileAuditUsername] = useState("AnkitParekh007");
+  const [profileAudit, setProfileAudit] = useState<GithubProfileAudit | null>(null);
   const [teamRadar, setTeamRadar] = useState<TeamRadarItem[]>([]);
   const [publicProfile, setPublicProfile] = useState<PublicPortfolioProfile | null>(null);
   const [publicError, setPublicError] = useState("");
@@ -145,9 +158,9 @@ function App() {
   const selectedRun = contributionRuns.find((run) => run.id === selectedRunId) || contributionRuns[0] || null;
 
   useEffect(() => {
-    if (publicSlug) {
+    if (usernameSlug) {
       apiClient
-        .getPublicPortfolio(publicSlug)
+        .getPublicUserPortfolio(usernameSlug)
         .then((profile) => setPublicProfile(profile))
         .catch((requestError) => {
           setPublicError(requestError instanceof Error ? requestError.message : "Failed to load public portfolio.");
@@ -177,13 +190,13 @@ function App() {
         setUsage(health.usage);
         setPricing(pricingResponse);
         if (health.billing.publicPortfolioEnabled) {
-          setRecruiterShareUrl(`${window.location.origin}/portfolio/${health.billing.publicPortfolioSlug}`);
+          setRecruiterShareUrl(`${window.location.origin}/u/${publicUsername}`);
         }
       })
       .catch((requestError) => {
         setError(requestError instanceof Error ? requestError.message : "Failed to load app.");
       });
-  }, [publicSlug]);
+  }, [usernameSlug]);
 
   useEffect(() => {
     if (activePage === "team-radar" && entitlements.features["team-dashboard"] && teamRadar.length === 0) {
@@ -214,7 +227,7 @@ function App() {
     setEntitlements(billingResponse.entitlements);
     setUsage(usageResponse);
     if (billingResponse.billing.publicPortfolioEnabled) {
-      setRecruiterShareUrl(`${window.location.origin}/portfolio/${billingResponse.billing.publicPortfolioSlug}`);
+      setRecruiterShareUrl(`${window.location.origin}/u/${publicUsername}`);
     }
   };
 
@@ -278,8 +291,15 @@ function App() {
         status: "planned",
         notes: issue.reasonForRecommendation,
         interviewStarStory: issue.jobMode.interviewStarStory,
+        interviewSituation: issue.jobMode.interviewSituation,
+        interviewTask: issue.jobMode.interviewTask,
+        interviewAction: issue.jobMode.interviewAction,
+        interviewResult: issue.jobMode.interviewResult,
         resumeBullet: issue.jobMode.resumeBullet,
         linkedInPost: issue.jobMode.linkedInPost,
+        linkedInShort: issue.jobMode.linkedInShort,
+        linkedInMedium: issue.jobMode.linkedInMedium,
+        linkedInDetailed: issue.jobMode.linkedInDetailed,
         recruiterOutreach: issue.jobMode.recruiterOutreach,
         githubProfileSnippet: issue.jobMode.githubProfileSnippet
       });
@@ -522,7 +542,8 @@ function App() {
         profileHeadline: billing.profileHeadline,
         profileSummary: billing.profileSummary,
         publicPortfolioSlug: billing.publicPortfolioSlug,
-        publicPortfolioEnabled: true
+        publicPortfolioEnabled: true,
+        premiumThemeEnabled: billing.premiumThemeEnabled
       });
       const result = await apiClient.createPortfolioShare();
       setRecruiterShareUrl(result.recruiterShareUrl);
@@ -551,6 +572,43 @@ function App() {
     }
   };
 
+  const exportCareerAssets = async () => {
+    setError("");
+    setIsLoading(true);
+    try {
+      setExportBundle(await apiClient.getExportCenter());
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to export career assets.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const copyToClipboard = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setPrResultMessage("Copied to clipboard.");
+    } catch {
+      setError("Clipboard copy failed in this browser session.");
+    }
+  };
+
+  const exportPdfPlaceholder = () => {
+    setPrResultMessage("PDF export is intentionally placeholder-only until real document rendering is added.");
+  };
+
+  const runGithubProfileAudit = async () => {
+    setError("");
+    setIsLoading(true);
+    try {
+      setProfileAudit(await apiClient.getGithubProfileAudit(profileAuditUsername));
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Failed to run GitHub profile audit.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const refreshTeamRadar = async () => {
     setError("");
     setIsLoading(true);
@@ -565,7 +623,13 @@ function App() {
 
   const topOpportunityCount = useMemo(() => dailyPlan?.topOpportunities.length ?? 0, [dailyPlan]);
 
-  if (publicSlug) {
+  const navigateToPage = (page: AppPage) => {
+    setActivePage(page);
+    const targetPath = page === "pricing" ? "/pricing" : "/";
+    window.history.replaceState({}, "", targetPath);
+  };
+
+  if (usernameSlug) {
     return <PublicPortfolioPage profile={publicProfile} error={publicError} />;
   }
 
@@ -606,7 +670,7 @@ function App() {
             <button
               type="button"
               className={`sidebar-nav-button ${activePage === "dashboard" ? "active" : ""}`}
-              onClick={() => setActivePage("dashboard")}
+              onClick={() => navigateToPage("dashboard")}
             >
               <LayoutDashboard size={16} />
               Dashboard
@@ -614,7 +678,7 @@ function App() {
             <button
               type="button"
               className={`sidebar-nav-button ${activePage === "auto-contribute" ? "active" : ""}`}
-              onClick={() => setActivePage("auto-contribute")}
+              onClick={() => navigateToPage("auto-contribute")}
             >
               <Bot size={16} />
               Auto-Contribute
@@ -622,7 +686,7 @@ function App() {
             <button
               type="button"
               className={`sidebar-nav-button ${activePage === "proof-of-work" ? "active" : ""}`}
-              onClick={() => setActivePage("proof-of-work")}
+              onClick={() => navigateToPage("proof-of-work")}
             >
               <BriefcaseBusiness size={16} />
               Proof of Work
@@ -630,7 +694,7 @@ function App() {
             <button
               type="button"
               className={`sidebar-nav-button ${activePage === "pricing" ? "active" : ""}`}
-              onClick={() => setActivePage("pricing")}
+              onClick={() => navigateToPage("pricing")}
             >
               <BadgeDollarSign size={16} />
               Pricing
@@ -638,7 +702,7 @@ function App() {
             <button
               type="button"
               className={`sidebar-nav-button ${activePage === "team-radar" ? "active" : ""}`}
-              onClick={() => setActivePage("team-radar")}
+              onClick={() => navigateToPage("team-radar")}
             >
               <Radar size={16} />
               Team Radar
@@ -774,9 +838,17 @@ function App() {
               selectedPortfolioEntry={selectedPortfolioEntry}
               githubResumeMarkdown={githubResumeMarkdown}
               recruiterShareUrl={recruiterShareUrl}
+              exportBundle={exportBundle}
+              profileAuditUsername={profileAuditUsername}
+              profileAudit={profileAudit}
               isLoading={isLoading}
               onCreateShare={createRecruiterShare}
               onExportResume={exportResume}
+              onExportCenter={exportCareerAssets}
+              onCopy={copyToClipboard}
+              onPlaceholderPdf={exportPdfPlaceholder}
+              onRunProfileAudit={runGithubProfileAudit}
+              onProfileAuditUsernameChange={setProfileAuditUsername}
               onBillingProfileChange={setBilling}
               onPortfolioChange={updatePortfolioEntry}
             />

@@ -3,6 +3,7 @@ import { readBillingState, readPortfolio, readUsageSnapshot, writeBillingState, 
 import type {
   BillingPlan,
   BillingState,
+  ExportBundle,
   FeatureFlags,
   FeatureKey,
   PortfolioEntry,
@@ -25,7 +26,10 @@ const featureMatrix: Record<BillingPlan, Record<FeatureKey, boolean>> = {
     "pr-quality-checker": false,
     "team-dashboard": false,
     "shared-repo-radar": false,
-    "approved-auto-contribute": false
+    "approved-auto-contribute": false,
+    "premium-public-theme": false,
+    "github-profile-audit": false,
+    "export-center": false
   },
   pro: {
     "basic-discovery": true,
@@ -40,7 +44,10 @@ const featureMatrix: Record<BillingPlan, Record<FeatureKey, boolean>> = {
     "pr-quality-checker": false,
     "team-dashboard": false,
     "shared-repo-radar": false,
-    "approved-auto-contribute": true
+    "approved-auto-contribute": true,
+    "premium-public-theme": false,
+    "github-profile-audit": true,
+    "export-center": false
   },
   career: {
     "basic-discovery": true,
@@ -55,7 +62,10 @@ const featureMatrix: Record<BillingPlan, Record<FeatureKey, boolean>> = {
     "pr-quality-checker": true,
     "team-dashboard": false,
     "shared-repo-radar": false,
-    "approved-auto-contribute": true
+    "approved-auto-contribute": true,
+    "premium-public-theme": true,
+    "github-profile-audit": true,
+    "export-center": true
   },
   team: {
     "basic-discovery": true,
@@ -70,7 +80,10 @@ const featureMatrix: Record<BillingPlan, Record<FeatureKey, boolean>> = {
     "pr-quality-checker": true,
     "team-dashboard": true,
     "shared-repo-radar": true,
-    "approved-auto-contribute": true
+    "approved-auto-contribute": true,
+    "premium-public-theme": true,
+    "github-profile-audit": true,
+    "export-center": true
   }
 };
 
@@ -210,6 +223,7 @@ export async function updateBillingPlan(plan: BillingPlan): Promise<BillingState
     status: "active" as const,
     seatCount,
     publicPortfolioEnabled: plan === "career" || plan === "team" ? current.publicPortfolioEnabled : false,
+    premiumThemeEnabled: plan === "career" || plan === "team" ? current.premiumThemeEnabled : false,
     lastUpdatedAt: new Date().toISOString()
   };
   return writeBillingState(next);
@@ -222,6 +236,7 @@ export async function updatePublicProfile(payload: Partial<BillingState>): Promi
     profileHeadline: payload.profileHeadline ?? current.profileHeadline,
     profileSummary: payload.profileSummary ?? current.profileSummary,
     publicPortfolioEnabled: payload.publicPortfolioEnabled ?? current.publicPortfolioEnabled,
+    premiumThemeEnabled: payload.premiumThemeEnabled ?? current.premiumThemeEnabled,
     publicPortfolioSlug: payload.publicPortfolioSlug
       ? slugify(payload.publicPortfolioSlug)
       : current.publicPortfolioSlug,
@@ -314,17 +329,49 @@ function buildGithubResumeMarkdown(entries: PortfolioEntry[], owner: string, hea
   return lines.join("\n");
 }
 
+function buildResumeBullets(entries: PortfolioEntry[]): string {
+  return entries.map((entry) => `- ${entry.resumeBullet}`).join("\n");
+}
+
+function buildLinkedInPosts(entries: PortfolioEntry[]): string {
+  return entries
+    .map(
+      (entry) =>
+        `## ${entry.selectedRepo}\n\nShort:\n${entry.linkedInShort || entry.linkedInPost}\n\nMedium:\n${entry.linkedInMedium || entry.linkedInPost}\n\nDetailed:\n${entry.linkedInDetailed || entry.linkedInPost}`
+    )
+    .join("\n\n");
+}
+
+function buildPortfolioMarkdown(entries: PortfolioEntry[]): string {
+  return entries
+    .map(
+      (entry) =>
+        `## ${entry.selectedRepo}\n- Status: ${entry.status}\n- Issue: ${entry.issueUrl || "N/A"}\n- PR: ${entry.prUrl || "N/A"}\n- Notes: ${entry.notes}\n- Interview story: ${entry.interviewStarStory}`
+    )
+    .join("\n\n");
+}
+
+function buildRecruiterPitch(entries: PortfolioEntry[]): string {
+  return entries.map((entry) => entry.recruiterOutreach).join("\n\n");
+}
+
+function buildGithubReadmeSnippet(entries: PortfolioEntry[]): string {
+  return entries.map((entry) => entry.githubProfileSnippet).join("\n");
+}
+
 export async function buildPublicPortfolioProfile(): Promise<PublicPortfolioProfile> {
   const [billing, entries] = await Promise.all([getBillingState(), readPortfolio()]);
-  const recruiterShareUrl = `${config.publicAppUrl.replace(/\/$/, "")}/portfolio/${billing.publicPortfolioSlug}`;
+  const recruiterShareUrl = `${config.publicAppUrl.replace(/\/$/, "")}/u/${config.owner}`;
 
   return {
     slug: billing.publicPortfolioSlug,
+    username: config.owner,
     owner: billing.customerName || config.owner,
     headline: billing.profileHeadline,
     summary: billing.profileSummary,
     recruiterShareUrl,
     githubResumeMarkdown: buildGithubResumeMarkdown(entries, billing.customerName || config.owner, billing.profileHeadline),
+    premiumThemeEnabled: billing.premiumThemeEnabled,
     entries: entries.map((entry) => ({
       selectedRepo: entry.selectedRepo,
       issueUrl: entry.issueUrl,
@@ -343,7 +390,7 @@ export async function buildPublicPortfolioProfile(): Promise<PublicPortfolioProf
 
 export async function getPublicPortfolioProfileBySlug(slug: string): Promise<PublicPortfolioProfile> {
   const profile = await buildPublicPortfolioProfile();
-  if (profile.slug !== slug) {
+  if (profile.slug !== slug && profile.username.toLowerCase() !== slug.toLowerCase()) {
     throw new Error("Public portfolio not found.");
   }
   return profile;
@@ -356,5 +403,18 @@ export async function exportGithubResume(): Promise<{ markdown: string; fileName
   return {
     markdown: profile.githubResumeMarkdown,
     fileName: `${slugify(profile.owner)}-contributorops-resume.md`
+  };
+}
+
+export async function exportAllCareerAssets(): Promise<ExportBundle> {
+  await ensureFeature("export-center");
+  const [profile, entries] = await Promise.all([buildPublicPortfolioProfile(), readPortfolio()]);
+  return {
+    resumeMarkdown: profile.githubResumeMarkdown,
+    resumeBullets: buildResumeBullets(entries),
+    linkedInPosts: buildLinkedInPosts(entries),
+    portfolioMarkdown: buildPortfolioMarkdown(entries),
+    recruiterPitch: buildRecruiterPitch(entries),
+    githubReadmeSnippet: buildGithubReadmeSnippet(entries)
   };
 }

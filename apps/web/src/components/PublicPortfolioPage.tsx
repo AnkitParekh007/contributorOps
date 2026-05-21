@@ -29,8 +29,20 @@ export function PublicPortfolioPage({ profile, error }: PublicPortfolioPageProps
     );
   }
 
+  const skills = Array.from(
+    new Set(
+      profile.entries.flatMap((entry) =>
+        [entry.selectedRepo, entry.notes]
+          .join(" ")
+          .toLowerCase()
+          .match(/api|backend|graphql|angular|platform|developer-tools|typescript|node|documentation/g) || []
+      )
+    )
+  );
+  const bestPrs = profile.entries.filter((entry) => entry.prUrl).slice(0, 3);
+
   return (
-    <main className="public-portfolio-shell">
+    <main className={`public-portfolio-shell ${profile.premiumThemeEnabled ? "premium-theme" : ""}`}>
       <section className="public-portfolio-card">
         <p className="eyebrow">ContributorOps Public Portfolio</p>
         <h1>{profile.owner}</h1>
@@ -58,11 +70,24 @@ export function PublicPortfolioPage({ profile, error }: PublicPortfolioPageProps
             <Sparkles size={16} />
             <strong>Contribution highlights</strong>
           </div>
+          <p><strong>Contribution summary:</strong> {profile.entries.length} tracked OSS contributions packaged as job-ready proof.</p>
+          <p><strong>Skills:</strong> {skills.join(", ") || "backend, API, developer tooling"}</p>
+          {bestPrs.length > 0 ? (
+            <div className="public-entry-stack">
+              <strong>Best PRs</strong>
+              {bestPrs.map((entry) => (
+                <a key={entry.prUrl} href={entry.prUrl} target="_blank" rel="noreferrer">
+                  {entry.selectedRepo} PR <ExternalLink size={14} />
+                </a>
+              ))}
+            </div>
+          ) : null}
           <div className="public-entry-stack">
             {profile.entries.map((entry) => (
               <article key={`${entry.selectedRepo}-${entry.issueUrl}`} className="public-entry-card">
                 <strong>{entry.selectedRepo}</strong>
                 <p>{entry.resumeBullet}</p>
+                <p>{entry.interviewStarStory}</p>
                 <div className="button-row">
                   {entry.issueUrl ? (
                     <a href={entry.issueUrl} target="_blank" rel="noreferrer">

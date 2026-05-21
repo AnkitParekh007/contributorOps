@@ -96,6 +96,7 @@ export async function readBillingState(): Promise<BillingState> {
     seatCount: 1,
     publicPortfolioSlug: "ankit-proof-of-work",
     publicPortfolioEnabled: false,
+    premiumThemeEnabled: false,
     profileHeadline: "ContributorOps helps developers turn open-source contributions into job-ready proof of work.",
     profileSummary:
       "I use ContributorOps to source backend and developer-tooling issues, build credible contribution plans, and package the final work into recruiter-ready proof.",

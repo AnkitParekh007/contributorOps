@@ -3,6 +3,12 @@ export type ContributionSafetyLevel = "research" | "draft" | "approved-pr";
 export type ContributionExecutionMode = "research" | "draft" | "approved-auto-contribute";
 export type BillingPlan = "free" | "pro" | "career" | "team";
 export type BillingStatus = "active" | "trialing" | "past_due" | "cancelled";
+export type TargetRole =
+  | "API Developer"
+  | "Backend Engineer"
+  | "Angular Developer"
+  | "Platform Engineer"
+  | "Developer Advocate";
 export type FeatureKey =
   | "basic-discovery"
   | "daily-plans"
@@ -16,7 +22,10 @@ export type FeatureKey =
   | "pr-quality-checker"
   | "team-dashboard"
   | "shared-repo-radar"
-  | "approved-auto-contribute";
+  | "approved-auto-contribute"
+  | "premium-public-theme"
+  | "github-profile-audit"
+  | "export-center";
 export type ContributionRunStatus =
   | "prepared"
   | "comment approved"
@@ -40,6 +49,7 @@ export interface DiscoveryFilters {
   topics: string[];
   languages: string[];
   labels: string[];
+  targetRole?: TargetRole;
 }
 
 export interface RawIssueCandidate {
@@ -64,7 +74,14 @@ export interface RawIssueCandidate {
 export interface JobModeDrafts {
   resumeBullet: string;
   linkedInPost: string;
+  linkedInShort: string;
+  linkedInMedium: string;
+  linkedInDetailed: string;
   interviewStarStory: string;
+  interviewSituation: string;
+  interviewTask: string;
+  interviewAction: string;
+  interviewResult: string;
   recruiterOutreach: string;
   githubProfileSnippet: string;
 }
@@ -97,7 +114,23 @@ export interface QualityCheck {
 export interface PrQualityReport {
   score: number;
   verdict: "needs-review" | "solid" | "strong";
+  riskLevel: "low" | "medium" | "high";
   checks: QualityCheck[];
+  suggestions: string[];
+}
+
+export interface RoleMatchReport {
+  targetRole: TargetRole;
+  score: number;
+  reasons: string[];
+}
+
+export interface GithubProfileAudit {
+  username: string;
+  score: number;
+  strengths: string[];
+  checklist: string[];
+  readmeSuggestions: string[];
 }
 
 export interface ContributionPlan {
@@ -110,6 +143,7 @@ export interface ContributionPlan {
   resumeBulletDraft: string;
   jobMode: JobModeDrafts;
   maintainerTrust: MaintainerTrustReport;
+  roleMatch: RoleMatchReport;
 }
 
 export interface IssueCandidate extends ContributionPlan {
@@ -290,6 +324,7 @@ export interface BillingState {
   seatCount: number;
   publicPortfolioSlug: string;
   publicPortfolioEnabled: boolean;
+  premiumThemeEnabled: boolean;
   profileHeadline: string;
   profileSummary: string;
   featureOverrides: Partial<Record<FeatureKey, boolean>>;
@@ -326,12 +361,14 @@ export interface PublicPortfolioEntry {
 
 export interface PublicPortfolioProfile {
   slug: string;
+  username: string;
   owner: string;
   headline: string;
   summary: string;
   recruiterShareUrl: string;
   githubResumeMarkdown: string;
   entries: PublicPortfolioEntry[];
+  premiumThemeEnabled: boolean;
 }
 
 export interface TeamRadarItem {
@@ -340,4 +377,13 @@ export interface TeamRadarItem {
   averageScore: number;
   topLabels: string[];
   whyNow: string;
+}
+
+export interface ExportBundle {
+  resumeMarkdown: string;
+  resumeBullets: string;
+  linkedInPosts: string;
+  portfolioMarkdown: string;
+  recruiterPitch: string;
+  githubReadmeSnippet: string;
 }
