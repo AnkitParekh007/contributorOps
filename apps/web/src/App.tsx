@@ -19,6 +19,7 @@ import { BrandLogo } from "./components/BrandLogo";
 import { CandidateList } from "./components/CandidateList";
 import { ControlModePanel } from "./components/ControlModePanel";
 import { ContributionModePanel } from "./components/ContributionModePanel";
+import { DeveloperSetupPage, type DeveloperSetupSection } from "./components/DeveloperSetupPage";
 import { DiscoveryControls } from "./components/DiscoveryControls";
 import { IssueDetailPanel } from "./components/IssueDetailPanel";
 import { JobModePanel } from "./components/JobModePanel";
@@ -121,7 +122,7 @@ const defaultFilters: DiscoveryFilters = {
   targetRole: "Backend Engineer"
 };
 
-type AppPage = "dashboard" | "auto-contribute" | "proof-of-work" | "pricing" | "team-radar";
+type AppPage = "dashboard" | "auto-contribute" | "proof-of-work" | "pricing" | "team-radar" | "developer-setup";
 
 type ThemeMode = "light" | "dark";
 
@@ -226,9 +227,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 function App() {
   const publicUsername = "AnkitParekh007";
-  const envGuideUrl = "https://github.com/AnkitParekh007/contributorOps/blob/main/docs/environment-setup.md";
-  const apiEnvTemplateUrl = "https://github.com/AnkitParekh007/contributorOps/blob/main/apps/api/.env.example";
-  const webEnvTemplateUrl = "https://github.com/AnkitParekh007/contributorOps/blob/main/apps/web/.env.example";
   const usernameMatch =
     typeof window !== "undefined" ? window.location.pathname.match(/^\/u\/([^/]+)$/) : null;
   const usernameSlug = usernameMatch?.[1] || "";
@@ -280,6 +278,7 @@ function App() {
   const [githubResumeMarkdown, setGithubResumeMarkdown] = useState("");
   const [recruiterShareUrl, setRecruiterShareUrl] = useState("");
   const [exportBundle, setExportBundle] = useState<ExportBundle | null>(null);
+  const [developerSetupSection, setDeveloperSetupSection] = useState<DeveloperSetupSection>("guide");
   const [profileAuditUsername, setProfileAuditUsername] = useState("AnkitParekh007");
   const [profileAudit, setProfileAudit] = useState<GithubProfileAudit | null>(null);
   const [teamRadar, setTeamRadar] = useState<TeamRadarItem[]>([]);
@@ -851,6 +850,14 @@ function App() {
                   <Radar size={16} />
                   Team Radar
                 </button>
+                <button
+                  type="button"
+                  className={`sidebar-nav-button ${activePage === "developer-setup" ? "active" : ""}`}
+                  onClick={() => navigateToPage("developer-setup")}
+                >
+                  <BookOpen size={16} />
+                  Developer Setup
+                </button>
               </div>
             </div>
           </div>
@@ -890,18 +897,39 @@ function App() {
                 <li><code>apps/site/.env.local</code></li>
               </ul>
               <div className="sidebar-help-links">
-                <a href={envGuideUrl} target="_blank" rel="noreferrer" className="sidebar-help-link">
+                <button
+                  type="button"
+                  className="sidebar-help-link sidebar-help-link-button"
+                  onClick={() => {
+                    setDeveloperSetupSection("guide");
+                    navigateToPage("developer-setup");
+                  }}
+                >
                   Full env guide
                   <ExternalLink size={14} />
-                </a>
-                <a href={apiEnvTemplateUrl} target="_blank" rel="noreferrer" className="sidebar-help-link">
+                </button>
+                <button
+                  type="button"
+                  className="sidebar-help-link sidebar-help-link-button"
+                  onClick={() => {
+                    setDeveloperSetupSection("api-template");
+                    navigateToPage("developer-setup");
+                  }}
+                >
                   API template
                   <ExternalLink size={14} />
-                </a>
-                <a href={webEnvTemplateUrl} target="_blank" rel="noreferrer" className="sidebar-help-link">
+                </button>
+                <button
+                  type="button"
+                  className="sidebar-help-link sidebar-help-link-button"
+                  onClick={() => {
+                    setDeveloperSetupSection("web-template");
+                    navigateToPage("developer-setup");
+                  }}
+                >
                   Web template
                   <ExternalLink size={14} />
-                </a>
+                </button>
               </div>
             </div>
 
@@ -1080,6 +1108,13 @@ function App() {
               radar={teamRadar}
               isLoading={isLoading}
               onRefresh={refreshTeamRadar}
+            />
+          ) : null}
+
+          {activePage === "developer-setup" ? (
+            <DeveloperSetupPage
+              selectedSection={developerSetupSection}
+              onSelectSection={setDeveloperSetupSection}
             />
           ) : null}
         </main>
