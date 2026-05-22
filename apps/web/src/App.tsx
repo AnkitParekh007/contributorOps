@@ -789,80 +789,94 @@ function App() {
     <div className="app-shell">
       <div className="app-grid">
         <aside className="sidebar">
-          <div className="sidebar-brand">
-            <BrandLogo theme={theme} compact />
-            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <div className="sidebar-top">
+            <div className="sidebar-brand">
+              <BrandLogo theme={theme} compact />
+              <ThemeToggle theme={theme} onToggle={toggleTheme} />
+            </div>
+
+            <div className="sidebar-intro">
+              <p className="eyebrow">Career engine</p>
+              <p className="sidebar-copy">
+                Discover quality open-source issues in API, backend, and developer-tooling repos and
+                turn every contribution into interview-ready proof.
+              </p>
+            </div>
+
+            <div className="sidebar-nav-group">
+              <span className="sidebar-section-label">Workspace</span>
+              <div className="sidebar-nav">
+                <button
+                  type="button"
+                  className={`sidebar-nav-button ${activePage === "dashboard" ? "active" : ""}`}
+                  onClick={() => navigateToPage("dashboard")}
+                >
+                  <LayoutDashboard size={16} />
+                  Dashboard
+                </button>
+                <button
+                  type="button"
+                  className={`sidebar-nav-button ${activePage === "auto-contribute" ? "active" : ""}`}
+                  onClick={() => navigateToPage("auto-contribute")}
+                >
+                  <Bot size={16} />
+                  Auto-Contribute
+                </button>
+                <button
+                  type="button"
+                  className={`sidebar-nav-button ${activePage === "proof-of-work" ? "active" : ""}`}
+                  onClick={() => navigateToPage("proof-of-work")}
+                >
+                  <BriefcaseBusiness size={16} />
+                  Proof of Work
+                </button>
+                <button
+                  type="button"
+                  className={`sidebar-nav-button ${activePage === "pricing" ? "active" : ""}`}
+                  onClick={() => navigateToPage("pricing")}
+                >
+                  <BadgeDollarSign size={16} />
+                  Pricing
+                </button>
+                <button
+                  type="button"
+                  className={`sidebar-nav-button ${activePage === "team-radar" ? "active" : ""}`}
+                  onClick={() => navigateToPage("team-radar")}
+                >
+                  <Radar size={16} />
+                  Team Radar
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <p className="eyebrow">Career engine</p>
-            <p className="sidebar-copy">
-              Discover quality open-source issues in API, backend, and developer-tooling repos and
-              turn every contribution into interview-ready proof.
-            </p>
-          </div>
+          <div className="sidebar-bottom">
+            <div className="sidebar-metrics">
+              <div className="sidebar-card sidebar-stat-card">
+                <span>Plan</span>
+                <strong>{billing.plan.toUpperCase()}</strong>
+                <p>
+                  {usage.generatedPlans} plan runs this week
+                  {entitlements.weeklyPlanLimit !== null ? ` / ${entitlements.weeklyPlanLimit}` : " / unlimited"}
+                </p>
+              </div>
 
-          <div className="sidebar-card">
-            <span>Positioning</span>
-            <p>ContributorOps helps developers turn open-source contributions into job-ready proof of work.</p>
-          </div>
+              <div className="sidebar-card sidebar-stat-card">
+                <span>Today</span>
+                <strong>{topOpportunityCount}</strong>
+                <p>top opportunities in the latest plan</p>
+              </div>
+            </div>
 
-          <div className="sidebar-card">
-            <span>Plan</span>
-            <strong>{billing.plan.toUpperCase()}</strong>
-            <p>
-              {usage.generatedPlans} plan runs this week
-              {entitlements.weeklyPlanLimit !== null ? ` / ${entitlements.weeklyPlanLimit}` : " / unlimited"}
-            </p>
-          </div>
+            <div className="sidebar-card sidebar-context-card">
+              <span>Positioning</span>
+              <p>ContributorOps helps developers turn open-source contributions into job-ready proof of work.</p>
+            </div>
 
-          <div className="sidebar-card">
-            <span>Today</span>
-            <strong>{topOpportunityCount}</strong>
-            <p>top opportunities in the latest plan</p>
-          </div>
-
-          <div className="sidebar-nav">
-            <button
-              type="button"
-              className={`sidebar-nav-button ${activePage === "dashboard" ? "active" : ""}`}
-              onClick={() => navigateToPage("dashboard")}
-            >
-              <LayoutDashboard size={16} />
-              Dashboard
-            </button>
-            <button
-              type="button"
-              className={`sidebar-nav-button ${activePage === "auto-contribute" ? "active" : ""}`}
-              onClick={() => navigateToPage("auto-contribute")}
-            >
-              <Bot size={16} />
-              Auto-Contribute
-            </button>
-            <button
-              type="button"
-              className={`sidebar-nav-button ${activePage === "proof-of-work" ? "active" : ""}`}
-              onClick={() => navigateToPage("proof-of-work")}
-            >
-              <BriefcaseBusiness size={16} />
-              Proof of Work
-            </button>
-            <button
-              type="button"
-              className={`sidebar-nav-button ${activePage === "pricing" ? "active" : ""}`}
-              onClick={() => navigateToPage("pricing")}
-            >
-              <BadgeDollarSign size={16} />
-              Pricing
-            </button>
-            <button
-              type="button"
-              className={`sidebar-nav-button ${activePage === "team-radar" ? "active" : ""}`}
-              onClick={() => navigateToPage("team-radar")}
-            >
-              <Radar size={16} />
-              Team Radar
-            </button>
+            <div className="sidebar-footnote">
+              <span className="sidebar-footnote-label">Operating model</span>
+              <p>Human-approved contribution intelligence for credible proof, not volume farming.</p>
+            </div>
           </div>
         </aside>
 

@@ -86,6 +86,8 @@ a {
 .sidebar {
   position: sticky;
   top: 0;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   overflow-y: auto;
   scrollbar-gutter: stable;
@@ -110,7 +112,41 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 24px;
+}
+
+.sidebar-top,
+.sidebar-bottom {
+  display: grid;
+  gap: 18px;
+}
+
+.sidebar-top {
+  align-content: start;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.sidebar-intro {
+  display: grid;
+  gap: 10px;
+}
+
+.sidebar-nav-group {
+  display: grid;
+  gap: 12px;
+}
+
+.sidebar-section-label,
+.sidebar-footnote-label {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
 }
 
 .brand-logo {
@@ -178,11 +214,36 @@ a {
 }
 
 .sidebar-card {
-  margin-top: 20px;
   padding: 18px;
   border: 1px solid rgba(132, 164, 211, 0.12);
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.sidebar-metrics {
+  display: grid;
+  gap: 12px;
+}
+
+.sidebar-stat-card strong {
+  font-size: clamp(1.35rem, 1vw + 1rem, 1.85rem);
+}
+
+.sidebar-context-card p {
+  margin-bottom: 0;
+}
+
+.sidebar-footnote {
+  display: grid;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.sidebar-footnote p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 0.92rem;
 }
 
 :root[data-theme="light"] .sidebar-card,
@@ -221,7 +282,6 @@ a {
 .sidebar-nav {
   display: grid;
   gap: 10px;
-  margin-top: 20px;
 }
 
 .sidebar-nav-button {
@@ -235,6 +295,7 @@ a {
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
   cursor: pointer;
+  font-weight: 600;
 }
 
 .sidebar-nav-button.active {
@@ -1054,6 +1115,7 @@ a:focus-visible {
   .sidebar {
     position: static;
     height: auto;
+    overflow: visible;
     border-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
@@ -1111,6 +1173,11 @@ a:focus-visible {
 
   .sidebar-brand {
     margin-bottom: 18px;
+  }
+
+  .sidebar-bottom {
+    margin-top: 20px;
+    padding-top: 0;
   }
 
   .brand-logo-wordmark {
