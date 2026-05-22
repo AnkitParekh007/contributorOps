@@ -1178,3 +1178,210 @@ select {
 .error-banner button:hover {
   opacity: 1;
 }
+
+/* ── Login Page ──────────────────────────────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #050510;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(15, 18, 38, 0.9);
+  border: 1px solid rgba(125, 92, 255, 0.2);
+  border-radius: 16px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.login-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8b5cf6;
+}
+
+.login-brand-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #f7f7ff;
+  letter-spacing: 0.02em;
+}
+
+.login-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f7f7ff;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.login-subtitle {
+  font-size: 0.875rem;
+  color: #a5a7c4;
+  margin: -8px 0 0;
+  line-height: 1.5;
+}
+
+.login-github-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: #24292e;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+
+.login-github-btn:hover { background: #2f363d; }
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #a5a7c4;
+  font-size: 0.78rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(125, 92, 255, 0.15);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-field label {
+  font-size: 0.82rem;
+  color: #a5a7c4;
+  font-weight: 500;
+}
+
+.login-field input {
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(125, 92, 255, 0.2);
+  border-radius: 8px;
+  color: #f7f7ff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.login-field input:focus {
+  border-color: rgba(139, 92, 246, 0.6);
+}
+
+.login-submit-btn {
+  padding: 11px 20px;
+  background: #8b5cf6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.login-submit-btn:hover { opacity: 0.88; }
+.login-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.login-error {
+  padding: 10px 14px;
+  background: rgba(251, 113, 133, 0.1);
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  border-radius: 8px;
+  color: #fb7185;
+  font-size: 0.82rem;
+}
+
+.login-success {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.login-success-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #34d399;
+  font-size: 1.2rem;
+}
+
+.login-success h3 {
+  color: #f7f7ff;
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.login-success p {
+  color: #a5a7c4;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.login-resend-btn {
+  background: none;
+  border: none;
+  color: #8b5cf6;
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.login-footer-note {
+  font-size: 0.75rem;
+  color: #a5a7c4;
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.login-footer-note a {
+  color: #8b5cf6;
+  text-decoration: underline;
+}

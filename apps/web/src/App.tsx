@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LoginPage } from "./components/LoginPage";
 import {
   AlertTriangle,
   BadgeDollarSign,
@@ -169,6 +171,24 @@ function emptyUsage(): UsageSnapshot {
     resumeExports: 0,
     publicPortfolioViews: 0
   };
+}
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { isSupabaseEnabled, session, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+        <div style={{ color: "var(--muted, #888)", fontSize: "0.9rem" }}>Loading…</div>
+      </div>
+    );
+  }
+
+  if (isSupabaseEnabled && !session) {
+    return <LoginPage />;
+  }
+
+  return <>{children}</>;
 }
 
 function App() {
@@ -711,6 +731,8 @@ function App() {
   }
 
   return (
+    <AuthProvider>
+      <AuthGate>
     <div className="app-shell">
       <div className="app-grid">
         <aside className="sidebar">
@@ -960,6 +982,8 @@ function App() {
         </main>
       </div>
     </div>
+      </AuthGate>
+    </AuthProvider>
   );
 }
 

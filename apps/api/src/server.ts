@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import cors from "cors";
-import express from "express";
+import express, { type Request, type Response, type NextFunction } from "express";
 import {
   buildEntitlements,
   buildPublicPortfolioProfile,
@@ -53,6 +53,10 @@ import type {
   PortfolioEntry
 } from "./types.js";
 
+import { authMiddleware } from "./auth/middleware.js";
+import { getUserId } from "./auth/session.js";
+import { isSupabaseMode, upsertWaitlistEntry } from "./db/index.js";
+
 // ── Waitlist helpers ────────────────────────────────────────────────────────
 const WAITLIST_PATH = path.join(process.cwd(), "data", "waitlist.json");
 
@@ -92,6 +96,20 @@ const app = express();
 
 app.use(cors({ origin: config.allowedOrigins, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
+
+// ── Auth middleware ──────────────────────────────────────────────────────────
+// Public paths that skip authentication:
+const PUBLIC_PATHS = new Set(["/api/health", "/api/pricing", "/api/meta", "/api/launch-offer"]);
+const PUBLIC_PREFIXES = ["/api/public/", "/api/waitlist"];
+
+app.use("/api", (req: Request, res: Response, next: NextFunction) => {
+  const isPublic =
+    PUBLIC_PATHS.has(req.path) ||
+    PUBLIC_PREFIXES.some((prefix) => req.path.startsWith(prefix)) ||
+    req.method === "OPTIONS";
+  if (isPublic) return next();
+  return authMiddleware(req, res, next);
+});
 
 app.get("/api/health", async (_request, response, next) => {
   try {
@@ -657,6 +675,24 @@ app.post("/api/waitlist", async (request, response, next) => {
 
     entries.push(entry);
     writeWaitlist(entries);
+
+    // Dual-write to Supabase if configured
+    if (isSupabaseMode()) {
+      try {
+        await upsertWaitlistEntry({
+          email: safeString(request.body.email, 100),
+          name: safeString(request.body.name, 100),
+          githubUsername: safeString(request.body.githubUsername, 50),
+          targetRole: safeString(request.body.targetRole, 50),
+          planInterest: safeString(request.body.planInterest, 50),
+          problemStatement: safeString(request.body.problemStatement, 500),
+          source: "api",
+        });
+      } catch (dbErr) {
+        // Non-fatal: log but don't fail the request
+        console.error("Supabase waitlist write failed:", dbErr);
+      }
+    }
 
     response.status(201).json({
       id: entry.id,

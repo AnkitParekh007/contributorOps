@@ -20,15 +20,33 @@ import type {
   TeamRadarItem,
   UsageSnapshot
 } from "../types";
+import { supabase } from "../lib/supabase";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  try {
+    if (supabase) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        headers["Authorization"] = `Bearer ${session.access_token}`;
+      }
+    }
+  } catch {
+    // demo mode — no supabase configured
+  }
+  return headers;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const authHeaders = await getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
     headers: {
-      "Content-Type": "application/json"
+      ...authHeaders,
+      ...(init?.headers as Record<string, string> | undefined),
     },
-    ...init
   });
 
   if (!response.ok) {

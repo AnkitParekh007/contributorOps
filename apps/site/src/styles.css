@@ -1968,8 +1968,8 @@ html[data-theme="light"] .docs-sidebar-link-active {
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
-	padding: 2px 8px;
-	border-radius: 999px;
+	padding: 12px;
+	border-radius: 12px;
 }
 
 .docs-cat-product {
