@@ -3,6 +3,7 @@ import { Footer } from "./components/Footer";
 import { Navbar } from "./components/Navbar";
 import { ThemeProvider } from "./context/ThemeContext";
 import { Docs } from "./pages/Docs";
+import { DocsArticle } from "./pages/DocsArticle";
 import { Features } from "./pages/Features";
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
@@ -22,6 +23,7 @@ function App() {
               <Route path="/features" element={<Features />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/docs" element={<Docs />} />
+              <Route path="/docs/:slug" element={<DocsArticle />} />
               <Route path="/safety" element={<Safety />} />
               <Route path="/roadmap" element={<Roadmap />} />
               <Route path="*" element={<NotFound />} />
