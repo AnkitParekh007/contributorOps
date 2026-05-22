@@ -1,108 +1,49 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import cors from "cors";
-import express, { type Request, type Response, type NextFunction } from "express";
-import {
-  buildEntitlements,
-  buildPublicPortfolioProfile,
-  ensureFeature,
-  ensurePlanGenerationAllowed,
-  exportGithubResume,
-  exportAllCareerAssets,
-  getBillingState,
-  getPublicPortfolioProfileBySlug,
-  getUsageSnapshot,
-  incrementUsage,
-  pricingTiers,
-  updateBillingPlan,
-  updatePublicProfile
-} from "./billing.js";
+import express from "express";
+import helmet from "helmet";
+import { pinoHttp } from "pino-http";
+
 import { config } from "./config.js";
-import {
-  approveContributionBranch,
-  approveContributionComment,
-  approveContributionDraftPr,
-  cancelContributionRun,
-  markContributionRunError,
-  prepareContributionRun
-} from "./contribute.js";
-import { runDailyPlan } from "./daily.js";
-import { createApprovedDraftPullRequest, createPlanningIssue, discoverIssues } from "./github.js";
-import { buildDailyPlan, buildDraftProposal, buildGithubProfileAudit, buildIssueCandidate } from "./planner.js";
-import {
-  readControlMode,
-  readContributionRuns,
-  readDailyPlan,
-  readPortfolio,
-  readPullRequestActivity,
-  writeControlMode,
-  writeDailyPlan,
-  writePortfolio,
-  writePullRequestActivity
-} from "./storage.js";
-import type {
-  ApprovedPullRequestRequest,
-  ContributionApprovalRequest,
-  ControlModeUpdateRequest,
-  DailyPlan,
-  DraftProposalRequest,
-  DiscoveryFilters,
-  PrepareContributionRequest,
-  PlanningIssueRequest,
-  PortfolioEntry
-} from "./types.js";
-
+import { logger } from "./logger.js";
 import { authMiddleware } from "./auth/middleware.js";
-import { getUserId } from "./auth/session.js";
-import { isSupabaseMode, upsertWaitlistEntry } from "./db/index.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { requestId } from "./middleware/requestId.js";
+import { standardLimiter } from "./middleware/rateLimiter.js";
 
-// ── Waitlist helpers ────────────────────────────────────────────────────────
-const WAITLIST_PATH = path.join(process.cwd(), "data", "waitlist.json");
-
-function readWaitlist(): Array<{
-  id: string;
-  name: string;
-  email: string;
-  targetRole: string;
-  planInterest: string;
-  source: string;
-  createdAt: string;
-}> {
-  try {
-    return JSON.parse(fs.readFileSync(WAITLIST_PATH, "utf-8"));
-  } catch {
-    return [];
-  }
-}
-
-function writeWaitlist(entries: ReturnType<typeof readWaitlist>): void {
-  const dir = path.dirname(WAITLIST_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(WAITLIST_PATH, JSON.stringify(entries, null, 2));
-}
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-}
-
-function safeString(value: unknown, maxLength = 200): string {
-  if (typeof value !== "string") return "";
-  return value.trim().slice(0, maxLength);
-}
-// ────────────────────────────────────────────────────────────────────────────
+import healthRouter from "./routes/health.js";
+import pricingRouter from "./routes/pricing.js";
+import waitlistRouter from "./routes/waitlist.js";
+import billingRouter from "./routes/billing.js";
+import usageRouter from "./routes/usage.js";
+import portfolioRouter from "./routes/portfolio.js";
+import discoveryRouter from "./routes/discovery.js";
+import controlModeRouter from "./routes/controlMode.js";
+import contributeRouter from "./routes/contribute.js";
+import githubRouter from "./routes/github.js";
+import onboardingRouter from "./routes/onboarding.js";
 
 const app = express();
 
+// ── Security + observability ────────────────────────────────────────────────
+app.use(helmet());
+app.use(requestId);
+app.use(pinoHttp({ logger }));
+
+// ── CORS + body parsing ──────────────────────────────────────────────────────
 app.use(cors({ origin: config.allowedOrigins, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 
-// ── Auth middleware ──────────────────────────────────────────────────────────
-// Public paths that skip authentication:
-const PUBLIC_PATHS = new Set(["/api/health", "/api/pricing", "/api/meta", "/api/launch-offer"]);
-const PUBLIC_PREFIXES = ["/api/public/", "/api/waitlist"];
+// ── Rate limiting ────────────────────────────────────────────────────────────
+app.use("/api", standardLimiter);
 
-app.use("/api", (req: Request, res: Response, next: NextFunction) => {
+// ── Auth middleware ──────────────────────────────────────────────────────────
+const PUBLIC_PATHS = new Set(["/api/health", "/api/pricing", "/api/meta", "/api/launch-offer"]);
+// /api/github/callback must be public — GitHub redirects here before the user has a session
+const PUBLIC_PREFIXES = ["/api/public/", "/api/waitlist", "/api/github/callback", "/api/github/connect"];
+
+app.use("/api", (req, res, next) => {
   const isPublic =
     PUBLIC_PATHS.has(req.path) ||
     PUBLIC_PREFIXES.some((prefix) => req.path.startsWith(prefix)) ||
@@ -111,636 +52,31 @@ app.use("/api", (req: Request, res: Response, next: NextFunction) => {
   return authMiddleware(req, res, next);
 });
 
-app.get("/api/health", async (_request, response, next) => {
-  try {
-    const [controlMode, billing, usage] = await Promise.all([
-      readControlMode(),
-      getBillingState(),
-      getUsageSnapshot()
-    ]);
-    response.json({
-      ok: true,
-      mode: config.githubToken ? "github" : "demo",
-      createDailyIssue: config.createDailyIssue,
-      autoContributeEnabled: config.autoContributeEnabled,
-      controlMode,
-      billing,
-      usage,
-      entitlements: buildEntitlements(billing)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+// ── Route modules ────────────────────────────────────────────────────────────
+app.use("/api", healthRouter);
+app.use("/api", pricingRouter);
+app.use("/api", waitlistRouter);
+app.use("/api", billingRouter);
+app.use("/api", usageRouter);
+app.use("/api", portfolioRouter);
+app.use("/api", discoveryRouter);
+app.use("/api", controlModeRouter);
+app.use("/api", contributeRouter);
+app.use("/api", githubRouter);
+app.use("/api", onboardingRouter);
 
-app.get("/api/pricing", async (_request, response) => {
-  response.json(pricingTiers);
-});
-
-app.get("/api/billing", async (_request, response, next) => {
-  try {
-    const billing = await getBillingState();
-    response.json({
-      billing,
-      entitlements: buildEntitlements(billing)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/billing/mock-select-plan", async (request, response, next) => {
-  try {
-    const billing = await updateBillingPlan(request.body?.plan);
-    response.json({
-      billing,
-      entitlements: buildEntitlements(billing)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.patch("/api/billing/profile", async (request, response, next) => {
-  try {
-    await ensureFeature("public-portfolio");
-    const billing = await updatePublicProfile(request.body || {});
-    response.json({
-      billing,
-      entitlements: buildEntitlements(billing)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/usage", async (_request, response, next) => {
-  try {
-    response.json(await getUsageSnapshot());
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/control-mode", async (_request, response, next) => {
-  try {
-    response.json(await readControlMode());
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/control-mode", async (request, response, next) => {
-  try {
-    const body = request.body as ControlModeUpdateRequest;
-    const now = new Date().toISOString();
-    const nextState = {
-      safetyLevel: body.safetyLevel,
-      approvalRequired: body.safetyLevel === "approved-pr",
-      approvalGrantedAt:
-        body.safetyLevel === "approved-pr" && body.explicitApproval ? now : null,
-      approvalReason:
-        body.safetyLevel === "approved-pr" ? body.approvalReason?.trim() || "" : "",
-      lastUpdatedAt: now
-    };
-    response.json(await writeControlMode(nextState));
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/discover", async (request, response, next) => {
-  try {
-    await ensurePlanGenerationAllowed();
-    const filters = request.body as Partial<DiscoveryFilters>;
-    const discovery = await discoverIssues(filters);
-    const issues = discovery.candidates
-      .map((candidate) => buildIssueCandidate(candidate, { targetRole: filters.targetRole }))
-      .sort((left, right) => right.score - left.score);
-    const dailyPlan = buildDailyPlan(issues);
-    await writeDailyPlan(dailyPlan);
-    await incrementUsage("generatedPlans");
-    response.json({ mode: discovery.mode, issues, dailyPlan });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/daily-plan", async (_request, response, next) => {
-  try {
-    const plan = await readDailyPlan();
-    response.json(plan);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/portfolio", async (_request, response, next) => {
-  try {
-    response.json(await readPortfolio());
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/portfolio", async (request, response, next) => {
-  try {
-    await ensureFeature("portfolio-tracker");
-    const payload = request.body as Partial<PortfolioEntry>;
-    const entries = await readPortfolio();
-    const now = new Date().toISOString();
-    const entry: PortfolioEntry = {
-      id: crypto.randomUUID(),
-      selectedRepo: payload.selectedRepo || "",
-      issueUrl: payload.issueUrl || "",
-      prUrl: payload.prUrl || "",
-      status: payload.status || "discovered",
-      notes: payload.notes || "",
-      interviewStarStory: payload.interviewStarStory || "",
-      interviewSituation: payload.interviewSituation || "",
-      interviewTask: payload.interviewTask || "",
-      interviewAction: payload.interviewAction || "",
-      interviewResult: payload.interviewResult || "",
-      resumeBullet: payload.resumeBullet || "",
-      linkedInPost: payload.linkedInPost || "",
-      linkedInShort: payload.linkedInShort || payload.linkedInPost || "",
-      linkedInMedium: payload.linkedInMedium || payload.linkedInPost || "",
-      linkedInDetailed: payload.linkedInDetailed || payload.linkedInPost || "",
-      recruiterOutreach: payload.recruiterOutreach || "",
-      githubProfileSnippet: payload.githubProfileSnippet || "",
-      createdAt: now,
-      updatedAt: now
-    };
-    entries.unshift(entry);
-    await writePortfolio(entries);
-    response.status(201).json(entry);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.patch("/api/portfolio/:id", async (request, response, next) => {
-  try {
-    await ensureFeature("portfolio-tracker");
-    const entries = await readPortfolio();
-    const index = entries.findIndex((entry) => entry.id === request.params.id);
-    if (index === -1) {
-      response.status(404).json({ message: "Portfolio entry not found." });
-      return;
-    }
-
-    entries[index] = {
-      ...entries[index],
-      ...request.body,
-      id: entries[index].id,
-      createdAt: entries[index].createdAt,
-      updatedAt: new Date().toISOString()
-    };
-
-    await writePortfolio(entries);
-    response.json(entries[index]);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.delete("/api/portfolio/:id", async (request, response, next) => {
-  try {
-    await ensureFeature("portfolio-tracker");
-    const entries = await readPortfolio();
-    const filtered = entries.filter((entry) => entry.id !== request.params.id);
-    await writePortfolio(filtered);
-    response.status(204).send();
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/create-planning-issue", async (request, response, next) => {
-  try {
-    const controlMode = await readControlMode();
-    if (controlMode.safetyLevel === "research") {
-      response.status(403).json({
-        message: "Planning issues are disabled in Research Mode."
-      });
-      return;
-    }
-
-    const body = request.body as PlanningIssueRequest;
-    const plan: DailyPlan = await readDailyPlan();
-    const title = body.title || `ContributorOps daily plan ${new Date().toISOString().slice(0, 10)}`;
-    const issueBody = body.body || plan.markdown;
-    const result = await createPlanningIssue(title, issueBody);
-    response.json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/draft-proposal", async (request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    const controlMode = await readControlMode();
-    if (controlMode.safetyLevel === "research") {
-      response.status(403).json({
-        message: "Draft proposal generation requires Draft Mode or Approved PR Mode."
-      });
-      return;
-    }
-
-    const body = request.body as DraftProposalRequest;
-    response.json(buildDraftProposal(body.issue));
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/contribute/prepare", async (request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    const body = request.body as PrepareContributionRequest;
-    response.json(await prepareContributionRun(body));
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/contribute/approve-comment", async (request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    response.json(await approveContributionComment(request.body as ContributionApprovalRequest));
-  } catch (error) {
-    const body = request.body as Partial<ContributionApprovalRequest>;
-    if (body.runId) {
-      await markContributionRunError(body.runId, error instanceof Error ? error.message : "Unknown comment approval error.");
-    }
-    next(error);
-  }
-});
-
-app.post("/api/contribute/approve-branch", async (request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    response.json(
-      await approveContributionBranch(
-        request.body as ContributionApprovalRequest & { forkOwner: string }
-      )
-    );
-  } catch (error) {
-    const body = request.body as Partial<ContributionApprovalRequest>;
-    if (body.runId) {
-      await markContributionRunError(body.runId, error instanceof Error ? error.message : "Unknown branch approval error.");
-    }
-    next(error);
-  }
-});
-
-app.post("/api/contribute/approve-draft-pr", async (request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    response.json(
-      await approveContributionDraftPr(
-        request.body as ContributionApprovalRequest & { forkOwner: string }
-      )
-    );
-  } catch (error) {
-    const body = request.body as Partial<ContributionApprovalRequest>;
-    if (body.runId) {
-      await markContributionRunError(body.runId, error instanceof Error ? error.message : "Unknown draft PR approval error.");
-    }
-    next(error);
-  }
-});
-
-app.get("/api/contribute/runs", async (_request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    response.json(await readContributionRuns());
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/contribute/runs/:id", async (request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    const run = (await readContributionRuns()).find((entry) => entry.id === request.params.id);
-    if (!run) {
-      response.status(404).json({ message: "Contribution run not found." });
-      return;
-    }
-    response.json(run);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/contribute/runs/:id/cancel", async (request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    response.json(await cancelContributionRun(request.params.id, request.body?.reason || "Cancelled by user."));
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/portfolio/share", async (_request, response, next) => {
-  try {
-    await ensureFeature("recruiter-share-link");
-    const billing = await updatePublicProfile({ publicPortfolioEnabled: true });
-    await incrementUsage("recruiterShares");
-    const profile = await buildPublicPortfolioProfile();
-    response.json({
-      slug: billing.publicPortfolioSlug,
-      recruiterShareUrl: profile.recruiterShareUrl
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/public/portfolio/:slug", async (request, response, next) => {
-  try {
-    const profile = await getPublicPortfolioProfileBySlug(request.params.slug);
-    const billing = await getBillingState();
-    if (!billing.publicPortfolioEnabled) {
-      response.status(404).json({ message: "Public portfolio is disabled." });
-      return;
-    }
-    await incrementUsage("publicPortfolioViews");
-    response.json(profile);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/public/user/:username", async (request, response, next) => {
-  try {
-    const profile = await getPublicPortfolioProfileBySlug(request.params.username);
-    const billing = await getBillingState();
-    if (!billing.publicPortfolioEnabled) {
-      response.status(404).json({ message: "Public portfolio is disabled." });
-      return;
-    }
-    await incrementUsage("publicPortfolioViews");
-    response.json(profile);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/export/github-resume", async (_request, response, next) => {
-  try {
-    response.json(await exportGithubResume());
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/export-center", async (_request, response, next) => {
-  try {
-    response.json(await exportAllCareerAssets());
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/pr-quality-check", async (request, response, next) => {
-  try {
-    await ensureFeature("pr-quality-checker");
-    const issue = request.body?.issue as DraftProposalRequest["issue"] | undefined;
-    if (!issue) {
-      response.status(400).json({ message: "Issue is required for PR quality analysis." });
-      return;
-    }
-    const proposal = buildDraftProposal(issue);
-    response.json(proposal.prQuality);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/github-profile-audit", async (request, response, next) => {
-  try {
-    await ensureFeature("github-profile-audit");
-    const username = String(request.query.username || "").trim();
-    if (!username) {
-      response.status(400).json({ message: "GitHub username is required." });
-      return;
-    }
-    response.json(buildGithubProfileAudit(username));
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/team/radar", async (_request, response, next) => {
-  try {
-    await ensureFeature("shared-repo-radar");
-    const discovery = await discoverIssues({});
-    const issues = discovery.candidates.map((candidate) => buildIssueCandidate(candidate, { targetRole: "Platform Engineer" }));
-    const grouped = new Map<string, { scores: number[]; labels: string[] }>();
-
-    for (const issue of issues) {
-      const current = grouped.get(issue.repoFullName) || { scores: [], labels: [] };
-      current.scores.push(issue.score);
-      current.labels.push(...issue.labels);
-      grouped.set(issue.repoFullName, current);
-    }
-
-    response.json(
-      [...grouped.entries()].map(([repoFullName, value]) => ({
-        repoFullName,
-        openOpportunities: value.scores.length,
-        averageScore: Math.round(value.scores.reduce((sum, score) => sum + score, 0) / value.scores.length),
-        topLabels: [...new Set(value.labels)].slice(0, 3),
-        whyNow: "High-signal repos with recent issues are easier to turn into visible proof of work."
-      }))
-    );
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/approved-pr", async (request, response, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    const controlMode = await readControlMode();
-    const activity = await readPullRequestActivity();
-    const body = request.body as ApprovedPullRequestRequest;
-    const result = await createApprovedDraftPullRequest(body, controlMode, activity);
-    const updatedActivity = [
-      {
-        upstreamRepoFullName: body.issue.repoFullName,
-        draftPullRequestUrl: result.draftPullRequestUrl,
-        createdAt: new Date().toISOString()
-      },
-      ...activity
-    ];
-    await writePullRequestActivity(updatedActivity);
-    response.json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/run-daily", async (_request, response, next) => {
-  try {
-    response.json(await runDailyPlan());
-  } catch (error) {
-    next(error);
-  }
-});
-
-// ── New endpoints ─────────────────────────────────────────────────────────
-
-app.get("/api/meta", (_request, response) => {
-  response.json({
-    appName: "ContributorOps",
-    version: "0.1.0",
-    repo: "https://github.com/AnkitParekh007/contributorOps",
-    mode: config.githubToken ? "github" : "demo",
-    publicAppUrl: "https://ankitparekh007.github.io/contributorOps/",
-    enabledFeatures: [
-      "issue-discovery",
-      "daily-plan",
-      "portfolio-tracker",
-      "pr-quality-checker",
-      "resume-export",
-      "linkedin-generator",
-      "interview-star-generator",
-      "safe-auto-contribute",
-      "public-portfolio",
-      "team-radar"
-    ]
-  });
-});
-
-app.get("/api/launch-offer", (_request, response) => {
-  response.json({
-    name: "Founder Lifetime",
-    price: 99,
-    currency: "USD",
-    billing: "one-time",
-    status: "waitlist",
-    tagline: "Lifetime access for early supporters",
-    benefits: [
-      "Everything in Career plan",
-      "Lifetime access — no recurring charges",
-      "Priority feature requests",
-      "Founder Discord channel access",
-      "Direct input on product roadmap",
-      "Grandfathered pricing forever"
-    ],
-    note: "Payments are not live yet. Join the waitlist to be notified at launch."
-  });
-});
-
-app.post("/api/waitlist", async (request, response, next) => {
-  try {
-    const body = request.body as Record<string, unknown>;
-    const name = safeString(body.name);
-    const email = safeString(body.email);
-    const targetRole = safeString(body.targetRole);
-    const planInterest = safeString(body.planInterest);
-    const source = safeString(body.source) || "site";
-
-    const errors: string[] = [];
-    if (!name) errors.push("name is required");
-    if (!email) errors.push("email is required");
-    else if (!isValidEmail(email)) errors.push("email is invalid");
-    if (!targetRole) errors.push("targetRole is required");
-
-    if (errors.length > 0) {
-      response.status(400).json({ message: errors.join(", ") });
-      return;
-    }
-
-    const entries = readWaitlist();
-    const existing = entries.find((e) => e.email.toLowerCase() === email.toLowerCase());
-    if (existing) {
-      response.status(200).json({ message: "Already on the waitlist.", id: existing.id, alreadyRegistered: true });
-      return;
-    }
-
-    const entry = {
-      id: crypto.randomUUID(),
-      name,
-      email,
-      targetRole,
-      planInterest: planInterest || "Free",
-      source,
-      createdAt: new Date().toISOString()
-    };
-
-    entries.push(entry);
-    writeWaitlist(entries);
-
-    // Dual-write to Supabase if configured
-    if (isSupabaseMode()) {
-      try {
-        await upsertWaitlistEntry({
-          email: safeString(request.body.email, 100),
-          name: safeString(request.body.name, 100),
-          githubUsername: safeString(request.body.githubUsername, 50),
-          targetRole: safeString(request.body.targetRole, 50),
-          planInterest: safeString(request.body.planInterest, 50),
-          problemStatement: safeString(request.body.problemStatement, 500),
-          source: "api",
-        });
-      } catch (dbErr) {
-        // Non-fatal: log but don't fail the request
-        console.error("Supabase waitlist write failed:", dbErr);
-      }
-    }
-
-    response.status(201).json({
-      id: entry.id,
-      name: entry.name,
-      targetRole: entry.targetRole,
-      planInterest: entry.planInterest,
-      createdAt: entry.createdAt,
-      message: "Successfully joined the waitlist."
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/waitlist/stats", (_request, response, next) => {
-  try {
-    const entries = readWaitlist();
-    const byPlan: Record<string, number> = {};
-    const byRole: Record<string, number> = {};
-    for (const entry of entries) {
-      byPlan[entry.planInterest] = (byPlan[entry.planInterest] || 0) + 1;
-      byRole[entry.targetRole] = (byRole[entry.targetRole] || 0) + 1;
-    }
-    response.json({ total: entries.length, byPlan, byRole });
-  } catch (error) {
-    next(error);
-  }
-});
-
+// ── Static web app ───────────────────────────────────────────────────────────
 if (fs.existsSync(config.webDistPath)) {
   app.use(express.static(config.webDistPath));
-  app.get("/{*path}", (request, response, next) => {
-    if (request.path.startsWith("/api/")) {
-      next();
-      return;
-    }
-
-    response.sendFile(path.join(config.webDistPath, "index.html"));
+  app.get("/{*path}", (req, res, next) => {
+    if (req.path.startsWith("/api/")) return next();
+    res.sendFile(path.join(config.webDistPath, "index.html"));
   });
 }
 
-app.use((error: unknown, _request: express.Request, response: express.Response, _next: express.NextFunction) => {
-  console.error(error);
-  response.status(500).json({
-    message: error instanceof Error ? error.message : "Unexpected server error."
-  });
-});
+// ── Global error handler (must be last) ─────────────────────────────────────
+app.use(errorHandler);
 
 app.listen(config.port, () => {
-  console.log(`ContributorOps API listening on http://localhost:${config.port}`);
+  logger.info(`ContributorOps API listening on http://localhost:${config.port}`);
 });

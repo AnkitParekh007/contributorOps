@@ -191,5 +191,13 @@ export const apiClient = {
     }),
   getTeamRadar: () => request<TeamRadarItem[]>("/api/team/radar"),
   getGithubProfileAudit: (username: string) =>
-    request<GithubProfileAudit>(`/api/github-profile-audit?username=${encodeURIComponent(username)}`)
+    request<GithubProfileAudit>(`/api/github-profile-audit?username=${encodeURIComponent(username)}`),
+  getGithubStatus: () =>
+    request<{ connected: boolean; scopes: string[]; demo?: boolean }>("/api/github/status"),
+  connectGithub: () =>
+    request<void>("/api/github/connect"),
+  disconnectGithub: () =>
+    request<{ message: string }>("/api/github/disconnect", { method: "DELETE" }),
+  getOnboardingStatus: () =>
+    request<{ githubConnected: boolean; safetyModeSet: boolean; firstRunComplete: boolean }>("/api/onboarding/status"),
 };

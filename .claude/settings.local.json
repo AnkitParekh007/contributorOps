@@ -5,7 +5,11 @@
       "Bash(npm install:*)",
       "Bash(wc:*)",
       "Bash(npx tsc:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(grep -c \"^\\\\\\\\.\" /c/Users/aparekh/Desktop/Projects/akki/contributorOps/apps/site/src/styles.css)",
+      "Bash(grep -c \"^\\\\\\\\.\" /c/Users/aparekh/Desktop/Projects/akki/contributorOps/apps/web/src/styles.css)",
+      "Bash(node -e \"import\\('pino-http'\\).then\\(m => console.log\\(Object.keys\\(m\\)\\)\\)\")",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

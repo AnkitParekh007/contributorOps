@@ -1,1 +1,409 @@
-[]
+[
+  {
+    "id": "8b168904-fb34-49d7-923b-3ad383dad722",
+    "createdAt": "2026-05-22T22:12:00.274Z",
+    "mode": "approved-auto-contribute",
+    "targetRepo": "octokit/octokit.js",
+    "issueNumber": 3120,
+    "issueUrl": "https://github.com/octokit/octokit.js/issues/3120",
+    "status": "prepared",
+    "plannedFiles": [
+      "README.md",
+      "docs/TODO.md",
+      "src/TODO.md"
+    ],
+    "generatedDiffSummary": "- README.md: Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n- docs/: Reproduce or clarify the current behavior locally before changing code.\n- src/: Trace the smallest code path that touches the reported area and identify one minimal fix.\n- api/: Update tests or add a focused regression check for the changed behavior.\n- schema/: Prepare a concise draft PR that explains the bug, fix, and validation.",
+    "commentDraft": "I reviewed Clarify retry examples for secondary rate limit handling and want to take a focused pass on it.\n\nMy plan is to:\n- Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n- Reproduce or clarify the current behavior locally before changing code.\n- Trace the smallest code path that touches the reported area and identify one minimal fix.\n\nBefore I start, is there a preferred file or test area I should validate first?",
+    "prTitle": "[ContributorOps draft] Clarify retry examples for secondary rate limit handling",
+    "prBody": "## Summary\nThe retry documentation does not explain how secondary rate limit responses interact with custom request hooks. A focused documentation improvement and example update would help contributors and users avoid incorrect retry behavior.\n\n## Why this draft exists\nThis draft PR was prepared through ContributorOps in Approved PR Mode after explicit human approval.\nIt is intentionally opened as a draft and will not be marked ready for review automatically.\n\n## Proposed approach\n- Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n- Reproduce or clarify the current behavior locally before changing code.\n- Trace the smallest code path that touches the reported area and identify one minimal fix.\n- Update tests or add a focused regression check for the changed behavior.\n- Prepare a concise draft PR that explains the bug, fix, and validation.\n\n## Testing evidence\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.\n\n## Maintainer question\nHi maintainers, I plan to investigate Clarify retry examples for secondary rate limit handling. Before I start, is there an expected fix direction or specific package area I should validate first?",
+    "branchName": "contributorops/octokit-octokit-js-issue-3120-clarify-retry-examples-for-secondary-rate-limit-",
+    "forkRepo": "",
+    "prUrl": "",
+    "safetyChecks": [
+      {
+        "key": "auth",
+        "passed": false,
+        "detail": "GitHub token or username missing. ContributorOps will stay in dry-run mode.",
+        "severity": "warning"
+      },
+      {
+        "key": "issue-open",
+        "passed": true,
+        "detail": "Demo mode cannot verify live issue state. Assuming issue remains open for preview.",
+        "severity": "info"
+      }
+    ],
+    "approvalEvents": [
+      {
+        "action": "prepare",
+        "approved": true,
+        "actor": "local-user",
+        "reason": "Prepared run for user review.",
+        "createdAt": "2026-05-22T22:12:00.274Z"
+      }
+    ],
+    "errors": [],
+    "userApprovalToken": "c6429b1e-0c4f-44b7-abfc-b37abfd0449f",
+    "riskScore": 25,
+    "dryRun": true,
+    "proposal": {
+      "proposalId": "octokit/octokit.js#3120",
+      "issueId": "octokit/octokit.js#3120",
+      "upstreamRepoFullName": "octokit/octokit.js",
+      "upstreamIssueUrl": "https://github.com/octokit/octokit.js/issues/3120",
+      "branchName": "contributorops/octokit-octokit-js-issue-3120-clarify-retry-examples-for-secondary-rate-limit-",
+      "commitMessage": "chore: prepare draft contribution for octokit/octokit.js#3120",
+      "prTitle": "[ContributorOps draft] Clarify retry examples for secondary rate limit handling",
+      "prBody": "## Summary\nThe retry documentation does not explain how secondary rate limit responses interact with custom request hooks. A focused documentation improvement and example update would help contributors and users avoid incorrect retry behavior.\n\n## Why this draft exists\nThis draft PR was prepared through ContributorOps in Approved PR Mode after explicit human approval.\nIt is intentionally opened as a draft and will not be marked ready for review automatically.\n\n## Proposed approach\n- Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n- Reproduce or clarify the current behavior locally before changing code.\n- Trace the smallest code path that touches the reported area and identify one minimal fix.\n- Update tests or add a focused regression check for the changed behavior.\n- Prepare a concise draft PR that explains the bug, fix, and validation.\n\n## Testing evidence\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.\n\n## Maintainer question\nHi maintainers, I plan to investigate Clarify retry examples for secondary rate limit handling. Before I start, is there an expected fix direction or specific package area I should validate first?",
+      "testEvidence": "Preview documentation locally and validate all edited links or examples.\nRun the repo's documented test suite for the touched package or module.\nAdd or update one narrow regression test for the issue.\nValidate linting and type checks for the edited area.",
+      "suggestedChanges": [
+        {
+          "path": "README.md",
+          "content": "# ContributorOps draft proposal for octokit/octokit.js\n\nIssue: https://github.com/octokit/octokit.js/issues/3120\nTarget area: README.md\n\nPlanned change 1:\n- Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n\nValidation notes:\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.",
+          "rationale": "ContributorOps suggests touching README.md based on the issue labels, topic match, and likely contribution surface."
+        },
+        {
+          "path": "docs/TODO.md",
+          "content": "# ContributorOps draft proposal for octokit/octokit.js\n\nIssue: https://github.com/octokit/octokit.js/issues/3120\nTarget area: docs/\n\nPlanned change 2:\n- Reproduce or clarify the current behavior locally before changing code.\n\nValidation notes:\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.",
+          "rationale": "ContributorOps suggests touching docs/ based on the issue labels, topic match, and likely contribution surface."
+        },
+        {
+          "path": "src/TODO.md",
+          "content": "# ContributorOps draft proposal for octokit/octokit.js\n\nIssue: https://github.com/octokit/octokit.js/issues/3120\nTarget area: src/\n\nPlanned change 3:\n- Trace the smallest code path that touches the reported area and identify one minimal fix.\n\nValidation notes:\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.",
+          "rationale": "ContributorOps suggests touching src/ based on the issue labels, topic match, and likely contribution surface."
+        }
+      ],
+      "generatedAt": "2026-05-22T22:12:00.273Z",
+      "mode": "draft",
+      "prQuality": {
+        "score": 100,
+        "verdict": "strong",
+        "riskLevel": "low",
+        "checks": [
+          {
+            "label": "Issue alignment",
+            "passed": true,
+            "detail": "The PR should stay tightly aligned to a clearly described issue."
+          },
+          {
+            "label": "Focused diff size",
+            "passed": true,
+            "detail": "Smaller focused diffs are easier for maintainers to review."
+          },
+          {
+            "label": "Test evidence present",
+            "passed": true,
+            "detail": "Each draft should include concrete validation steps."
+          },
+          {
+            "label": "Maintainer question included",
+            "passed": true,
+            "detail": "A respectful maintainer question reduces wasted implementation effort."
+          },
+          {
+            "label": "Human-readable PR summary",
+            "passed": true,
+            "detail": "The draft should explain what changed and how it was checked."
+          }
+        ],
+        "suggestions": []
+      },
+      "resumeBullet": "Targeted octokit/octokit.js issue #3120, scoped a minimal contribution path, and translated backend or developer-tooling context into a test-backed open-source plan.",
+      "linkedInPost": "Today I used ContributorOps to break down octokit/octokit.js issue #3120. The value was not \"finding any issue\" but identifying one tractable backend or developer-tooling problem, mapping the likely files, and writing the smallest test-backed contribution plan before coding.",
+      "linkedInShort": "Scoped octokit/octokit.js issue #3120 into a minimal, test-backed open-source contribution plan.",
+      "linkedInMedium": "I used ContributorOps to evaluate octokit/octokit.js issue #3120, map the likely files, and define the smallest credible contribution path before touching code.",
+      "linkedInDetailed": "Today I turned octokit/octokit.js issue #3120 into job-search proof. I scored the issue, outlined the likely files, drafted the maintainer question, and defined the validation path so the eventual contribution can be specific, reviewable, and interview-ready.",
+      "interviewStarStory": "Situation: I wanted stronger OSS signal in API and developer-tooling work through octokit/octokit.js. Task: Find a realistic issue with maintainable scope around issue #3120. Action: I mapped the likely files, shaped a minimal test-backed plan, and drafted reviewer-friendly contribution notes before coding. Result: I created a credible contribution path that could become portfolio proof, a resume bullet, and an interview story.",
+      "interviewSituation": "I wanted stronger OSS signal in API and developer-tooling work through octokit/octokit.js.",
+      "interviewTask": "Find a realistic issue with maintainable scope around issue #3120.",
+      "interviewAction": "I mapped the likely files, shaped a minimal test-backed plan, and drafted reviewer-friendly contribution notes before coding.",
+      "interviewResult": "I created a credible contribution path that could become portfolio proof, a resume bullet, and an interview story.",
+      "recruiterOutreach": "Hi, I've been building ContributorOps to help me make higher-signal open-source contributions in API and developer-tooling repos. One recent example is octokit/octokit.js issue #3120, where I mapped the fix path, test strategy, and PR narrative before implementation. I'd value the chance to bring that same structured execution to a backend or platform role.",
+      "githubProfileSnippet": "- Planned a contribution for [octokit/octokit.js#3120](https://github.com/octokit/octokit.js/issues/3120) with a concrete first action: Read the repo README, CONTRIBUTING guide, and the full context for issue #3120."
+    },
+    "issue": {
+      "id": "octokit/octokit.js#3120",
+      "repoName": "octokit.js",
+      "repoFullName": "octokit/octokit.js",
+      "repoUrl": "https://github.com/octokit/octokit.js",
+      "issueTitle": "Clarify retry examples for secondary rate limit handling",
+      "issueNumber": 3120,
+      "issueUrl": "https://github.com/octokit/octokit.js/issues/3120",
+      "score": 49,
+      "repoDescription": "The all-batteries-included GitHub SDK for browsers and Node.js.",
+      "labels": [
+        "documentation",
+        "good first issue"
+      ],
+      "difficulty": "steady",
+      "reasonForRecommendation": "+20 labeled good first issue",
+      "scoreExplanation": [
+        "+20 labeled good first issue",
+        "+10 documentation oriented issue",
+        "+10 API or developer-tool topic match",
+        "+10 updated within the last 30 days",
+        "+5 has discussion but remains tractable"
+      ],
+      "summary": "The retry documentation does not explain how secondary rate limit responses interact with custom request hooks. A focused documentation improvement and example update would help contributors and users avoid incorrect retry behavior.",
+      "contributionPlan": [
+        "Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.",
+        "Reproduce or clarify the current behavior locally before changing code.",
+        "Trace the smallest code path that touches the reported area and identify one minimal fix.",
+        "Update tests or add a focused regression check for the changed behavior.",
+        "Prepare a concise draft PR that explains the bug, fix, and validation."
+      ],
+      "likelyFiles": [
+        "README.md",
+        "docs/",
+        "src/",
+        "api/",
+        "schema/"
+      ],
+      "testingStrategy": [
+        "Preview documentation locally and validate all edited links or examples.",
+        "Run the repo's documented test suite for the touched package or module.",
+        "Add or update one narrow regression test for the issue.",
+        "Validate linting and type checks for the edited area."
+      ],
+      "maintainerQuestionDraft": "Hi maintainers, I plan to investigate Clarify retry examples for secondary rate limit handling. Before I start, is there an expected fix direction or specific package area I should validate first?",
+      "prDescriptionDraft": "## What\nFixes or advances octokit/octokit.js#3120 by addressing the smallest viable scope first.\n\n## Why\nThe retry documentation does not explain how secondary rate limit responses interact with custom request hooks. A focused documentation improvement and example update would help contributors and users avoid incorrect retry behavior.\n\n## Validation\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.",
+      "resumeBulletDraft": "Planned a focused contribution for octokit/octokit.js issue #3120 with clear scope, likely files, and a regression-oriented test plan.",
+      "jobMode": {
+        "resumeBullet": "Targeted octokit/octokit.js issue #3120, scoped a minimal contribution path, and translated backend or developer-tooling context into a test-backed open-source plan.",
+        "linkedInPost": "Today I used ContributorOps to break down octokit/octokit.js issue #3120. The value was not \"finding any issue\" but identifying one tractable backend or developer-tooling problem, mapping the likely files, and writing the smallest test-backed contribution plan before coding.",
+        "linkedInShort": "Scoped octokit/octokit.js issue #3120 into a minimal, test-backed open-source contribution plan.",
+        "linkedInMedium": "I used ContributorOps to evaluate octokit/octokit.js issue #3120, map the likely files, and define the smallest credible contribution path before touching code.",
+        "linkedInDetailed": "Today I turned octokit/octokit.js issue #3120 into job-search proof. I scored the issue, outlined the likely files, drafted the maintainer question, and defined the validation path so the eventual contribution can be specific, reviewable, and interview-ready.",
+        "interviewStarStory": "Situation: I wanted stronger OSS signal in API and developer-tooling work through octokit/octokit.js. Task: Find a realistic issue with maintainable scope around issue #3120. Action: I mapped the likely files, shaped a minimal test-backed plan, and drafted reviewer-friendly contribution notes before coding. Result: I created a credible contribution path that could become portfolio proof, a resume bullet, and an interview story.",
+        "interviewSituation": "I wanted stronger OSS signal in API and developer-tooling work through octokit/octokit.js.",
+        "interviewTask": "Find a realistic issue with maintainable scope around issue #3120.",
+        "interviewAction": "I mapped the likely files, shaped a minimal test-backed plan, and drafted reviewer-friendly contribution notes before coding.",
+        "interviewResult": "I created a credible contribution path that could become portfolio proof, a resume bullet, and an interview story.",
+        "recruiterOutreach": "Hi, I've been building ContributorOps to help me make higher-signal open-source contributions in API and developer-tooling repos. One recent example is octokit/octokit.js issue #3120, where I mapped the fix path, test strategy, and PR narrative before implementation. I'd value the chance to bring that same structured execution to a backend or platform role.",
+        "githubProfileSnippet": "- Planned a contribution for [octokit/octokit.js#3120](https://github.com/octokit/octokit.js/issues/3120) with a concrete first action: Read the repo README, CONTRIBUTING guide, and the full context for issue #3120."
+      },
+      "maintainerTrust": {
+        "score": 85,
+        "band": "trusted",
+        "reasons": [
+          "Maintainers explicitly labeled the issue as contribution-friendly.",
+          "The discussion is active but still tractable.",
+          "The issue was updated recently, which is a strong sign of maintainer attention."
+        ]
+      },
+      "roleMatch": {
+        "targetRole": "Backend Engineer",
+        "score": 35,
+        "reasons": []
+      },
+      "updatedAt": "2026-05-17T22:11:05.568Z",
+      "comments": 4
+    },
+    "testPlan": [
+      "Preview documentation locally and validate all edited links or examples.",
+      "Run the repo's documented test suite for the touched package or module.",
+      "Add or update one narrow regression test for the issue.",
+      "Validate linting and type checks for the edited area."
+    ],
+    "prQuality": {
+      "score": 100,
+      "verdict": "strong",
+      "riskLevel": "low",
+      "checks": [
+        {
+          "label": "Issue alignment",
+          "passed": true,
+          "detail": "The PR should stay tightly aligned to a clearly described issue."
+        },
+        {
+          "label": "Focused diff size",
+          "passed": true,
+          "detail": "Smaller focused diffs are easier for maintainers to review."
+        },
+        {
+          "label": "Test evidence present",
+          "passed": true,
+          "detail": "Each draft should include concrete validation steps."
+        },
+        {
+          "label": "Maintainer question included",
+          "passed": true,
+          "detail": "A respectful maintainer question reduces wasted implementation effort."
+        },
+        {
+          "label": "Human-readable PR summary",
+          "passed": true,
+          "detail": "The draft should explain what changed and how it was checked."
+        }
+      ],
+      "suggestions": []
+    }
+  },
+  {
+    "id": "138b0ded-6996-4381-8bcb-fd39937ace91",
+    "createdAt": "2026-05-22T22:01:30.714Z",
+    "mode": "draft",
+    "targetRepo": "octokit/octokit.js",
+    "issueNumber": 3120,
+    "issueUrl": "https://github.com/octokit/octokit.js/issues/3120",
+    "status": "dry-run",
+    "plannedFiles": [
+      "README.md",
+      "docs/TODO.md",
+      "src/TODO.md"
+    ],
+    "generatedDiffSummary": "- README.md: Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n- docs/: Reproduce or clarify the current behavior locally before changing code.\n- src/: Trace the smallest code path that touches the reported area and identify one minimal fix.\n- api/: Update tests or add a focused regression check for the changed behavior.\n- schema/: Prepare a concise draft PR that explains the bug, fix, and validation.",
+    "commentDraft": "I reviewed Clarify retry examples for secondary rate limit handling and want to take a focused pass on it.\n\nMy plan is to:\n- Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n- Reproduce or clarify the current behavior locally before changing code.\n- Trace the smallest code path that touches the reported area and identify one minimal fix.\n\nBefore I start, is there a preferred file or test area I should validate first?",
+    "prTitle": "[ContributorOps draft] Clarify retry examples for secondary rate limit handling",
+    "prBody": "## Summary\nThe retry documentation does not explain how secondary rate limit responses interact with custom request hooks. A focused documentation improvement and example update would help contributors and users avoid incorrect retry behavior.\n\n## Why this draft exists\nThis draft PR was prepared through ContributorOps in Approved PR Mode after explicit human approval.\nIt is intentionally opened as a draft and will not be marked ready for review automatically.\n\n## Proposed approach\n- Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n- Reproduce or clarify the current behavior locally before changing code.\n- Trace the smallest code path that touches the reported area and identify one minimal fix.\n- Update tests or add a focused regression check for the changed behavior.\n- Prepare a concise draft PR that explains the bug, fix, and validation.\n\n## Testing evidence\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.\n\n## Maintainer question\nHi maintainers, I plan to investigate Clarify retry examples for secondary rate limit handling. Before I start, is there an expected fix direction or specific package area I should validate first?",
+    "branchName": "contributorops/octokit-octokit-js-issue-3120-clarify-retry-examples-for-secondary-rate-limit-",
+    "forkRepo": "",
+    "prUrl": "",
+    "safetyChecks": [
+      {
+        "key": "auth",
+        "passed": false,
+        "detail": "GitHub token or username missing. ContributorOps will stay in dry-run mode.",
+        "severity": "warning"
+      },
+      {
+        "key": "issue-open",
+        "passed": true,
+        "detail": "Demo mode cannot verify live issue state. Assuming issue remains open for preview.",
+        "severity": "info"
+      }
+    ],
+    "approvalEvents": [
+      {
+        "action": "prepare",
+        "approved": true,
+        "actor": "local-user",
+        "reason": "Prepared run for user review.",
+        "createdAt": "2026-05-22T22:01:30.715Z"
+      },
+      {
+        "action": "approve-branch",
+        "approved": true,
+        "actor": "local-user",
+        "reason": "Dry-run approval test for draft PR branch creation",
+        "createdAt": "2026-05-22T22:01:55.437Z"
+      },
+      {
+        "action": "approve-comment",
+        "approved": true,
+        "actor": "local-user",
+        "reason": "Dry-run approval test for issue-specific maintainer comment",
+        "createdAt": "2026-05-22T22:01:55.467Z"
+      },
+      {
+        "action": "approve-draft-pr",
+        "approved": true,
+        "actor": "local-user",
+        "reason": "Dry-run approval test for opening a draft PR (dry run)",
+        "createdAt": "2026-05-22T22:01:55.590Z"
+      }
+    ],
+    "errors": [],
+    "userApprovalToken": "f3244b68-7607-4a6e-8962-2990d96641bc",
+    "riskScore": 25,
+    "dryRun": true,
+    "proposal": {
+      "proposalId": "octokit/octokit.js#3120",
+      "issueId": "octokit/octokit.js#3120",
+      "upstreamRepoFullName": "octokit/octokit.js",
+      "upstreamIssueUrl": "https://github.com/octokit/octokit.js/issues/3120",
+      "branchName": "contributorops/octokit-octokit-js-issue-3120-clarify-retry-examples-for-secondary-rate-limit-",
+      "commitMessage": "chore: prepare draft contribution for octokit/octokit.js#3120",
+      "prTitle": "[ContributorOps draft] Clarify retry examples for secondary rate limit handling",
+      "prBody": "## Summary\nThe retry documentation does not explain how secondary rate limit responses interact with custom request hooks. A focused documentation improvement and example update would help contributors and users avoid incorrect retry behavior.\n\n## Why this draft exists\nThis draft PR was prepared through ContributorOps in Approved PR Mode after explicit human approval.\nIt is intentionally opened as a draft and will not be marked ready for review automatically.\n\n## Proposed approach\n- Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n- Reproduce or clarify the current behavior locally before changing code.\n- Trace the smallest code path that touches the reported area and identify one minimal fix.\n- Update tests or add a focused regression check for the changed behavior.\n- Prepare a concise draft PR that explains the bug, fix, and validation.\n\n## Testing evidence\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.\n\n## Maintainer question\nHi maintainers, I plan to investigate Clarify retry examples for secondary rate limit handling. Before I start, is there an expected fix direction or specific package area I should validate first?",
+      "testEvidence": "Preview documentation locally and validate all edited links or examples.\nRun the repo's documented test suite for the touched package or module.\nAdd or update one narrow regression test for the issue.\nValidate linting and type checks for the edited area.",
+      "suggestedChanges": [
+        {
+          "path": "README.md",
+          "content": "# ContributorOps draft proposal for octokit/octokit.js\n\nIssue: https://github.com/octokit/octokit.js/issues/3120\nTarget area: README.md\n\nPlanned change 1:\n- Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.\n\nValidation notes:\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.",
+          "rationale": "ContributorOps suggests touching README.md based on the issue labels, topic match, and likely contribution surface."
+        },
+        {
+          "path": "docs/TODO.md",
+          "content": "# ContributorOps draft proposal for octokit/octokit.js\n\nIssue: https://github.com/octokit/octokit.js/issues/3120\nTarget area: docs/\n\nPlanned change 2:\n- Reproduce or clarify the current behavior locally before changing code.\n\nValidation notes:\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.",
+          "rationale": "ContributorOps suggests touching docs/ based on the issue labels, topic match, and likely contribution surface."
+        },
+        {
+          "path": "src/TODO.md",
+          "content": "# ContributorOps draft proposal for octokit/octokit.js\n\nIssue: https://github.com/octokit/octokit.js/issues/3120\nTarget area: src/\n\nPlanned change 3:\n- Trace the smallest code path that touches the reported area and identify one minimal fix.\n\nValidation notes:\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.",
+          "rationale": "ContributorOps suggests touching src/ based on the issue labels, topic match, and likely contribution surface."
+        }
+      ],
+      "generatedAt": "2026-05-22T22:01:30.714Z",
+      "mode": "draft",
+      "resumeBullet": "Targeted octokit/octokit.js issue #3120, scoped a minimal contribution path, and translated backend or developer-tooling context into a test-backed open-source plan.",
+      "linkedInPost": "Today I used ContributorOps to break down octokit/octokit.js issue #3120. The value was not \"finding any issue\" but identifying one tractable backend or developer-tooling problem, mapping the likely files, and writing the smallest test-backed contribution plan before coding.",
+      "interviewStarStory": "Situation: I wanted stronger OSS signal in API and backend tooling. Task: Find a realistic issue with maintainable scope. Action: I evaluated octokit/octokit.js issue #3120, wrote a deterministic plan, identified likely files, and defined a test strategy before touching code. Result: I created a contribution path I could execute with less thrash and a clearer story for interviews.",
+      "recruiterOutreach": "Hi, I've been building ContributorOps to help me make higher-signal open-source contributions in API and developer-tooling repos. One recent example is octokit/octokit.js issue #3120, where I mapped the fix path, test strategy, and PR narrative before implementation. I'd value the chance to bring that same structured execution to a backend or platform role.",
+      "githubProfileSnippet": "- Planned a contribution for [octokit/octokit.js#3120](https://github.com/octokit/octokit.js/issues/3120) with a concrete first action: Read the repo README, CONTRIBUTING guide, and the full context for issue #3120."
+    },
+    "issue": {
+      "id": "octokit/octokit.js#3120",
+      "repoName": "octokit.js",
+      "repoFullName": "octokit/octokit.js",
+      "repoUrl": "https://github.com/octokit/octokit.js",
+      "repoDescription": "The all-batteries-included GitHub SDK for browsers and Node.js.",
+      "issueTitle": "Clarify retry examples for secondary rate limit handling",
+      "issueNumber": 3120,
+      "issueUrl": "https://github.com/octokit/octokit.js/issues/3120",
+      "labels": [
+        "documentation",
+        "good first issue"
+      ],
+      "score": 55,
+      "difficulty": "steady",
+      "reasonForRecommendation": "+20 labeled good first issue",
+      "scoreExplanation": [
+        "+20 labeled good first issue",
+        "+10 documentation oriented issue",
+        "+10 API or developer-tool topic match",
+        "+10 updated within the last 30 days",
+        "+5 has discussion but remains tractable"
+      ],
+      "summary": "The retry documentation does not explain how secondary rate limit responses interact with custom request hooks. A focused documentation improvement and example update would help contributors and users avoid incorrect retry behavior.",
+      "contributionPlan": [
+        "Read the repo README, CONTRIBUTING guide, and the full context for issue #3120.",
+        "Reproduce or clarify the current behavior locally before changing code.",
+        "Trace the smallest code path that touches the reported area and identify one minimal fix.",
+        "Update tests or add a focused regression check for the changed behavior.",
+        "Prepare a concise draft PR that explains the bug, fix, and validation."
+      ],
+      "likelyFiles": [
+        "README.md",
+        "docs/",
+        "src/",
+        "api/",
+        "schema/"
+      ],
+      "testingStrategy": [
+        "Preview documentation locally and validate all edited links or examples.",
+        "Run the repo's documented test suite for the touched package or module.",
+        "Add or update one narrow regression test for the issue.",
+        "Validate linting and type checks for the edited area."
+      ],
+      "maintainerQuestionDraft": "Hi maintainers, I plan to investigate Clarify retry examples for secondary rate limit handling. Before I start, is there an expected fix direction or specific package area I should validate first?",
+      "prDescriptionDraft": "## What\nFixes or advances octokit/octokit.js#3120 by addressing the smallest viable scope first.\n\n## Why\nThe retry documentation does not explain how secondary rate limit responses interact with custom request hooks. A focused documentation improvement and example update would help contributors and users avoid incorrect retry behavior.\n\n## Validation\n- Preview documentation locally and validate all edited links or examples.\n- Run the repo's documented test suite for the touched package or module.\n- Add or update one narrow regression test for the issue.\n- Validate linting and type checks for the edited area.",
+      "resumeBulletDraft": "Planned a focused contribution for octokit/octokit.js issue #3120 with clear scope, likely files, and a regression-oriented test plan.",
+      "jobMode": {
+        "resumeBullet": "Targeted octokit/octokit.js issue #3120, scoped a minimal contribution path, and translated backend or developer-tooling context into a test-backed open-source plan.",
+        "linkedInPost": "Today I used ContributorOps to break down octokit/octokit.js issue #3120. The value was not \"finding any issue\" but identifying one tractable backend or developer-tooling problem, mapping the likely files, and writing the smallest test-backed contribution plan before coding.",
+        "interviewStarStory": "Situation: I wanted stronger OSS signal in API and backend tooling. Task: Find a realistic issue with maintainable scope. Action: I evaluated octokit/octokit.js issue #3120, wrote a deterministic plan, identified likely files, and defined a test strategy before touching code. Result: I created a contribution path I could execute with less thrash and a clearer story for interviews.",
+        "recruiterOutreach": "Hi, I've been building ContributorOps to help me make higher-signal open-source contributions in API and developer-tooling repos. One recent example is octokit/octokit.js issue #3120, where I mapped the fix path, test strategy, and PR narrative before implementation. I'd value the chance to bring that same structured execution to a backend or platform role.",
+        "githubProfileSnippet": "- Planned a contribution for [octokit/octokit.js#3120](https://github.com/octokit/octokit.js/issues/3120) with a concrete first action: Read the repo README, CONTRIBUTING guide, and the full context for issue #3120."
+      },
+      "updatedAt": "2026-05-16T01:42:52.368Z",
+      "comments": 4
+    },
+    "testPlan": [
+      "Preview documentation locally and validate all edited links or examples.",
+      "Run the repo's documented test suite for the touched package or module.",
+      "Add or update one narrow regression test for the issue.",
+      "Validate linting and type checks for the edited area."
+    ]
+  }
+]

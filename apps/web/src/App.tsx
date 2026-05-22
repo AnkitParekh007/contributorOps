@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { LoginPage } from "./components/LoginPage";
+import { OnboardingPage } from "./components/OnboardingPage";
 import {
   AlertTriangle,
   BadgeDollarSign,
@@ -175,8 +176,30 @@ function emptyUsage(): UsageSnapshot {
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { isSupabaseEnabled, session, isLoading } = useAuth();
+  const [onboardingDone, setOnboardingDone] = useState(false);
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isSupabaseEnabled || !session) {
+      setOnboardingDone(true);
+      setOnboardingChecked(true);
+      return;
+    }
+    // Check if onboarding is complete: if user has no portfolio entries they're new
+    apiClient
+      .getOnboardingStatus()
+      .then((status) => {
+        // Show onboarding if GitHub is not connected yet and safety mode is default
+        const needsOnboarding = !status.githubConnected && !status.safetyModeSet;
+        setOnboardingDone(!needsOnboarding);
+      })
+      .catch(() => {
+        setOnboardingDone(true); // fail open
+      })
+      .finally(() => setOnboardingChecked(true));
+  }, [isSupabaseEnabled, session]);
+
+  if (isLoading || !onboardingChecked) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
         <div style={{ color: "var(--muted, #888)", fontSize: "0.9rem" }}>Loading…</div>
@@ -186,6 +209,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (isSupabaseEnabled && !session) {
     return <LoginPage />;
+  }
+
+  if (isSupabaseEnabled && !onboardingDone) {
+    return <OnboardingPage onComplete={() => setOnboardingDone(true)} />;
   }
 
   return <>{children}</>;
