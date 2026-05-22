@@ -171,6 +171,7 @@ The public site includes:
 Supporting markdown documentation lives in [`/docs`](./docs):
 - [`product-overview.md`](./docs/product-overview.md)
 - [`local-development.md`](./docs/local-development.md)
+- [`environment-setup.md`](./docs/environment-setup.md)
 - [`github-pages-deployment.md`](./docs/github-pages-deployment.md)
 - [`safety-policy.md`](./docs/safety-policy.md)
 - [`monetization-plan.md`](./docs/monetization-plan.md)
@@ -196,6 +197,13 @@ Repository setup:
 ```bash
 npm install
 ```
+
+Environment setup:
+
+- API env file: `apps/api/.env`
+- web env file: `apps/web/.env.local`
+- optional site env file: `apps/site/.env.local`
+- full guide: [`docs/environment-setup.md`](./docs/environment-setup.md)
 
 Static site workflows:
 

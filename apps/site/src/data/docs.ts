@@ -1,5 +1,6 @@
 import productOverviewMd from "../content/docs/product-overview.md?raw";
 import localDevMd from "../content/docs/local-development.md?raw";
+import envSetupMd from "../content/docs/environment-setup.md?raw";
 import ghDeployMd from "../content/docs/github-pages-deployment.md?raw";
 import safetyMd from "../content/docs/safety-policy.md?raw";
 import monetizationMd from "../content/docs/monetization-plan.md?raw";
@@ -30,6 +31,14 @@ export const docs: DocEntry[] = [
 		category: "Developer Setup",
 		content: localDevMd,
 		githubUrl: "https://github.com/AnkitParekh007/contributorOps/blob/main/docs/local-development.md",
+	},
+	{
+		slug: "environment-setup",
+		title: "Environment Setup",
+		summary: "Detailed .env setup for the API, web app, site workspace, GitHub OAuth, Supabase, and Actions secrets.",
+		category: "Developer Setup",
+		content: envSetupMd,
+		githubUrl: "https://github.com/AnkitParekh007/contributorOps/blob/main/docs/environment-setup.md",
 	},
 	{
 		slug: "github-pages-deployment",

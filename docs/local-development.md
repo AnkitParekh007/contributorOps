@@ -6,6 +6,18 @@
 npm install
 ```
 
+## Configure environment variables
+
+Before running the product app, set up the required environment files:
+
+- API server: `apps/api/.env`
+- web app: `apps/web/.env.local`
+- optional site workspace: `apps/site/.env.local`
+
+Detailed guide:
+
+- [`environment-setup.md`](./environment-setup.md)
+
 ## Run the business site locally
 
 ```bash
