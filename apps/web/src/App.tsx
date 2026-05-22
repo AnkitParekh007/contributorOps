@@ -5,8 +5,10 @@ import { OnboardingPage } from "./components/OnboardingPage";
 import {
   AlertTriangle,
   BadgeDollarSign,
+  BookOpen,
   Bot,
   BriefcaseBusiness,
+  ExternalLink,
   GitBranchPlus,
   LayoutDashboard,
   Radar
@@ -224,6 +226,9 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 function App() {
   const publicUsername = "AnkitParekh007";
+  const envGuideUrl = "https://github.com/AnkitParekh007/contributorOps/blob/main/docs/environment-setup.md";
+  const apiEnvTemplateUrl = "https://github.com/AnkitParekh007/contributorOps/blob/main/apps/api/.env.example";
+  const webEnvTemplateUrl = "https://github.com/AnkitParekh007/contributorOps/blob/main/apps/web/.env.example";
   const usernameMatch =
     typeof window !== "undefined" ? window.location.pathname.match(/^\/u\/([^/]+)$/) : null;
   const usernameSlug = usernameMatch?.[1] || "";
@@ -871,6 +876,33 @@ function App() {
             <div className="sidebar-card sidebar-context-card">
               <span>Positioning</span>
               <p>ContributorOps helps developers turn open-source contributions into job-ready proof of work.</p>
+            </div>
+
+            <div className="sidebar-card sidebar-help-card">
+              <div className="sidebar-help-head">
+                <BookOpen size={16} />
+                <span>Developer setup</span>
+              </div>
+              <p>Set env files here before switching from demo mode:</p>
+              <ul className="sidebar-help-list">
+                <li><code>apps/api/.env</code></li>
+                <li><code>apps/web/.env.local</code></li>
+                <li><code>apps/site/.env.local</code></li>
+              </ul>
+              <div className="sidebar-help-links">
+                <a href={envGuideUrl} target="_blank" rel="noreferrer" className="sidebar-help-link">
+                  Full env guide
+                  <ExternalLink size={14} />
+                </a>
+                <a href={apiEnvTemplateUrl} target="_blank" rel="noreferrer" className="sidebar-help-link">
+                  API template
+                  <ExternalLink size={14} />
+                </a>
+                <a href={webEnvTemplateUrl} target="_blank" rel="noreferrer" className="sidebar-help-link">
+                  Web template
+                  <ExternalLink size={14} />
+                </a>
+              </div>
             </div>
 
             <div className="sidebar-footnote">

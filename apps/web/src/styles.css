@@ -233,6 +233,67 @@ a {
   margin-bottom: 0;
 }
 
+.sidebar-help-card {
+  display: grid;
+  gap: 12px;
+}
+
+.sidebar-help-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sidebar-help-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.sidebar-help-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.sidebar-help-list code {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+:root[data-theme="light"] .sidebar-help-list code {
+  background: rgba(19, 35, 59, 0.08);
+}
+
+.sidebar-help-links {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebar-help-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+:root[data-theme="light"] .sidebar-help-link {
+  background: rgba(255, 255, 255, 0.6);
+}
+
 .sidebar-footnote {
   display: grid;
   gap: 8px;
