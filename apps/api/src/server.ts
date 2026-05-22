@@ -90,7 +90,7 @@ function safeString(value: unknown, maxLength = 200): string {
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: config.allowedOrigins, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/api/health", async (_request, response, next) => {

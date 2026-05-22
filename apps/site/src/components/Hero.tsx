@@ -69,9 +69,9 @@ export function Hero() {
 				</p>
 
 				<div className="hero-actions">
-					<Link to="/docs" className="button-primary">
+					<Link to="/waitlist" className="button-primary">
 						<Zap size={14} />
-						Start Building
+						Join Founder Waitlist
 					</Link>
 					<Link to="/safety" className="button-secondary">
 						Read Safety Model

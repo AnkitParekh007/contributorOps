@@ -61,6 +61,19 @@ export function Footer() {
 									<a href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer">
 										GitHub
 									</a>
+									<Link to="/waitlist">Join Waitlist</Link>
+									<Link to="/contact">Contact</Link>
+								</div>
+							</nav>
+
+							<nav className="footer-link-group" aria-labelledby="footer-legal-links">
+								<h4 id="footer-legal-links">Legal</h4>
+								<div className="footer-link-list">
+									<Link to="/privacy">Privacy Policy</Link>
+									<Link to="/terms">Terms of Service</Link>
+									<Link to="/acceptable-use">Acceptable Use</Link>
+									<Link to="/ai-disclosure">AI Disclosure</Link>
+									<Link to="/github-data-usage">GitHub Data</Link>
 								</div>
 							</nav>
 
@@ -85,6 +98,8 @@ export function Footer() {
 						<div className="footer-bottom-links">
 							<Link to="/pricing">Plans</Link>
 							<Link to="/safety">Safety policy</Link>
+							<Link to="/privacy">Privacy</Link>
+							<Link to="/terms">Terms</Link>
 							<Link to="/roadmap">Roadmap</Link>
 						</div>
 					</div>

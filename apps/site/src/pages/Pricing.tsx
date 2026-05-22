@@ -59,8 +59,9 @@ export function Pricing() {
 				<div className="billing-callout">
 					<AlertCircle size={18} className="billing-callout-icon" />
 					<span>
-						<strong>Payments are not live.</strong> This page shows product packaging and feature boundaries
-						only. Stripe or Lemon Squeezy can be wired in later without changing the plan structure.
+						<strong>Payments are not live.</strong> This page shows product packaging and feature boundaries only.
+						All plan buttons join the waitlist — no payment is processed today.
+						Stripe integration ships in a future phase.
 					</span>
 				</div>
 

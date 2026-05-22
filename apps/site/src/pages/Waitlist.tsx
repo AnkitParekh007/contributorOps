@@ -2,20 +2,24 @@ import { useEffect, useState } from "react";
 import { Section } from "../components/Section";
 
 const TARGET_ROLES = [
-	"API Developer",
 	"Backend Engineer",
-	"Angular Developer",
-	"Platform Engineer",
+	"API Developer",
+	"Fullstack Engineer",
+	"Frontend Engineer",
+	"Platform / DevOps Engineer",
 	"Developer Advocate",
-	"Open Source Engineer",
+	"Open Source Maintainer",
+	"Angular Developer",
+	"ML / AI Engineer",
+	"Other",
 ];
 
 const PLAN_OPTIONS = [
 	"Free",
-	"Pro ($19/mo)",
-	"Career ($49/mo)",
-	"Team ($199/mo)",
-	"Founder/Lifetime Deal ($99 one-time)",
+	"Pro",
+	"Career",
+	"Team",
+	"Founder Lifetime (one-time)",
 ];
 
 const STORAGE_KEY = "contributorops_waitlist_entry";
@@ -23,16 +27,20 @@ const STORAGE_KEY = "contributorops_waitlist_entry";
 interface WaitlistEntry {
 	name: string;
 	email: string;
+	githubUsername: string;
 	targetRole: string;
 	planInterest: string;
+	problemStatement: string;
 	submittedAt: string;
 }
 
 export function Waitlist() {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
+	const [githubUsername, setGithubUsername] = useState("");
 	const [targetRole, setTargetRole] = useState("");
 	const [planInterest, setPlanInterest] = useState("");
+	const [problemStatement, setProblemStatement] = useState("");
 	const [submitted, setSubmitted] = useState<WaitlistEntry | null>(null);
 	const [errors, setErrors] = useState<string[]>([]);
 
@@ -66,21 +74,40 @@ export function Waitlist() {
 		const entry: WaitlistEntry = {
 			name: name.trim(),
 			email: email.trim(),
+			githubUsername: githubUsername.trim(),
 			targetRole,
 			planInterest: planInterest || "Free",
+			problemStatement: problemStatement.trim(),
 			submittedAt: new Date().toISOString(),
 		};
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(entry));
 		setSubmitted(entry);
 		setErrors([]);
+
+		// Fire-and-forget API submit — success state shows regardless
+		const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+		if (API_BASE) {
+			fetch(`${API_BASE}/api/waitlist`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name: entry.name,
+					email: entry.email,
+					targetRole: entry.targetRole,
+					planInterest: entry.planInterest,
+				}),
+			}).catch(() => {
+				// silent — localStorage success state is shown regardless
+			});
+		}
 	};
 
 	return (
 		<div className="page">
 			<Section
-				eyebrow="Early Access"
-				title="Join the ContributorOps waitlist."
-				description="Payments and accounts are not live yet. Join now to be notified at launch and lock in early pricing."
+				eyebrow="Founder Waitlist"
+				title="Join the ContributorOps founder waitlist."
+				description="Be first when beta opens. Lock in founder pricing. No payment required to join."
 			>
 				<p className="waitlist-note">
 					ⓘ Payments and accounts are not live yet. We'll email you when we launch. No credit card required.
@@ -178,12 +205,46 @@ export function Waitlist() {
 							</select>
 						</div>
 
+						<div className="form-field">
+							<label htmlFor="wl-github">GitHub Username <span className="form-optional">(optional)</span></label>
+							<input
+								id="wl-github"
+								type="text"
+								className="form-input"
+								placeholder="your-github-username"
+								value={githubUsername}
+								onChange={(e) => setGithubUsername(e.target.value)}
+								autoComplete="username"
+							/>
+						</div>
+
+						<div className="form-field">
+							<label htmlFor="wl-problem">What's the biggest challenge in your OSS contribution workflow? <span className="form-optional">(optional)</span></label>
+							<textarea
+								id="wl-problem"
+								className="form-input form-textarea"
+								placeholder="e.g. I struggle to find relevant issues, or my PRs don't get reviewed..."
+								value={problemStatement}
+								onChange={(e) => setProblemStatement(e.target.value)}
+								rows={3}
+								maxLength={400}
+							/>
+						</div>
+
+						<p className="form-consent">
+							By joining, you agree to our{" "}
+							<a href="#/privacy" style={{ color: "var(--accent)" }}>Privacy Policy</a>{" "}
+							and{" "}
+							<a href="#/terms" style={{ color: "var(--accent)" }}>Terms of Service</a>.
+							We'll only email you when beta launches. No spam.
+						</p>
+
 						<button
 							type="submit"
 							className="button-primary"
 							style={{ width: "100%", justifyContent: "center" }}
 						>
-							Join Waitlist
+							Join Founder Waitlist
 						</button>
 					</form>
 				)}

@@ -194,6 +194,41 @@ export function Home() {
 				</div>
 			</Section>
 
+			{/* ── Founder Preview ─────────────────────────────────── */}
+			<Section
+				id="founder-preview"
+				eyebrow="Founder Preview"
+				title="Building in public. Join before we launch."
+				description="ContributorOps is in active development. The site is live, the demo works, and the safety model is real. Real accounts, billing, and GitHub OAuth are coming next."
+			>
+				<div className="founder-preview-grid">
+					<div className="founder-preview-card">
+						<span className="founder-preview-num">01</span>
+						<h3>First access</h3>
+						<p>Waitlist members get early access when beta opens — before public launch.</p>
+					</div>
+					<div className="founder-preview-card">
+						<span className="founder-preview-num">02</span>
+						<h3>Founder pricing</h3>
+						<p>Lock in discounted Founder Lifetime access. One-time payment, permanent access.</p>
+					</div>
+					<div className="founder-preview-card">
+						<span className="founder-preview-num">03</span>
+						<h3>Shape the product</h3>
+						<p>Direct input on the roadmap. Your use case informs which features ship first.</p>
+					</div>
+					<div className="founder-preview-card">
+						<span className="founder-preview-num">04</span>
+						<h3>No production claims</h3>
+						<p>Payments are not live. No accounts yet. We are honest about current state.</p>
+					</div>
+				</div>
+				<div className="section-cta">
+					<Link to="/waitlist" className="button-primary">Join Founder Waitlist</Link>
+					<Link to="/roadmap" className="button-secondary">See the Roadmap</Link>
+				</div>
+			</Section>
+
 			{/* ── CTA ─────────────────────────────────────────────── */}
 			<Section
 				id="cta"

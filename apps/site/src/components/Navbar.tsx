@@ -112,6 +112,12 @@ export function Navbar() {
 				</nav>
 
 				<div className="nav-end">
+					<Link
+						to="/waitlist"
+						className="nav-waitlist-btn"
+					>
+						Join Waitlist
+					</Link>
 					<button
 						type="button"
 						className="theme-toggle"

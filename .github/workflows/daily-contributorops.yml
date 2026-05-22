@@ -16,6 +16,9 @@ jobs:
       CONTRIBUTOROPS_OWNER: AnkitParekh007
       CONTRIBUTOROPS_REPO: contributorOps
     steps:
+      # SAFETY INVARIANT: This workflow only runs discovery, scoring, and planning.
+      # It does NOT write to any external GitHub repository.
+      # External contribution actions require explicit human approval via the web app.
       - name: Checkout
         uses: actions/checkout@v4
 

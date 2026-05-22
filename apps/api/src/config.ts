@@ -20,6 +20,7 @@ export const config = {
   owner: process.env.CONTRIBUTOROPS_OWNER || "AnkitParekh007",
   repo: process.env.CONTRIBUTOROPS_REPO || "contributorOps",
   publicAppUrl: process.env.PUBLIC_APP_URL || `http://localhost:${process.env.PORT || 8787}`,
+  allowedOrigins: (process.env.CORS_ORIGINS || "http://localhost:5173,http://localhost:4174,http://localhost:8787").split(",").map(s => s.trim()),
   repoRoot,
   dataDir: path.join(repoRoot, "data"),
   portfolioPath: path.join(repoRoot, "data", "portfolio.json"),

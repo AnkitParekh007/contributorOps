@@ -4047,3 +4047,256 @@ html[data-theme="light"] .workflow-step {
 		border-top: 1px solid rgba(125, 92, 255, 0.08);
 	}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHASE 1 — PREVIEW BANNER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.preview-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 9px 20px;
+  background: rgba(139, 92, 246, 0.12);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+  font-size: 0.82rem;
+  color: var(--text);
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.preview-banner-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+.preview-banner-text {
+  color: var(--muted);
+}
+
+.preview-banner-text strong {
+  color: var(--text);
+}
+
+.preview-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 20px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.preview-banner-cta:hover {
+  opacity: 0.85;
+}
+
+html[data-theme="light"] .preview-banner {
+  background: rgba(139, 92, 246, 0.07);
+  border-bottom-color: rgba(139, 92, 246, 0.18);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHASE 1 — NAV WAITLIST BUTTON
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.nav-waitlist-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 20px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.15s;
+  margin-right: 6px;
+}
+
+.nav-waitlist-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .nav-waitlist-btn {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHASE 1 — FOUNDER PREVIEW SECTION
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.founder-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.founder-preview-card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.founder-preview-card:hover {
+  border-color: rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.founder-preview-num {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  background: rgba(139, 92, 246, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.founder-preview-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.founder-preview-card p {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+html[data-theme="light"] .founder-preview-card {
+  background: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHASE 1 — WAITLIST FORM ADDITIONS (textarea + consent + optional label)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.form-optional {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.form-consent {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 12px;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHASE 2 — LEGAL PAGE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.legal-article {
+  max-width: 760px;
+}
+
+.legal-article h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 28px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.legal-article h2:first-child {
+  margin-top: 0;
+}
+
+.legal-article h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 18px 0 8px;
+}
+
+.legal-article p {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0 0 12px;
+}
+
+.legal-article ul {
+  padding-left: 20px;
+  margin: 0 0 14px;
+}
+
+.legal-article li {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 5px;
+}
+
+.legal-article strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.legal-article em {
+  font-style: italic;
+  color: var(--text);
+}
+
+.legal-article a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.legal-article a:hover {
+  opacity: 0.8;
+}
+
+.legal-last-updated {
+  font-size: 0.78rem !important;
+  color: var(--muted) !important;
+  margin-top: 32px !important;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+html[data-theme="light"] .legal-article h2 {
+  border-bottom-color: rgba(82, 68, 180, 0.13);
+}
+
+html[data-theme="light"] .legal-last-updated {
+  border-top-color: rgba(82, 68, 180, 0.13);
+}

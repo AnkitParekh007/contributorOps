@@ -12,6 +12,23 @@ ContributorOps is a human-approved open-source contribution intelligence platfor
 
 It is deliberately not positioned as a spam bot, fake contribution farming tool, or unsupervised PR machine.
 
+## Project Status
+
+| Area | Status |
+|------|--------|
+| Public site | Live on GitHub Pages |
+| Documentation | In-site GitBook-style docs |
+| Demo mode | Fully functional (no setup required) |
+| User accounts | Not implemented — coming in Phase 3 |
+| Database | JSON file storage — not suitable for production |
+| GitHub OAuth | Server-level token only — per-user OAuth coming in Phase 5 |
+| Payments | Mock billing only — no charges processed |
+| Safety model | Implemented and enforced in code |
+
+**This is a Founder Preview.** The product is functional for local use and demo exploration.
+Real accounts, billing, and GitHub OAuth are planned for the next development phases.
+Join the [waitlist](https://ankitparekh007.github.io/contributorOps/#/waitlist) to be notified at launch.
+
 ## What ContributorOps Does
 
 ContributorOps is designed around one practical outcome: helping developers convert real open-source work into something they can defend in an interview and showcase in public.

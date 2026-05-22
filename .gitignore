@@ -2,11 +2,15 @@ node_modules/
 dist/
 coverage/
 .DS_Store
-.log
 *.log
 .env
 .env.local
 apps/*/dist/
 apps/*/node_modules/
 *.tsbuildinfo
-data/*.backup.json
+
+# Runtime JSON data — not source, not versioned
+data/*.json
+# Keep the directory itself
+!data/.gitkeep
+!data/README.md
