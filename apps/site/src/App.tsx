@@ -12,28 +12,28 @@ import { Roadmap } from "./pages/Roadmap";
 import { Safety } from "./pages/Safety";
 
 function App() {
-  return (
-    <ThemeProvider>
-      <HashRouter>
-        <div className="site-shell">
-          <Navbar />
-          <main className="site-main">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/features" element={<Features />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/docs" element={<Docs />} />
-              <Route path="/docs/:slug" element={<DocsArticle />} />
-              <Route path="/safety" element={<Safety />} />
-              <Route path="/roadmap" element={<Roadmap />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </HashRouter>
-    </ThemeProvider>
-  );
+	return (
+		<ThemeProvider>
+			<HashRouter>
+				<div className="site-shell">
+					<Navbar />
+					<main className="site-main">
+						<Routes>
+							<Route path="/" element={<Home />} />
+							<Route path="/features" element={<Features />} />
+							<Route path="/pricing" element={<Pricing />} />
+							<Route path="/docs" element={<Docs />} />
+							<Route path="/docs/:slug" element={<DocsArticle />} />
+							<Route path="/safety" element={<Safety />} />
+							<Route path="/roadmap" element={<Roadmap />} />
+							<Route path="*" element={<NotFound />} />
+						</Routes>
+					</main>
+					<Footer />
+				</div>
+			</HashRouter>
+		</ThemeProvider>
+	);
 }
 
 export default App;

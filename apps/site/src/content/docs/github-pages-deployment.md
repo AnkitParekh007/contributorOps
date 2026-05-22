@@ -24,7 +24,7 @@ apps/site/dist
 Because the repository name is `contributorOps`, the site uses:
 
 ```ts
-base: "/contributorOps/"
+base: "/contributorOps/";
 ```
 
 ## Avoiding 404 refresh issues

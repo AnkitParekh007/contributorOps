@@ -2,52 +2,94 @@ import { Link } from "react-router-dom";
 import { BrandLogo } from "./BrandLogo";
 
 export function Footer() {
-  return (
-    <footer className="footer">
-      <div className="footer-inner">
-        <div className="footer-col footer-brand-col">
-          <Link to="/" className="brand" style={{ marginBottom: 10 }}>
-            <BrandLogo />
-          </Link>
-          <p>ContributorOps helps developers turn real open-source contributions into job-ready proof of work.</p>
-        </div>
+	return (
+		<footer className="footer">
+			<div className="footer-inner">
+				<div className="footer-shell">
+					<div className="footer-top">
+						<section className="footer-brand-panel" aria-labelledby="footer-brand-title">
+							<Link to="/" className="brand footer-brand-link">
+								<BrandLogo />
+							</Link>
+							<p id="footer-brand-title" className="footer-microcopy">
+								ContributorOps helps developers turn real open-source contributions into job-ready proof
+								of work.
+							</p>
+							<div className="footer-trust-list" aria-label="Core trust principles">
+								<span className="footer-trust-pill">Human-approved</span>
+								<span className="footer-trust-pill">No mass-commenting</span>
+								<span className="footer-trust-pill">Draft PR guardrails</span>
+							</div>
+							<div className="footer-action-row">
+								<a
+									className="footer-cta"
+									href="https://github.com/AnkitParekh007/contributorOps"
+									target="_blank"
+									rel="noreferrer"
+								>
+									View repository
+								</a>
+								<Link className="footer-secondary-link" to="/docs">
+									Read documentation
+								</Link>
+							</div>
+						</section>
 
-        <div className="footer-col">
-          <h4>Product</h4>
-          <div className="footer-col-links">
-            <Link to="/">Home</Link>
-            <Link to="/features">Features</Link>
-            <Link to="/pricing">Pricing</Link>
-            <Link to="/roadmap">Roadmap</Link>
-          </div>
-        </div>
+						<div className="footer-link-grid">
+							<nav className="footer-link-group" aria-labelledby="footer-product-links">
+								<h4 id="footer-product-links">Product</h4>
+								<div className="footer-link-list">
+									<Link to="/">Home</Link>
+									<Link to="/features">Features</Link>
+									<Link to="/pricing">Pricing</Link>
+									<Link to="/roadmap">Roadmap</Link>
+								</div>
+							</nav>
 
-        <div className="footer-col">
-          <h4>Resources</h4>
-          <div className="footer-col-links">
-            <Link to="/docs">Docs</Link>
-            <Link to="/safety">Safety</Link>
-            <a href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer">
-              GitHub
-            </a>
-            <a href="https://github.com/AnkitParekh007/contributorOps/tree/main/docs" target="_blank" rel="noreferrer">
-              Markdown Docs
-            </a>
-          </div>
-        </div>
+							<nav className="footer-link-group" aria-labelledby="footer-resources-links">
+								<h4 id="footer-resources-links">Resources</h4>
+								<div className="footer-link-list">
+									<Link to="/docs">Docs</Link>
+									<Link to="/safety">Safety</Link>
+									<a
+										href="https://github.com/AnkitParekh007/contributorOps/tree/main/docs"
+										target="_blank"
+										rel="noreferrer"
+									>
+										Markdown docs
+									</a>
+									<a href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer">
+										GitHub
+									</a>
+								</div>
+							</nav>
 
-        <div className="footer-col">
-          <h4>Trust Model</h4>
-          <div className="footer-col-links">
-            <span>Human-approved workflows</span>
-            <span>No mass-commenting</span>
-            <span>No mass-opened PRs</span>
-            <span>Real proof-of-work</span>
-          </div>
-        </div>
+							<section className="footer-link-group" aria-labelledby="footer-use-cases">
+								<h4 id="footer-use-cases">Built for</h4>
+								<div className="footer-link-list footer-link-list-static">
+									<span>Open-source job seekers</span>
+									<span>Backend and API developers</span>
+									<span>Developer tooling contributors</span>
+									<span>Career-focused teams</span>
+								</div>
+							</section>
+						</div>
+					</div>
 
-        <div className="footer-bottom">Copyright 2026 ContributorOps - Open-source - Human-approved</div>
-      </div>
-    </footer>
-  );
+					<div className="footer-bottom-row">
+						<div className="footer-bottom-meta">
+							<span>© 2026 ContributorOps</span>
+							<span>Open-source</span>
+							<span>Human-approved automation</span>
+						</div>
+						<div className="footer-bottom-links">
+							<Link to="/pricing">Plans</Link>
+							<Link to="/safety">Safety policy</Link>
+							<Link to="/roadmap">Roadmap</Link>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+	);
 }

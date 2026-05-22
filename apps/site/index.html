@@ -1,58 +1,68 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="ContributorOps helps developers turn real open-source contributions into job-ready proof of work. Job-matched issue finder, PR quality checker, portfolio builder, and resume generator."
-    />
-    <meta
-      name="keywords"
-      content="open source contributions, developer portfolio, GitHub resume, job search, proof of work, OSS, TypeScript, API developer, backend engineer, Angular developer"
-    />
-    <meta name="author" content="ContributorOps" />
-    <meta name="theme-color" content="#07111d" />
-    <meta name="application-name" content="ContributorOps" />
-    <meta property="og:title" content="ContributorOps — Turn Open-Source Work Into Career Proof" />
-    <meta
-      property="og:description"
-      content="Job-matched issue finder, PR quality checker, portfolio builder, and resume generator for developers who want real OSS contributions to become visible hiring signal."
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://ankitparekh007.github.io/contributorOps/" />
-    <meta property="og:image" content="https://ankitparekh007.github.io/contributorOps/og-image.svg" />
-    <meta property="og:site_name" content="ContributorOps" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="ContributorOps — Turn Open-Source Work Into Career Proof" />
-    <meta
-      name="twitter:description"
-      content="Job-matched issue finder, PR quality checker, portfolio builder, and resume generator."
-    />
-    <meta name="twitter:image" content="https://ankitparekh007.github.io/contributorOps/og-image.svg" />
-    <link rel="canonical" href="https://ankitparekh007.github.io/contributorOps/" />
-    <link rel="icon" type="image/svg+xml" href="/contributorOps/contributorops-icon-light.svg" media="(prefers-color-scheme: light)" />
-    <link rel="icon" type="image/svg+xml" href="/contributorOps/contributorops-icon-dark.svg" media="(prefers-color-scheme: dark)" />
-    <link rel="apple-touch-icon" href="/contributorOps/contributorops-icon-light.svg" />
-    <link rel="manifest" href="/contributorOps/site.webmanifest" />
-    <title>ContributorOps — Turn Open-Source Work Into Career Proof</title>
-    <script>
-      (function () {
-        try {
-          var stored = localStorage.getItem("contributorops_theme");
-          var theme =
-            stored === "light" || stored === "dark"
-              ? stored
-              : window.matchMedia("(prefers-color-scheme: light)").matches
-                ? "light"
-                : "dark";
-          document.documentElement.dataset.theme = theme;
-        } catch (e) {}
-      })();
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="description"
+			content="ContributorOps helps developers turn real open-source contributions into job-ready proof of work. Job-matched issue finder, PR quality checker, portfolio builder, and resume generator."
+		/>
+		<meta
+			name="keywords"
+			content="open source contributions, developer portfolio, GitHub resume, job search, proof of work, OSS, TypeScript, API developer, backend engineer, Angular developer"
+		/>
+		<meta name="author" content="ContributorOps" />
+		<meta name="theme-color" content="#07111d" />
+		<meta name="application-name" content="ContributorOps" />
+		<meta property="og:title" content="ContributorOps — Turn Open-Source Work Into Career Proof" />
+		<meta
+			property="og:description"
+			content="Job-matched issue finder, PR quality checker, portfolio builder, and resume generator for developers who want real OSS contributions to become visible hiring signal."
+		/>
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://ankitparekh007.github.io/contributorOps/" />
+		<meta property="og:image" content="https://ankitparekh007.github.io/contributorOps/og-image.svg" />
+		<meta property="og:site_name" content="ContributorOps" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="ContributorOps — Turn Open-Source Work Into Career Proof" />
+		<meta
+			name="twitter:description"
+			content="Job-matched issue finder, PR quality checker, portfolio builder, and resume generator."
+		/>
+		<meta name="twitter:image" content="https://ankitparekh007.github.io/contributorOps/og-image.svg" />
+		<link rel="canonical" href="https://ankitparekh007.github.io/contributorOps/" />
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			href="/contributorOps/contributorops-icon-light.svg"
+			media="(prefers-color-scheme: light)"
+		/>
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			href="/contributorOps/contributorops-icon-dark.svg"
+			media="(prefers-color-scheme: dark)"
+		/>
+		<link rel="apple-touch-icon" href="/contributorOps/contributorops-icon-light.svg" />
+		<link rel="manifest" href="/contributorOps/site.webmanifest" />
+		<title>ContributorOps — Turn Open-Source Work Into Career Proof</title>
+		<script>
+			(function () {
+				try {
+					var stored = localStorage.getItem("contributorops_theme");
+					var theme =
+						stored === "light" || stored === "dark"
+							? stored
+							: window.matchMedia("(prefers-color-scheme: light)").matches
+								? "light"
+								: "dark";
+					document.documentElement.dataset.theme = theme;
+				} catch (e) {}
+			})();
+		</script>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/main.tsx"></script>
+	</body>
 </html>
