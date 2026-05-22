@@ -87,6 +87,8 @@ a {
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   padding: 28px 22px;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   background:
@@ -330,6 +332,29 @@ a {
   background:
     radial-gradient(circle at top right, rgba(79, 209, 197, 0.08), transparent 36%),
     rgba(8, 15, 27, 0.96);
+}
+
+:root[data-theme="light"] .mission-card {
+  border-color: rgba(83, 113, 164, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(87, 167, 255, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(22, 38, 63, 0.98), rgba(11, 23, 39, 0.98));
+  color: #f5f8ff;
+}
+
+.mission-card p,
+.mission-card strong,
+.mission-card svg {
+  color: inherit;
+}
+
+:root[data-theme="light"] .mission-card p {
+  color: rgba(232, 240, 255, 0.9);
+}
+
+:root[data-theme="light"] .mission-card .mission-meta,
+:root[data-theme="light"] .mission-card .safety-pill {
+  color: rgba(213, 226, 246, 0.9);
 }
 
 .mission-title {
