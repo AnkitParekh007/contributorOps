@@ -6,5 +6,18 @@
   "display": "standalone",
   "background_color": "#07111d",
   "theme_color": "#07111d",
-  "icons": []
+  "icons": [
+    {
+      "src": "/contributorOps/contributorops-icon-light.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/contributorOps/contributorops-icon-dark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
 }
