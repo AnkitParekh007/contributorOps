@@ -5,11 +5,37 @@ import { PricingCard } from "../components/PricingCard";
 import { Section } from "../components/Section";
 import { features } from "../data/features";
 import { pricingPlans } from "../data/pricing";
+import { Search, FileCode2, BarChart3, Briefcase, ArrowRight } from "lucide-react";
 
-const outcomes = [
-  "Build a public proof-of-work trail instead of relying on generic side-project claims.",
-  "Translate one real contribution into resume bullets, LinkedIn posts, and interview stories.",
-  "Improve maintainer trust by showing preparation, validation, and honest contribution intent.",
+const WORKFLOW = [
+  {
+    num: "01",
+    icon: <Search size={20} />,
+    title: "Discover",
+    desc: "AI-scored issue radar surfaces the highest-signal opportunities matched to your target role and stack.",
+    color: "feature-icon-discover",
+  },
+  {
+    num: "02",
+    icon: <FileCode2 size={20} />,
+    title: "Prepare",
+    desc: "Generate a contribution plan with scoped files, maintainer questions, PR body, and a test strategy.",
+    color: "feature-icon-prepare",
+  },
+  {
+    num: "03",
+    icon: <BarChart3 size={20} />,
+    title: "Validate",
+    desc: "Run a PR quality check — scope, test coverage, tone, and maintainer-readiness scored before submit.",
+    color: "feature-icon-validate",
+  },
+  {
+    num: "04",
+    icon: <Briefcase size={20} />,
+    title: "Prove",
+    desc: "Package the finished work into resume bullets, LinkedIn posts, STAR stories, and a portfolio page.",
+    color: "feature-icon-prove",
+  },
 ];
 
 export function Home() {
@@ -17,85 +43,86 @@ export function Home() {
     <div className="page">
       <Hero />
 
+      {/* ── Before / After ─────────────────────────────────── */}
       <Section
         id="problem"
         eyebrow="Problem"
         title="Most developers have activity, but not enough visible proof."
         description="ContributorOps is built for developers who want real OSS contributions to become stronger hiring signal."
       >
-        <div className="two-column">
-          <article className="content-card">
-            <h3>What goes wrong today</h3>
-            <p>
-              Developers find random issues, lose context, draft weak PRs, and fail to convert the
-              work into durable career assets.
-            </p>
-          </article>
-          <article className="content-card">
-            <h3>What ContributorOps fixes</h3>
-            <p>
-              It turns open-source contribution discovery, planning, PR drafting, and proof-of-work
-              packaging into one clear workflow.
-            </p>
-          </article>
+        <div className="before-after-grid">
+          <div className="before-card">
+            <h3>Without ContributorOps</h3>
+            {[
+              "Find a random issue, lose context, abandon it",
+              "Draft a weak PR with no test plan or maintainer context",
+              "Contribution goes unnoticed in resume",
+              "Struggle to explain the work in interviews",
+              "No public proof beyond vague GitHub activity",
+            ].map((item) => (
+              <div key={item} className="ba-item">
+                <span className="ba-cross">✕</span>
+                {item}
+              </div>
+            ))}
+          </div>
+
+          <div className="before-after-divider">
+            <span className="before-after-arrow">→</span>
+            <span>vs</span>
+          </div>
+
+          <div className="after-card">
+            <h3>With ContributorOps</h3>
+            {[
+              "Job-matched issue finder surfaces the right work",
+              "AI plan scopes files and PR narrative up front",
+              "PR quality check before submission",
+              "STAR stories and resume bullets generated automatically",
+              "Public portfolio page with verifiable contribution history",
+            ].map((item) => (
+              <div key={item} className="ba-item">
+                <span className="ba-check">✓</span>
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
       </Section>
 
-      <Section
-        id="solution"
-        eyebrow="Solution"
-        title="A human-approved contribution intelligence platform."
-        description="Not a spam bot. Not fake contribution farming. Just structured OSS execution and career packaging."
-      >
-        <div className="solution-grid">
-          <article className="content-card">
-            <h3>Discover</h3>
-            <p>Find high-quality issues across API, backend, Angular, platform, and developer-tooling ecosystems.</p>
-          </article>
-          <article className="content-card">
-            <h3>Prepare</h3>
-            <p>Build contribution plans, maintainer-friendly drafts, validation steps, and PR quality signals.</p>
-          </article>
-          <article className="content-card">
-            <h3>Prove</h3>
-            <p>Publish public portfolio pages and export job-search assets that come from real work.</p>
-          </article>
-        </div>
-      </Section>
-
+      {/* ── 4-step workflow ─────────────────────────────────── */}
       <Section
         id="how-it-works"
         eyebrow="How it works"
         title="Structured contribution loops without trust-destroying automation."
-        description="ContributorOps is designed around quality, traceability, and maintainer trust."
+        description="ContributorOps follows a fixed intelligent path from discovery to career proof."
       >
-        <div className="timeline">
-          <article className="timeline-step">
-            <span>01</span>
-            <h3>Match issues to career goals</h3>
-            <p>Use job-targeted issue discovery instead of browsing random open-source noise.</p>
-          </article>
-          <article className="timeline-step">
-            <span>02</span>
-            <h3>Generate a contribution plan</h3>
-            <p>Scope the likely files, validation path, maintainer question, and PR narrative before coding.</p>
-          </article>
-          <article className="timeline-step">
-            <span>03</span>
-            <h3>Turn the work into proof</h3>
-            <p>Package the output into portfolio pages, resume bullets, LinkedIn drafts, and interview stories.</p>
-          </article>
+        <div className="workflow-row">
+          {WORKFLOW.map((step, i) => (
+            <div key={step.num} className="workflow-step">
+              <div className="workflow-step-header">
+                <span className={`feature-icon-wrap ${step.color}`}>{step.icon}</span>
+                <span className="workflow-node">{step.num}</span>
+                {i < WORKFLOW.length - 1 && (
+                  <ArrowRight size={14} style={{ marginLeft: "auto", opacity: 0.3 }} />
+                )}
+              </div>
+              <h3>{step.title}</h3>
+              <p>{step.desc}</p>
+            </div>
+          ))}
         </div>
       </Section>
 
+      {/* ── Core features ───────────────────────────────────── */}
       <Section
         id="features"
         eyebrow="Core features"
-        title="Core product modules"
-        description="Everything is aligned around real contributions becoming visible career leverage."
+        title="Intelligence modules for every stage of the contribution lifecycle."
+        description="Every module is aligned around real contributions becoming visible career leverage."
       >
         <div className="feature-grid">
-          {features.map((feature) => (
+          {features.slice(0, 6).map((feature) => (
             <FeatureCard key={feature.title} feature={feature} />
           ))}
         </div>
@@ -106,65 +133,47 @@ export function Home() {
         </div>
       </Section>
 
-      <Section
-        id="career-outcomes"
-        eyebrow="Career outcomes"
-        title="Convert contributions into hiring signal."
-        description="The platform is opinionated about packaging work into recruiter-friendly evidence."
-      >
-        <div className="outcomes-grid">
-          {outcomes.map((item) => (
-            <article key={item} className="content-card">
-              <p>{item}</p>
-            </article>
-          ))}
-        </div>
-      </Section>
-
+      {/* ── Safety preview ──────────────────────────────────── */}
       <Section
         id="safety"
         eyebrow="Safety-first automation"
         title="Human-approved by design."
         description="ContributorOps does not market mass-commenting, mass-PR opening, or deceptive contribution behavior."
       >
-        <div className="safety-grid">
-          <article className="content-card">
-            <h3>Level 1: Research Mode</h3>
-            <p>Discover issues, score opportunities, and generate contribution plans with no external writes.</p>
-          </article>
-          <article className="content-card">
-            <h3>Level 2: Draft Mode</h3>
-            <p>Draft local changes, PR copy, and test paths. User review remains mandatory.</p>
-          </article>
-          <article className="content-card">
-            <h3>Level 3: Approved Auto-Contribute Mode</h3>
-            <p>Explicit approvals gate comments, branches, and draft PRs. Scheduled jobs never write to external repos.</p>
-          </article>
+        <div className="safety-mode-grid">
+          {[
+            {
+              num: "01",
+              title: "Research Mode",
+              body: "Discover issues, score opportunities, and generate plans with zero external writes.",
+              active: false,
+            },
+            {
+              num: "02",
+              title: "Draft Mode",
+              body: "Draft local changes, PR copy, and test paths. User review is mandatory before any submission.",
+              active: false,
+            },
+            {
+              num: "03",
+              title: "Approved Auto-Contribute",
+              body: "Explicit approvals gate all comments, branches, and draft PRs. Scheduled jobs never write to external repos.",
+              active: true,
+            },
+          ].map((mode) => (
+            <div key={mode.num} className={`safety-mode${mode.active ? " safety-mode-active" : ""}`}>
+              <span className="safety-mode-num">{mode.num}</span>
+              <h3>{mode.title}</h3>
+              <p>{mode.body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="section-cta">
+          <Link to="/safety" className="button-secondary">Read full safety policy</Link>
         </div>
       </Section>
 
-      <Section
-        id="product-preview"
-        eyebrow="Product preview"
-        title="Preview the contribution workflow."
-        description="The product turns one real contribution into a plan, a reviewable PR package, and job-search-ready proof."
-      >
-        <div className="solution-grid">
-          <article className="content-card">
-            <h3>Job-matched discovery</h3>
-            <p>Filter and score issues by target role so the work aligns with the jobs you want next.</p>
-          </article>
-          <article className="content-card">
-            <h3>Contribution planning</h3>
-            <p>Surface likely files, testing strategy, maintainer question drafts, and PR body suggestions up front.</p>
-          </article>
-          <article className="content-card">
-            <h3>Proof-of-work exports</h3>
-            <p>Generate resume bullets, LinkedIn posts, interview STAR stories, and public portfolio assets from the same contribution.</p>
-          </article>
-        </div>
-      </Section>
-
+      {/* ── Pricing preview ─────────────────────────────────── */}
       <Section
         id="pricing-preview"
         eyebrow="Pricing preview"
@@ -177,25 +186,20 @@ export function Home() {
           ))}
         </div>
         <div className="section-cta">
-          <Link to="/pricing" className="button-secondary">
-            View full pricing
-          </Link>
+          <Link to="/pricing" className="button-secondary">View full pricing</Link>
         </div>
       </Section>
 
+      {/* ── CTA ─────────────────────────────────────────────── */}
       <Section
         id="cta"
-        eyebrow="Call to action"
+        eyebrow="Get started"
         title="Start building a public contribution record that hiring teams can verify."
-        description="Use the docs to understand the workflow, the safety model, and the GitHub Pages deployment setup."
+        description="Use the docs to understand the workflow, the safety model, and the GitHub Pages deployment."
       >
         <div className="cta-panel">
-          <Link to="/docs" className="button-primary">
-            Start Building Your Portfolio
-          </Link>
-          <Link to="/safety" className="button-secondary">
-            Read the Safety Policy
-          </Link>
+          <Link to="/docs" className="button-primary">Start Building Your Portfolio</Link>
+          <Link to="/safety" className="button-secondary">Read the Safety Policy</Link>
         </div>
       </Section>
     </div>

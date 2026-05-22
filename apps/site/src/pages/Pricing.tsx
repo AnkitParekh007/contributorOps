@@ -1,20 +1,21 @@
 import { PricingCard } from "../components/PricingCard";
 import { Section } from "../components/Section";
 import { pricingPlans } from "../data/pricing";
+import { AlertCircle, Check, Minus } from "lucide-react";
 
 const comparisonRows = [
-  { feature: "Issue discovery", free: "Basic", pro: "Daily", career: "Daily", team: "Daily" },
-  { feature: "Contribution plan limit", free: "3 per week", pro: "Unlimited", career: "Unlimited", team: "Unlimited" },
-  { feature: "Job-matched scoring", free: "-", pro: "Yes", career: "Yes", team: "Yes" },
-  { feature: "PR quality checker", free: "-", pro: "Yes", career: "Yes", team: "Yes" },
-  { feature: "Portfolio page", free: "Manual", pro: "Hosted", career: "Hosted", team: "Hosted" },
-  { feature: "Resume bullets", free: "-", pro: "Yes", career: "Yes", team: "Yes" },
-  { feature: "LinkedIn drafts", free: "-", pro: "Yes", career: "Yes", team: "Yes" },
-  { feature: "Interview STAR stories", free: "-", pro: "-", career: "Yes", team: "Yes" },
-  { feature: "Recruiter tools", free: "-", pro: "-", career: "Yes", team: "Yes" },
-  { feature: "GitHub profile audit", free: "-", pro: "-", career: "Yes", team: "Yes" },
-  { feature: "Team dashboard", free: "-", pro: "-", career: "-", team: "Yes" },
-  { feature: "Shared repo radar", free: "-", pro: "-", career: "-", team: "Yes" },
+  { feature: "Issue discovery",          free: "Basic",      pro: "Daily",      career: "Daily",     team: "Daily"     },
+  { feature: "Contribution plan limit",  free: "3 / week",   pro: "Unlimited",  career: "Unlimited", team: "Unlimited" },
+  { feature: "Job-matched scoring",      free: null,         pro: true,         career: true,        team: true        },
+  { feature: "PR quality checker",       free: null,         pro: true,         career: true,        team: true        },
+  { feature: "Portfolio page",           free: "Manual",     pro: "Hosted",     career: "Hosted",    team: "Hosted"    },
+  { feature: "Resume bullets",           free: null,         pro: true,         career: true,        team: true        },
+  { feature: "LinkedIn drafts",          free: null,         pro: true,         career: true,        team: true        },
+  { feature: "Interview STAR stories",   free: null,         pro: null,         career: true,        team: true        },
+  { feature: "Recruiter tools",          free: null,         pro: null,         career: true,        team: true        },
+  { feature: "GitHub profile audit",     free: null,         pro: null,         career: true,        team: true        },
+  { feature: "Team dashboard",           free: null,         pro: null,         career: null,        team: true        },
+  { feature: "Shared repo radar",        free: null,         pro: null,         career: null,        team: true        },
 ];
 
 const faqs = [
@@ -40,6 +41,12 @@ const faqs = [
   },
 ];
 
+function CellValue({ val, planColor }: { val: string | boolean | null; planColor: string }) {
+  if (val === null) return <Minus size={14} style={{ color: "var(--muted)", opacity: 0.4 }} />;
+  if (val === true) return <Check size={14} style={{ color: planColor }} />;
+  return <span style={{ fontSize: "0.83rem", color: "var(--muted)" }}>{val}</span>;
+}
+
 export function Pricing() {
   return (
     <div className="page">
@@ -48,6 +55,15 @@ export function Pricing() {
         title="Simple plans for contribution intelligence and career packaging."
         description="No real payments yet. These tiers exist to show packaging, feature flags, and future upgrade paths."
       >
+        {/* Mock billing callout */}
+        <div className="billing-callout">
+          <AlertCircle size={18} className="billing-callout-icon" />
+          <span>
+            <strong>Payments are not live.</strong> This page shows product packaging and feature boundaries only.
+            Stripe or Lemon Squeezy can be wired in later without changing the plan structure.
+          </span>
+        </div>
+
         <div className="pricing-grid">
           {pricingPlans.map((plan) => (
             <PricingCard key={plan.name} plan={plan} />
@@ -60,25 +76,25 @@ export function Pricing() {
         title="Feature comparison"
         description="Every plan starts with the same human-approved safety model."
       >
-        <div style={{ overflowX: "auto" }}>
-          <table className="comparison-table">
+        <div style={{ overflowX: "auto", borderRadius: "var(--radius-lg)", border: "1px solid var(--line)" }}>
+          <table className="comparison-table" style={{ border: "none" }}>
             <thead>
               <tr>
-                <th>Feature</th>
+                <th style={{ minWidth: 200 }}>Feature</th>
                 <th>Free</th>
-                <th>Pro</th>
-                <th>Career</th>
-                <th className="col-accent">Team</th>
+                <th style={{ color: "#60a5fa" }}>Pro</th>
+                <th style={{ color: "var(--accent)" }}>Career</th>
+                <th className="col-accent" style={{ color: "var(--accent-3)" }}>Team</th>
               </tr>
             </thead>
             <tbody>
               {comparisonRows.map((row) => (
                 <tr key={row.feature}>
-                  <td>{row.feature}</td>
-                  <td style={{ color: row.free === "-" ? "var(--muted)" : "var(--text)" }}>{row.free}</td>
-                  <td style={{ color: row.pro === "-" ? "var(--muted)" : "var(--accent-2)" }}>{row.pro}</td>
-                  <td style={{ color: row.career === "-" ? "var(--muted)" : "var(--accent)" }}>{row.career}</td>
-                  <td className="col-accent" style={{ color: row.team === "-" ? "var(--muted)" : "var(--accent-3)" }}>{row.team}</td>
+                  <td style={{ fontWeight: 500, fontSize: "0.875rem" }}>{row.feature}</td>
+                  <td><CellValue val={row.free}   planColor="var(--muted)" /></td>
+                  <td><CellValue val={row.pro}    planColor="#60a5fa" /></td>
+                  <td><CellValue val={row.career} planColor="var(--accent)" /></td>
+                  <td className="col-accent"><CellValue val={row.team} planColor="var(--accent-3)" /></td>
                 </tr>
               ))}
             </tbody>
