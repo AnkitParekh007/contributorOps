@@ -1,0 +1,94 @@
+<svg width="1440" height="420" viewBox="0 0 1440 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">ContributorOps logo - light theme</title>
+  <desc id="desc">AI-specific ContributorOps wordmark with neural contribution graph icon.</desc>
+
+  <defs>
+    <linearGradient id="aiGradient" x1="110" y1="90" x2="325" y2="310" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="0.48" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+
+    <linearGradient id="opsGradient" x1="770" y1="128" x2="1180" y2="260" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="0.48" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+
+    <radialGradient id="softGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(235 210) rotate(90) scale(180)">
+      <stop stop-color="#22D3EE" stop-opacity="0.18"/>
+      <stop offset="0.45" stop-color="#2563EB" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+
+    <filter id="cardShadow" x="50" y="40" width="330" height="330" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#1E40AF" flood-opacity="0.16"/>
+    </filter>
+
+    <filter id="textShadow" x="400" y="80" width="850" height="220" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#1E40AF" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="420" rx="0" fill="#FFFFFF"/>
+  <circle cx="235" cy="210" r="190" fill="url(#softGlow)"/>
+
+  <g opacity="0.08">
+    <path d="M90 80H1350" stroke="#7C3AED" stroke-width="1"/>
+    <path d="M90 150H1350" stroke="#2563EB" stroke-width="1"/>
+    <path d="M90 220H1350" stroke="#22D3EE" stroke-width="1"/>
+    <path d="M90 290H1350" stroke="#2563EB" stroke-width="1"/>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="104" y="74" width="260" height="260" rx="64" fill="#F8FAFF" stroke="#E4E8FF" stroke-width="2"/>
+
+    <!-- Outer contribution intelligence orbit -->
+    <path d="M151 163C171 119 216 92 264 102C308 111 342 147 350 191" stroke="url(#aiGradient)" stroke-width="17" stroke-linecap="round"/>
+    <path d="M328 270C296 312 238 326 190 302C161 288 140 263 130 235" stroke="url(#aiGradient)" stroke-width="17" stroke-linecap="round"/>
+
+    <!-- Human-approved check mark -->
+    <path d="M145 228L188 271L286 169" stroke="url(#aiGradient)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Neural/agent graph lines -->
+    <path d="M196 246L256 186" stroke="url(#aiGradient)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M212 289L286 215" stroke="url(#aiGradient)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M176 267L238 205" stroke="url(#aiGradient)" stroke-width="14" stroke-linecap="round"/>
+
+    <!-- Nodes -->
+    <circle cx="151" cy="163" r="20" fill="url(#aiGradient)"/>
+    <circle cx="264" cy="102" r="22" fill="url(#aiGradient)"/>
+    <circle cx="350" cy="191" r="20" fill="url(#aiGradient)"/>
+    <circle cx="328" cy="270" r="20" fill="url(#aiGradient)"/>
+    <circle cx="196" cy="246" r="15" fill="#2563EB"/>
+    <circle cx="256" cy="186" r="15" fill="#22D3EE"/>
+    <circle cx="286" cy="215" r="15" fill="#22D3EE"/>
+
+    <!-- AI sparkle -->
+    <path d="M279 130L290 154L314 165L290 176L279 200L268 176L244 165L268 154L279 130Z" fill="#0B1026" opacity="0.82"/>
+    <path d="M279 147L285 160L298 165L285 170L279 183L273 170L260 165L273 160L279 147Z" fill="url(#aiGradient)"/>
+  </g>
+
+  <g filter="url(#textShadow)">
+    <text x="430" y="235"
+      font-family="Inter, Space Grotesk, Segoe UI, Arial, sans-serif"
+      font-size="92"
+      font-weight="800"
+      letter-spacing="-4"
+      fill="#0B1026">Contributor</text>
+
+    <text x="950" y="235"
+      font-family="Inter, Space Grotesk, Segoe UI, Arial, sans-serif"
+      font-size="92"
+      font-weight="800"
+      letter-spacing="-4"
+      fill="url(#opsGradient)">Ops</text>
+
+    <text x="435" y="286"
+      font-family="Inter, Segoe UI, Arial, sans-serif"
+      font-size="24"
+      font-weight="600"
+      letter-spacing="0.2"
+      fill="#44506A">AI-powered open-source contribution intelligence</text>
+  </g>
+</svg>

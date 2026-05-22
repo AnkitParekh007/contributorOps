@@ -1,9 +1,9 @@
 # ContributorOps
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./apps/site/public/contributor-ops-logo-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="./apps/site/public/contributor-ops-logo-light.png">
-  <img src="./apps/site/public/contributor-ops-logo-light.png" alt="ContributorOps logo" width="720">
+  <source media="(prefers-color-scheme: dark)" srcset="./apps/site/public/contributorops-logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./apps/site/public/contributorops-logo-light.svg">
+  <img src="./apps/site/public/contributorops-logo-light.svg" alt="ContributorOps logo" width="720">
 </picture>
 
 **ContributorOps helps developers turn real open-source contributions into job-ready proof of work.**

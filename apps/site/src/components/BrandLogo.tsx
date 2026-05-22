@@ -10,7 +10,7 @@ export function BrandLogo({
   alt = "ContributorOps logo",
 }: BrandLogoProps) {
   const { theme } = useTheme();
-  const src = `${import.meta.env.BASE_URL}${theme === "dark" ? "contributor-ops-logo-dark.png" : "contributor-ops-logo-light.png"}`;
+  const src = `${import.meta.env.BASE_URL}${theme === "dark" ? "contributorops-logo-dark.svg" : "contributorops-logo-light.svg"}`;
 
   return <img className={className} src={src} alt={alt} />;
 }
