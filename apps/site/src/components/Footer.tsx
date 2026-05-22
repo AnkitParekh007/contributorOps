@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { BrandLogo } from "./BrandLogo";
 
 export function Footer() {
   return (
@@ -6,8 +7,7 @@ export function Footer() {
       <div className="footer-inner">
         <div className="footer-col footer-brand-col">
           <Link to="/" className="brand" style={{ marginBottom: 10 }}>
-            <span className="brand-mark" />
-            <span>ContributorOps</span>
+            <BrandLogo />
           </Link>
           <p>ContributorOps helps developers turn real open-source contributions into job-ready proof of work.</p>
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
+import { BrandLogo } from "./BrandLogo";
 
 function SunIcon() {
   return (
@@ -47,8 +48,7 @@ export function Navbar() {
     <header className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="brand">
-          <span className="brand-mark" />
-          <span>ContributorOps</span>
+          <BrandLogo />
         </Link>
 
         <nav className={`nav-links${menuOpen ? " nav-links-open" : ""}`} aria-label="Main navigation">

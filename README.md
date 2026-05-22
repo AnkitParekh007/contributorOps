@@ -1,5 +1,11 @@
 # ContributorOps
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./apps/site/public/contributor-ops-logo-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="./apps/site/public/contributor-ops-logo-light.png">
+  <img src="./apps/site/public/contributor-ops-logo-light.png" alt="ContributorOps logo" width="720">
+</picture>
+
 **ContributorOps helps developers turn real open-source contributions into job-ready proof of work.**
 
 ContributorOps is a human-approved open-source contribution intelligence platform. It helps developers discover high-quality issues, prepare better pull requests, build public proof-of-work portfolios, and convert real contributions into resume bullets, LinkedIn posts, and interview stories.
