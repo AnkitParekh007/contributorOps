@@ -1,0 +1,46 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">ContributorOps icon - light theme</title>
+  <desc id="desc">AI contribution graph icon for ContributorOps.</desc>
+  <defs>
+    <linearGradient id="aiGradient" x1="115" y1="82" x2="397" y2="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C3AED"/>
+      <stop offset="0.48" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 256) rotate(90) scale(230)">
+      <stop stop-color="#22D3EE" stop-opacity="0.16"/>
+      <stop offset="0.5" stop-color="#2563EB" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#7C3AED" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="36" y="36" width="440" height="440" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="22" stdDeviation="30" flood-color="#1E40AF" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="#FFFFFF"/>
+  <circle cx="256" cy="256" r="232" fill="url(#glow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="86" y="78" width="340" height="340" rx="92" fill="#F8FAFF" stroke="#E4E8FF" stroke-width="4"/>
+
+    <path d="M148 195C174 135 235 98 300 111C360 123 404 173 414 232" stroke="url(#aiGradient)" stroke-width="28" stroke-linecap="round"/>
+    <path d="M386 330C343 387 265 405 199 373C160 354 131 320 117 282" stroke="url(#aiGradient)" stroke-width="28" stroke-linecap="round"/>
+
+    <path d="M138 276L200 338L344 186" stroke="url(#aiGradient)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <path d="M212 304L297 219" stroke="url(#aiGradient)" stroke-width="22" stroke-linecap="round"/>
+    <path d="M235 365L341 259" stroke="url(#aiGradient)" stroke-width="22" stroke-linecap="round"/>
+    <path d="M176 332L266 242" stroke="url(#aiGradient)" stroke-width="22" stroke-linecap="round"/>
+
+    <circle cx="148" cy="195" r="31" fill="url(#aiGradient)"/>
+    <circle cx="300" cy="111" r="33" fill="url(#aiGradient)"/>
+    <circle cx="414" cy="232" r="31" fill="url(#aiGradient)"/>
+    <circle cx="386" cy="330" r="31" fill="url(#aiGradient)"/>
+    <circle cx="212" cy="304" r="23" fill="#2563EB"/>
+    <circle cx="297" cy="219" r="23" fill="#22D3EE"/>
+    <circle cx="341" cy="259" r="23" fill="#22D3EE"/>
+
+    <path d="M331 142L346 176L380 191L346 206L331 240L316 206L282 191L316 176L331 142Z" fill="#0B1026" opacity="0.82"/>
+    <path d="M331 166L339 184L357 191L339 198L331 216L323 198L305 191L323 184L331 166Z" fill="url(#aiGradient)"/>
+  </g>
+</svg>

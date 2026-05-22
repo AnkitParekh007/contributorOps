@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { apiClient } from "./api/client";
 import { AutoContributePage } from "./components/AutoContributePage";
+import { BrandLogo } from "./components/BrandLogo";
 import { CandidateList } from "./components/CandidateList";
 import { ControlModePanel } from "./components/ControlModePanel";
 import { ContributionModePanel } from "./components/ContributionModePanel";
@@ -25,6 +26,7 @@ import { PricingPage } from "./components/PricingPage";
 import { ProofOfWorkPage } from "./components/ProofOfWorkPage";
 import { PublicPortfolioPage } from "./components/PublicPortfolioPage";
 import { TeamRadarPage } from "./components/TeamRadarPage";
+import { ThemeToggle } from "./components/ThemeToggle";
 import type {
   BillingState,
   ControlModeState,
@@ -118,6 +120,8 @@ const defaultFilters: DiscoveryFilters = {
 };
 
 type AppPage = "dashboard" | "auto-contribute" | "proof-of-work" | "pricing" | "team-radar";
+
+type ThemeMode = "light" | "dark";
 
 function emptyBillingState(): BillingState {
   return {
@@ -225,6 +229,18 @@ function App() {
   const usernameSlug = usernameMatch?.[1] || "";
   const initialPage =
     typeof window !== "undefined" && window.location.pathname === "/pricing" ? "pricing" : "dashboard";
+  const [theme, setTheme] = useState<ThemeMode>(() => {
+    if (typeof window === "undefined") {
+      return "dark";
+    }
+
+    const savedTheme = window.localStorage.getItem("contributorops-theme");
+    if (savedTheme === "light" || savedTheme === "dark") {
+      return savedTheme;
+    }
+
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  });
 
   const [activePage, setActivePage] = useState<AppPage>(initialPage);
   const [modeLabel, setModeLabel] = useState("demo mode");
@@ -266,6 +282,12 @@ function App() {
   const [publicError, setPublicError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    window.localStorage.setItem("contributorops-theme", theme);
+  }, [theme]);
 
   const selectedIssue = issues.find((issue) => issue.id === selectedIssueId) || null;
   const selectedPortfolioEntry =
@@ -753,6 +775,10 @@ function App() {
     window.history.replaceState({}, "", targetPath);
   };
 
+  const toggleTheme = () => {
+    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
+  };
+
   if (usernameSlug) {
     return <PublicPortfolioPage profile={publicProfile} error={publicError} />;
   }
@@ -763,9 +789,13 @@ function App() {
     <div className="app-shell">
       <div className="app-grid">
         <aside className="sidebar">
+          <div className="sidebar-brand">
+            <BrandLogo theme={theme} compact />
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          </div>
+
           <div>
             <p className="eyebrow">Career engine</p>
-            <h2>ContributorOps</h2>
             <p className="sidebar-copy">
               Discover quality open-source issues in API, backend, and developer-tooling repos and
               turn every contribution into interview-ready proof.

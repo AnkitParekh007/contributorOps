@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { BrandLogo } from "./BrandLogo";
 
 export function LoginPage() {
   const { signInWithGitHub, signInWithEmail } = useAuth();
@@ -7,6 +8,10 @@ export function LoginPage() {
   const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const theme =
+    typeof document !== "undefined" && document.documentElement.dataset.theme === "light"
+      ? "light"
+      : "dark";
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,8 +31,7 @@ export function LoginPage() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-brand">
-          <div className="login-brand-dot" />
-          <span className="login-brand-name">ContributorOps</span>
+          <BrandLogo theme={theme} compact />
         </div>
 
         <h1 className="login-title">Sign in to your account</h1>
