@@ -39,9 +39,9 @@ const WORKFLOW = [
 ];
 
 export function Home() {
-	return (
-		<div className="page page-home">
-			<Hero />
+  return (
+    <div className="page page-home">
+      <Hero />
 
 			{/* ── Before / After ─────────────────────────────────── */}
 			<Section

@@ -43,18 +43,18 @@ const PROOFS = [
 ];
 
 export function Hero() {
-	return (
-		<section className="hero reveal-section is-visible">
-			{/* ── Left: copy ─────────────────────────────────────── */}
-			<div className="hero-copy">
-				<div className="hero-badges">
-					<span className="hero-badge hero-badge-green">
-						<span className="hero-badge-dot hero-badge-dot-green" />
-						Human-approved
-					</span>
-					<span className="hero-badge">No spam automation</span>
-					<span className="hero-badge">Proof-of-work focused</span>
-				</div>
+  return (
+    <section className="hero reveal-section is-visible">
+      {/* ── Left: copy ─────────────────────────────────────── */}
+      <div className="hero-copy">
+        <div className="hero-badges">
+          <span className="hero-badge hero-badge-green">
+            <span className="hero-badge-dot hero-badge-dot-green" />
+            Human-approved
+          </span>
+          <span className="hero-badge">No spam automation</span>
+          <span className="hero-badge">Proof-of-work focused</span>
+        </div>
 
 				<h1>
 					Turn OSS Contributions
