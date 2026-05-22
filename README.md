@@ -6,156 +6,169 @@
   <img src="./apps/site/public/contributorops-logo-light.svg" alt="ContributorOps logo" width="720">
 </picture>
 
-**ContributorOps helps developers turn real open-source contributions into job-ready proof of work.**
+**ContributorOps is a human-approved contribution intelligence platform that turns real open-source work into job-ready proof of work.**
 
-ContributorOps is a human-approved open-source contribution intelligence platform for developers who want their GitHub work to become visible hiring signal. It helps you discover higher-quality issues, prepare stronger pull requests, package completed contributions into career assets, and build a public record of work that recruiters, hiring managers, and maintainers can actually understand.
+ContributorOps is designed for developers, career programs, and teams that want a more structured way to identify worthwhile open-source issues, prepare higher-quality pull requests, preserve maintainer trust, and package finished contributions into durable professional evidence.
 
-It is deliberately not positioned as a spam bot, fake contribution farming tool, or unsupervised PR machine.
+The system is intentionally not positioned as a spam bot, growth-hacking tool, or mass-PR engine. Its purpose is to improve contribution quality, contribution clarity, and contribution portability into hiring artifacts.
 
-## Project Status
+## Executive Overview
 
-| Area | Status |
-|------|--------|
-| Public site | Live on GitHub Pages |
-| Documentation | In-site GitBook-style docs |
-| Demo mode | Fully functional (no setup required) |
-| User accounts | Not implemented — coming in Phase 3 |
-| Database | JSON file storage — not suitable for production |
-| GitHub OAuth | Server-level token only — per-user OAuth coming in Phase 5 |
-| Payments | Mock billing only — no charges processed |
-| Safety model | Implemented and enforced in code |
+ContributorOps addresses a common gap in developer portfolios: GitHub activity is often real, but not sufficiently structured, explainable, or reusable as hiring signal.
 
-**This is a Founder Preview.** The product is functional for local use and demo exploration.
-Real accounts, billing, and GitHub OAuth are planned for the next development phases.
-Join the [waitlist](https://ankitparekh007.github.io/contributorOps/#/waitlist) to be notified at launch.
+The platform provides:
+- discovery and ranking of contribution opportunities
+- structured contribution planning
+- PR quality review and readiness checks
+- controlled, approval-gated contribution workflows
+- portfolio and proof-of-work tracking
+- career packaging outputs such as resume bullets, interview stories, recruiter-ready summaries, and public contribution pages
 
-## What ContributorOps Does
+The result is a system that connects open-source contribution work with career outcomes without bypassing human judgment or maintainer trust.
 
-ContributorOps is designed around one practical outcome: helping developers convert real open-source work into something they can defend in an interview and showcase in public.
+## Product Scope
 
-The product helps with:
-- finding relevant OSS issues for backend, API, Angular, platform, and developer-tooling work
-- creating structured contribution plans before writing code
-- improving PR quality and maintainer-readiness
-- tracking portfolio-worthy contributions over time
-- turning finished work into resume bullets, LinkedIn drafts, STAR stories, and proof-of-work pages
+ContributorOps currently focuses on five capability domains.
 
-## Why This Exists
+### 1. Opportunity Discovery
+- issue discovery across external repositories
+- role-aware issue scoring
+- contributor-oriented filtering for API, backend, Angular, platform, and developer-tooling work
+- daily plan generation
 
-Many developers already contribute to GitHub, but the signal is weak:
-- issues are chosen randomly
-- contribution scope is unclear
-- PRs are not packaged well for maintainers
-- the work never becomes a clear hiring story
+### 2. Contribution Preparation
+- scoped contribution plans
+- file and testing suggestions
+- maintainer question drafting
+- branch, commit, and PR draft generation
 
-ContributorOps exists to close that gap between "I contributed" and "I can prove I am ready for the role I want."
+### 3. Quality And Trust Controls
+- PR quality scoring
+- deterministic pre-submit checks
+- duplicate-action prevention
+- external write rate limits
+- explicit approval gates for higher-risk operations
 
-## Who It Is For
-
-ContributorOps is built for:
-- developers trying to break into stronger backend, API, Angular, platform, or developer-tooling roles
-- engineers who want a more disciplined OSS contribution workflow
-- job seekers who need real proof-of-work instead of generic portfolio claims
-- bootcamps, career programs, and teams that want contribution tracking with trust guardrails
-
-## How It Works
-
-ContributorOps follows a structured loop:
-
-1. Discover
-   Find external repositories and issues that match your target role and contribution constraints.
-2. Prepare
-   Generate a contribution plan with likely files, testing strategy, maintainer questions, and PR framing.
-3. Validate
-   Check draft PR quality, trust risks, and contribution readiness before submission.
-4. Prove
-   Turn the finished contribution into public, career-ready artifacts.
-
-## Core Product Surfaces
-
-ContributorOps includes:
-- a job-matched issue finder
-- daily contribution planning
-- PR quality checking
-- maintainer-friendly draft messaging
+### 4. Proof-Of-Work Packaging
 - portfolio tracking
-- public proof-of-work portfolio pages
-- GitHub resume exports
+- public contribution pages
+- GitHub resume export
 - LinkedIn post generation
 - interview STAR story generation
-- recruiter-oriented sharing surfaces
+- recruiter-facing summaries
 
-## Safety Model
+### 5. Commercial Product Layer
+- plan-aware feature gating
+- local billing state
+- monetization-ready packaging for Free, Pro, Career, and Team tiers
+- static business website and documentation site
 
-ContributorOps is built around maintainer trust and human approval.
+## Safety And Operating Model
 
-It does not:
+ContributorOps is built around a controlled automation model.
+
+It does **not**:
 - mass-comment on third-party repositories
 - mass-open pull requests
-- schedule external repo writes from daily jobs
-- automate deceptive contributions
-- create career claims the developer cannot honestly defend
+- run unsupervised external write workflows from scheduled jobs
+- generate deceptive contribution claims
+- optimize for contribution volume at the expense of maintainer trust
 
-It uses three explicit safety levels:
+The operating model is split into three safety levels:
 
 1. `Research Mode`
-   Discover and plan only. No external GitHub writes.
+   Discovery, scoring, and planning only. No external GitHub writes.
 2. `Draft Mode`
-   Generate local proposed changes, PR drafts, comments, and test plans. Nothing is pushed externally.
+   Local proposal generation, including changes, PR content, and tests, without external submission.
 3. `Approved Auto-Contribute Mode`
-   Explicit approval is required for exact actions such as comments, fork branches, and draft PR creation.
+   Explicit approval is required for exact actions such as comments, fork branches, and draft pull requests.
 
-Scheduled jobs are limited to discovery, planning, and optional issue creation inside this repository only.
+Scheduled workflows are restricted to internal planning and repository-local automation. External repository writes remain approval-gated.
 
-## Product Positioning
+## Architecture Summary
 
-The product positioning is intentionally narrow:
+The repository currently contains a multi-surface product implementation:
 
-> ContributorOps helps developers turn real open-source contributions into job-ready proof of work.
+- `apps/web`
+  Frontend application surface for ContributorOps product workflows.
+- `apps/api`
+  Backend API and orchestration layer for discovery, scoring, planning, storage, and controlled GitHub operations.
+- `apps/site`
+  Static business website and documentation site deployed to GitHub Pages.
+- `data`
+  Local JSON-backed persistence for MVP product state.
+- `docs`
+  Long-form product, safety, deployment, and monetization documentation.
 
-That means the platform optimizes for:
-- contribution quality over volume
-- trust over automation theater
-- real maintainable work over fake activity
-- hiring signal over vanity metrics
+Current technical characteristics:
+- React + Vite + TypeScript on the frontend surfaces
+- Node.js + Express on the API layer
+- Octokit for GitHub API integration
+- local JSON storage for early-stage persistence
+- GitHub Actions for scheduled planning and static site deployment
 
-## Website
+## Repository Status
+
+| Area | Current State |
+|------|---------------|
+| Static marketing site | Live on GitHub Pages |
+| Documentation surface | Implemented in-site and in markdown |
+| Discovery and planning workflows | Implemented |
+| Controlled contribution modes | Implemented |
+| Local-first portfolio tracking | Implemented |
+| Billing and payments | Mock state only |
+| Per-user GitHub OAuth | Not yet implemented |
+| Production database | Not yet implemented |
+| Multi-user SaaS operations | Planned |
+
+This repository should be treated as a product foundation and working preview rather than a production SaaS deployment.
+
+## Feature Model
+
+Core product modules include:
+- Job-Matched Issue Finder
+- Daily Contribution Planner
+- PR Quality Checker
+- Maintainer-Friendly Draft Assistant
+- Public Proof-of-Work Portfolio
+- GitHub Resume Generator
+- LinkedIn Post Generator
+- Interview STAR Story Generator
+- Recruiter Share Surfaces
+- Controlled Auto-Contribute Guardrails
+
+These modules are packaged into commercial plans without changing the underlying safety model.
+
+## Commercial Packaging
+
+ContributorOps is monetization-ready, but real payment processing is not yet enabled.
+
+Current plan structure:
+- `Free`
+  Basic discovery, limited planning, manual portfolio tracking, and core docs.
+- `Pro`
+  Daily planning, issue matching, PR quality review, and portfolio surfaces.
+- `Career`
+  Career artifact generation, recruiter tools, GitHub profile audit, and advanced proof exports.
+- `Team`
+  Shared contribution tracking, team reporting, repo radar, and admin-oriented controls.
+
+The codebase is structured so Stripe or Lemon Squeezy can be added later without reworking the product model or entitlement boundaries.
+
+## Website And Documentation
 
 Public site:
 [https://ankitparekh007.github.io/contributorOps/](https://ankitparekh007.github.io/contributorOps/)
 
-The website includes:
-- Home
-- Features
-- Pricing
-- Docs
-- Safety
-- Roadmap
+The public site includes:
+- product overview
+- features
+- pricing
+- safety model
+- roadmap
+- documentation landing and article pages
 
-## Plans And Monetization
-
-ContributorOps is monetization-ready, but real payment processing is not implemented yet.
-
-Current product packaging:
-- `Free` — basic discovery, 3 plans per week, manual portfolio tracker, basic docs
-- `Pro` — daily plans, job-matched issue finder, PR checker, portfolio page, resume bullets, LinkedIn drafts
-- `Career` — interview stories, recruiter tools, GitHub profile audit, advanced proof-of-work exports
-- `Team` — shared repo radar, contribution dashboard, team reporting, admin-oriented controls
-
-The codebase is structured so Stripe or Lemon Squeezy can be added later without reworking the product model.
-
-## Repository Overview
-
-This repository currently contains:
-- the main ContributorOps app surfaces
-- the static business website and docs site in `apps/site`
-- supporting docs in [`/docs`](./docs)
-- GitHub Pages deployment workflow
-- product positioning, pricing, safety, and roadmap content
-
-## Explore The Docs
-
-Detailed documentation lives in [`/docs`](./docs):
+Supporting markdown documentation lives in [`/docs`](./docs):
 - [`product-overview.md`](./docs/product-overview.md)
 - [`local-development.md`](./docs/local-development.md)
 - [`github-pages-deployment.md`](./docs/github-pages-deployment.md)
@@ -163,18 +176,36 @@ Detailed documentation lives in [`/docs`](./docs):
 - [`monetization-plan.md`](./docs/monetization-plan.md)
 - [`roadmap.md`](./docs/roadmap.md)
 
+## Deployment Model
+
+The static business site deploys from `apps/site/dist` through GitHub Actions using:
+
+[`/.github/workflows/deploy-site.yml`](./.github/workflows/deploy-site.yml)
+
+GitHub Pages configuration:
+- Pages source: `GitHub Actions`
+- Vite base path: `/contributorOps/`
+- router strategy: `HashRouter` for refresh-safe GitHub Pages navigation
+
+The main application and API remain local-development surfaces at this stage.
+
 ## Local Development
 
-For people working on the repo itself:
+Repository setup:
 
 ```bash
 npm install
+```
+
+Static site workflows:
+
+```bash
 npm run site:dev
 npm run site:build
 npm run site:preview
 ```
 
-The full app workspace also supports:
+Full workspace workflows:
 
 ```bash
 npm run dev
@@ -183,48 +214,42 @@ npm run daily
 npm run start
 ```
 
-## GitHub Pages
+## Roadmap
 
-The website deploys from `apps/site/dist` through GitHub Actions using:
-
-[`/.github/workflows/deploy-site.yml`](./.github/workflows/deploy-site.yml)
-
-To enable GitHub Pages:
-
-1. Go to repository `Settings`
-2. Open `Pages`
-3. Set `Source` to `GitHub Actions`
-4. Push to `main`
-
-Routing is configured for GitHub Pages using:
-- base path: `/contributorOps/`
-- `HashRouter` for refresh-safe client routing
-
-## Roadmap Snapshot
-
-### MVP
+### Foundation
 - business website
-- documentation
+- documentation surface
 - GitHub Pages deployment
-- daily contribution planner
-- portfolio tracker
+- daily contribution planning
+- portfolio tracking
 
-### Pro
-- job-matched issue finder
-- PR quality checker
-- resume generator
-- LinkedIn post generator
-- public portfolio page
+### Professional Workflow
+- job-matched issue finding
+- PR quality review
+- resume generation
+- LinkedIn artifact generation
+- public proof-of-work pages
 
-### Career
+### Career Layer
 - GitHub profile audit
-- interview story generator
-- recruiter share link
-- weekly career report
+- interview story generation
+- recruiter share workflows
+- weekly career reporting
 
-### Team
+### Team Layer
 - team dashboard
 - bootcamp mode
 - maintainer quality analytics
 - shared contribution radar
 
+## Positioning
+
+ContributorOps is intentionally narrow in its value proposition:
+
+> Turn real open-source contributions into job-ready proof of work.
+
+That means the repository prioritizes:
+- contribution quality over contribution volume
+- structured professional evidence over vanity activity
+- human approval over opaque automation
+- maintainer trust over growth mechanics
