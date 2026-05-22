@@ -33,7 +33,7 @@
   <circle cx="235" cy="210" r="190" fill="url(#softGlow)"/>
 
   <g filter="url(#cardShadow)">
-    <rect x="104" y="74" width="260" height="260" rx="64" fill="#F8FAFF" stroke="#E4E8FF" stroke-width="2"/>
+    <rect x="104" y="74" width="260" height="260" rx="64" fill="none"/>
 
     <!-- Outer contribution intelligence orbit -->
     <path d="M151 163C171 119 216 92 264 102C308 111 342 147 350 191" stroke="url(#aiGradient)" stroke-width="17" stroke-linecap="round"/>
