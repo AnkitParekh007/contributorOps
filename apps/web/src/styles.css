@@ -337,10 +337,10 @@ a {
 
 .hero-copy h1 {
   margin: 14px 0 16px;
-  max-width: 8.5ch;
-  font-size: clamp(2.6rem, 3.8vw, 4.35rem);
-  line-height: 0.92;
-  text-wrap: balance;
+  max-width: 14ch;
+  font-size: clamp(2.1rem, 2.5vw + 1.2rem, 3.35rem);
+  line-height: 0.98;
+  text-wrap: pretty;
 }
 
 .hero-copy p,
