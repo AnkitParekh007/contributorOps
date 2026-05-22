@@ -23,7 +23,7 @@ const PROOFS = [
 
 export function Hero() {
   return (
-    <section className="hero">
+    <section className="hero reveal-section is-visible">
       {/* ── Left: copy ─────────────────────────────────────── */}
       <div className="hero-copy">
         <div className="hero-badges">

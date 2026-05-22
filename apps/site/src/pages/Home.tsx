@@ -40,7 +40,7 @@ const WORKFLOW = [
 
 export function Home() {
   return (
-    <div className="page">
+    <div className="page page-home">
       <Hero />
 
       {/* ── Before / After ─────────────────────────────────── */}
