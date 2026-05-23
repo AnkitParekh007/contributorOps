@@ -126,6 +126,46 @@ type AppPage = "dashboard" | "auto-contribute" | "proof-of-work" | "pricing" | "
 
 type ThemeMode = "light" | "dark";
 
+const pageMeta: Record<
+  AppPage,
+  {
+    label: string;
+    title: string;
+    summary: string;
+  }
+> = {
+  dashboard: {
+    label: "Command center",
+    title: "Contribution pipeline",
+    summary: "Source, validate, package, and track contribution work from one AI-assisted workspace."
+  },
+  "auto-contribute": {
+    label: "Execution center",
+    title: "Approval-gated contribution runs",
+    summary: "Review exact actions, inspect generated diffs, and keep every external write human-approved."
+  },
+  "proof-of-work": {
+    label: "Career assets",
+    title: "Proof-of-work publishing",
+    summary: "Turn tracked contributions into portfolio pages, resume bullets, outreach messages, and interview stories."
+  },
+  pricing: {
+    label: "Commercial layer",
+    title: "Plans and entitlements",
+    summary: "Model Free, Pro, Career, and Team surfaces without adding payment plumbing yet."
+  },
+  "team-radar": {
+    label: "Team sourcing",
+    title: "Shared repo radar",
+    summary: "See where a team should contribute next without duplicating effort or wasting maintainer attention."
+  },
+  "developer-setup": {
+    label: "Developer setup",
+    title: "Environment configuration",
+    summary: "Configure local API, web, site, GitHub, and Supabase settings from inside the app."
+  }
+};
+
 function emptyBillingState(): BillingState {
   return {
     plan: "free",
@@ -783,6 +823,8 @@ function App() {
     setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
   };
 
+  const currentPageMeta = pageMeta[activePage];
+
   if (usernameSlug) {
     return <PublicPortfolioPage profile={publicProfile} error={publicError} />;
   }
@@ -942,7 +984,27 @@ function App() {
 
         <main className="main-content">
           <DemoModeBanner show={billing.plan === "free" && mode === "demo"} />
-          <MissionCard plan={dailyPlan} modeLabel={modeLabel} planLabel={billing.plan} />
+          <section className="workspace-header">
+            <div className="workspace-header-copy">
+              <span className="workspace-header-label">{currentPageMeta.label}</span>
+              <h1>{currentPageMeta.title}</h1>
+              <p>{currentPageMeta.summary}</p>
+            </div>
+            <div className="workspace-header-meta">
+              <div className="workspace-header-stat">
+                <span>Mode</span>
+                <strong>{modeLabel}</strong>
+              </div>
+              <div className="workspace-header-stat">
+                <span>Plan</span>
+                <strong>{billing.plan}</strong>
+              </div>
+              <div className="workspace-header-stat">
+                <span>Opportunities</span>
+                <strong>{topOpportunityCount}</strong>
+              </div>
+            </div>
+          </section>
 
           {error ? (
             <section className="alert-banner">
@@ -953,6 +1015,7 @@ function App() {
 
           {activePage === "dashboard" ? (
             <>
+              <MissionCard plan={dailyPlan} modeLabel={modeLabel} planLabel={billing.plan} />
               {!checklistDismissed && (
                 <OnboardingChecklist
                   state={onboardingState}
