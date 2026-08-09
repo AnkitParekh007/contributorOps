@@ -5,17 +5,7 @@ import { BrandLogo } from "./BrandLogo";
 
 function SunIcon() {
 	return (
-		<svg
-			width="15"
-			height="15"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			aria-hidden="true"
-		>
+		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
 			<circle cx="12" cy="12" r="4" />
 			<line x1="12" y1="2" x2="12" y2="6" />
 			<line x1="12" y1="18" x2="12" y2="22" />
@@ -31,17 +21,7 @@ function SunIcon() {
 
 function MoonIcon() {
 	return (
-		<svg
-			width="15"
-			height="15"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			aria-hidden="true"
-		>
+		<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
 			<path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" />
 		</svg>
 	);
@@ -67,65 +47,28 @@ export function Navbar() {
 	return (
 		<header className="navbar">
 			<div className="navbar-inner">
-				<Link to="/" className="brand">
-					<BrandLogo />
-				</Link>
+				<Link to="/" className="brand"><BrandLogo /></Link>
 
 				<nav className={`nav-links${menuOpen ? " nav-links-open" : ""}`} aria-label="Main navigation">
-					<NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
-						Home
-					</NavLink>
-					<NavLink to="/features" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
-						Features
-					</NavLink>
-					<NavLink to="/pricing" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
-						Pricing
-					</NavLink>
-					<NavLink to="/docs" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
-						Docs
-					</NavLink>
-					<NavLink to="/safety" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
-						Safety
-					</NavLink>
-					<NavLink to="/roadmap" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
-						Roadmap
-					</NavLink>
+					<NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Home</NavLink>
+					<NavLink to="/features" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Features</NavLink>
+					<NavLink to="/showcase" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Showcase</NavLink>
+					<NavLink to="/pricing" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Pricing</NavLink>
+					<NavLink to="/docs" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Docs</NavLink>
+					<NavLink to="/safety" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Safety</NavLink>
+					<NavLink to="/roadmap" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Roadmap</NavLink>
 				</nav>
 
 				<div className="nav-end">
-					<a
-						className="nav-github-btn"
-						href="https://github.com/AnkitParekh007/contributorOps"
-						target="_blank"
-						rel="noreferrer"
-						aria-label="Star ContributorOps on GitHub"
-						title="Star ContributorOps on GitHub"
-					>
-						<GitHubIcon />
-						<span>Star</span>
+					<a className="nav-github-btn" href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer" aria-label="Star ContributorOps on GitHub" title="Star ContributorOps on GitHub">
+						<GitHubIcon /><span>Star</span>
 					</a>
-					<Link to="/waitlist" className="nav-waitlist-btn">
-						Join Waitlist
-					</Link>
-					<button
-						type="button"
-						className="theme-toggle"
-						aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-						title={theme === "dark" ? "Light mode" : "Dark mode"}
-						onClick={toggleTheme}
-					>
+					<Link to="/contribute" className="nav-waitlist-btn">Contribute</Link>
+					<button type="button" className="theme-toggle" aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"} onClick={toggleTheme}>
 						{theme === "dark" ? <SunIcon /> : <MoonIcon />}
 					</button>
-					<button
-						type="button"
-						className="nav-hamburger"
-						aria-label="Toggle navigation"
-						aria-expanded={menuOpen}
-						onClick={() => setMenuOpen((open) => !open)}
-					>
-						<span className="ham-bar" />
-						<span className="ham-bar" />
-						<span className="ham-bar" />
+					<button type="button" className="nav-hamburger" aria-label="Toggle navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>
+						<span className="ham-bar" /><span className="ham-bar" /><span className="ham-bar" />
 					</button>
 				</div>
 			</div>
