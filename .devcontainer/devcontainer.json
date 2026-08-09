@@ -1,0 +1,26 @@
+{
+  "name": "ContributorOps Demo",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "postCreateCommand": "npm ci",
+  "forwardPorts": [5173, 8787, 4174],
+  "portsAttributes": {
+    "5173": {
+      "label": "ContributorOps Product UI",
+      "onAutoForward": "notify"
+    },
+    "8787": {
+      "label": "ContributorOps API",
+      "onAutoForward": "silent"
+    },
+    "4174": {
+      "label": "ContributorOps Public Site",
+      "onAutoForward": "silent"
+    }
+  },
+  "containerEnv": {
+    "STORAGE_MODE": "demo",
+    "AUTO_CONTRIBUTE_ENABLED": "false",
+    "CREATE_DAILY_ISSUE": "false"
+  },
+  "remoteUser": "node"
+}
