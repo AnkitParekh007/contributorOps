@@ -2,7 +2,26 @@
 
 ContributorOps uses this changelog for meaningful project milestones. Fine-grained commit history remains available in GitHub.
 
-## Unreleased — Phase 8: Public launch and adoption execution
+## Unreleased — Phase 9: Actual launch distribution and growth
+
+### Campaign integrity
+- added one canonical `phase9-growth` campaign registry for Show HN, Product Hunt, developer communities, recruiter outreach, maintainer outreach, and repository visitors
+- added a shared campaign URL builder with consistent source, medium, campaign, and content attribution
+- optional analytics events now inherit allowlisted UTM attribution without enabling analytics by default
+- Share Hub now reuses the canonical campaign builder rather than owning a separate campaign id
+
+### Growth operating system
+- upgraded the public Adoption surface into a Phase 9 growth dashboard with live GitHub participation, canonical channel paths, funnel stages, and 48-hour / 7-day review guidance
+- kept public repository signals, private GitHub traffic, optional conversion analytics, and qualitative feedback explicitly separate
+- added `docs/phase-9-growth-operating-system.md` with campaign sequencing, baseline capture, launch-wave reviews, and anti-gaming rules
+
+### Growth quality proof
+- added a deterministic `growth:quality` policy/attribution gate
+- wired growth integrity into CI and the root validation command
+- added the Growth dashboard to Lighthouse regression coverage
+- preserved the rule that launch automation and measurement must not fabricate user/customer claims or optimize coordinated engagement
+
+## 2026-08-09 — Phase 8: Public launch and adoption execution
 
 ### Tryability
 - added a no-signup browser walkthrough covering Discover → Prepare → Validate → Authorize → Prove
