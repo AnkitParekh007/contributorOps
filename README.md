@@ -24,15 +24,15 @@
 <p align="center">
   <a href="https://ankitparekh007.github.io/contributorOps/"><strong>Live product</strong></a>
   ·
+  <a href="https://ankitparekh007.github.io/contributorOps/#/try"><strong>Try without signup</strong></a>
+  ·
   <a href="https://ankitparekh007.github.io/contributorOps/#/showcase"><strong>Engineering showcase</strong></a>
   ·
   <a href="https://ankitparekh007.github.io/contributorOps/#/recruiter"><strong>Recruiter brief</strong></a>
   ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/contribute"><strong>Contribute</strong></a>
-  ·
   <a href="https://ankitparekh007.github.io/contributorOps/#/adoption"><strong>Adoption</strong></a>
   ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/share"><strong>Share</strong></a>
+  <a href="https://ankitparekh007.github.io/contributorOps/#/contribute"><strong>Contribute</strong></a>
 </p>
 
 ---
@@ -61,12 +61,12 @@ Many developer tools show features. ContributorOps also makes the **engineering 
 | [`docs/adr/`](./docs/adr/README.md) | durable reasoning behind high-impact architecture choices |
 | [`docs/safety-policy.md`](./docs/safety-policy.md) | explicit rules for external GitHub actions and anti-spam behavior |
 | [CI workflow](./.github/workflows/ci.yml) | API/Web/Site builds, TypeScript validation, secret-pattern checks |
+| [Try path](https://ankitparekh007.github.io/contributorOps/#/try) | no-signup local/Codespaces evaluation with demo-safe defaults |
 | [Engineering Showcase](https://ankitparekh007.github.io/contributorOps/#/showcase) | how contribution work becomes explainable professional evidence |
 | [Recruiter Brief](https://ankitparekh007.github.io/contributorOps/#/recruiter) | two-minute path from product story to architecture and source evidence |
 | [Adoption Dashboard](https://ankitparekh007.github.io/contributorOps/#/adoption) | live public GitHub signals without invented customer or user claims |
 | [Share Hub](https://ankitparekh007.github.io/contributorOps/#/share) | audience-specific project sharing with campaign attribution support |
 | [`docs/adoption-scorecard.md`](./docs/adoption-scorecard.md) | GitHub traffic, public metrics, optional analytics, and weekly measurement discipline |
-| [`docs/distribution-playbook.md`](./docs/distribution-playbook.md) | GitHub-first discovery, release-driven distribution, conversion and anti-spam rules |
 | [`CITATION.cff`](./CITATION.cff) | native repository citation metadata |
 
 ## For developers
@@ -123,15 +123,16 @@ Read the full [architecture document](./docs/architecture.md) and [ADR index](./
 
 ```text
 contributorOps/
+├─ .devcontainer/ # one-click Codespaces demo environment
 ├─ apps/
-│  ├─ api/       # discovery, scoring, planning, persistence, controlled GitHub actions
-│  ├─ web/       # interactive product application
-│  └─ site/      # public product, docs, recruiter, adoption, share and contributor surfaces
-├─ data/         # local JSON-backed MVP state
+│  ├─ api/        # discovery, scoring, planning, persistence, controlled GitHub actions
+│  ├─ web/        # interactive product application
+│  └─ site/       # public product, try, recruiter, adoption, share and contributor surfaces
+├─ data/          # local JSON-backed MVP state
 ├─ docs/
-│  ├─ adr/       # architecture decision records
-│  └─ ...        # product, API, safety, adoption, distribution, launch and business docs
-├─ .github/      # CI, Pages, scheduled planning, issue/PR/release workflows
+│  ├─ adr/        # architecture decision records
+│  └─ ...         # product, API, safety, adoption, distribution, launch and business docs
+├─ .github/       # CI, Pages, scheduled planning, issue/PR/release workflows
 ├─ CHANGELOG.md
 ├─ CITATION.cff
 ├─ CONTRIBUTORS.md
@@ -169,6 +170,7 @@ contributorOps/
 - recruiter-facing summaries
 
 ### Adoption and growth operations
+- no-signup demo / Codespaces evaluation path
 - live public GitHub adoption dashboard
 - GitHub Insights scorecard for maintainer-only traffic
 - optional Plausible integration, disabled by default
@@ -176,6 +178,28 @@ contributorOps/
 - structured workflow-feedback intake
 - contributor-retention playbook
 - release-driven launch execution
+
+## Try without signup
+
+The fastest product evaluation path uses demo mode. A GitHub token is **not** required to inspect the local product workflow.
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/AnkitParekh007/contributorOps?quickstart=1)
+
+The repository includes a dev-container configuration that:
+
+- installs workspace dependencies with `npm ci`
+- forwards Product UI `5173`, API `8787`, and public-site `4174`
+- sets `STORAGE_MODE=demo`
+- keeps `AUTO_CONTRIBUTE_ENABLED=false`
+- keeps `CREATE_DAILY_ISSUE=false`
+
+After the Codespace opens:
+
+```bash
+npm run dev
+```
+
+Or use the public [Try page](https://ankitparekh007.github.io/contributorOps/#/try) for local commands and evaluation guidance.
 
 ## Safety model
 
@@ -200,7 +224,7 @@ Read [`docs/safety-policy.md`](./docs/safety-policy.md) and [ADR-0001](./docs/ad
 ```bash
 git clone https://github.com/AnkitParekh007/contributorOps.git
 cd contributorOps
-npm install
+npm ci
 ```
 
 ### Run API + product UI
@@ -208,6 +232,8 @@ npm install
 ```bash
 npm run dev
 ```
+
+Without a GitHub token, the product can use its mock discovery path; authenticated GitHub actions remain unavailable.
 
 ### Run the public site
 
@@ -229,6 +255,7 @@ See [`docs/environment-setup.md`](./docs/environment-setup.md) and [`docs/local-
 | Area | Status |
 | --- | --- |
 | Public product + documentation site | ✅ Live |
+| No-signup Try / Codespaces path | ✅ Implemented |
 | Engineering showcase + recruiter brief | ✅ Implemented |
 | Audience-specific Share Hub | ✅ Implemented |
 | Public GitHub adoption dashboard | ✅ Implemented |
@@ -258,6 +285,8 @@ The fastest contribution path:
 6. open a focused PR that explains user impact and safety implications
 
 Contributor recognition is described in [`CONTRIBUTORS.md`](./CONTRIBUTORS.md), and repeat-contributor practices are in [`docs/contributor-retention.md`](./docs/contributor-retention.md).
+
+Tried the workflow but do not have a code change yet? Use the **Workflow feedback** issue template to report one concrete point of friction or improvement.
 
 ## Measure, launch, learn
 
@@ -289,5 +318,5 @@ BSD 3-Clause. See [`LICENSE`](./LICENSE).
 ---
 
 <p align="center">
-  <strong>If ContributorOps is useful, star it. If you can improve it, pick a good-first issue. If you are evaluating the project, use the recruiter brief or adoption dashboard. If someone else would benefit, send the most relevant Share Hub link.</strong>
+  <strong>If ContributorOps is useful, star it. If you want to inspect it, use the no-signup Try path. If you can improve it, pick a good-first issue. If you are evaluating the engineering, use the recruiter brief or adoption dashboard.</strong>
 </p>
