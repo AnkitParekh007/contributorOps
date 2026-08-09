@@ -1,8 +1,13 @@
 # ContributorOps Security Model
 
-ContributorOps is an AI-assisted contribution workflow. Its highest-value security property is not that automation never writes to GitHub; it is that **an external write cannot be executed by merely generating a plan, draft, or scheduled job**.
+ContributorOps is an AI-assisted contribution workflow. Its highest-value security property is not that automation never writes to GitHub; it is that **a generated plan or draft is never, by itself, authority to mutate an external repository**.
 
-The intended write path is:
+ContributorOps supports two deliberately separate authorization paths:
+
+1. **Interactive approval path** — a person prepares a run, inspects the exact payload, and approves one specific external action with an action-scoped capability.
+2. **Standing-authorized exact-patch path** — an operator explicitly enables bounded contribution execution and places an exact, deterministic patch plan into the repository-owned patch queue. Scheduled execution may submit that already-specified patch only after live repository-policy, duplicate, scope, rate-limit, and exact-match checks pass.
+
+The interactive write path is:
 
 ```text
 Discover / plan
@@ -24,16 +29,38 @@ External GitHub write
 Approval/write event retained in run history
 ```
 
+The standing-authorized patch path is:
+
+```text
+Discover / evaluate candidate
+    ↓
+Prepare exact patch plan in repository-owned queue
+    ↓
+Operator has explicitly enabled AUTO_CONTRIBUTE_ENABLED
+    ↓
+Validate bounded file/replacement scope
+    ↓
+Re-check live issue, repository policy, duplicate PRs, and daily limits
+    ↓
+Require every exact replacement to match exactly once
+    ↓
+Create/update managed fork branch
+    ↓
+Open draft PR with automation disclosure
+    ↓
+Record execution result
+```
+
 ## Assets to protect
 
 ContributorOps must protect:
 
 - GitHub credentials and authenticated GitHub actions
 - Supabase credentials and authenticated sessions when configured
-- the human-approval boundary for third-party writes
-- the exact proposal/diff that a user reviewed
+- the authorization boundary for third-party writes
+- the exact proposal/diff or exact patch plan that was authorized
 - auditability of allowed and denied write attempts
-- maintainer trust: no duplicate, bulk, or scheduled contribution spam
+- maintainer trust: no duplicate, bulk, deceptive, or unconstrained contribution activity
 - the dependency/build chain used to produce ContributorOps
 
 ## Trust boundaries
@@ -42,21 +69,23 @@ ContributorOps must protect:
 
 Discovery, daily planning, issue ranking, draft generation, PR copy generation, and local preview are not permission to mutate an external repository.
 
-`apps/api/src/daily.ts` is intentionally separated from contribution write primitives. Regression tests fail if scheduled planning starts referencing comment, branch, or pull-request execution functions.
+`apps/api/src/daily.ts` is intentionally separated from contribution write primitives. Regression tests fail if daily planning starts referencing comment, branch, or pull-request execution functions.
 
-The hourly OSS radar may prepare contributor-owned fork workspaces for evaluation, but it runs with `AUTO_CONTRIBUTE_ENABLED=false` and does not authorize comments, commits, or pull requests to third-party repositories.
+The hourly OSS radar may discover candidates and prepare contributor-owned fork workspaces. A normal radar run is not itself authority to submit maintainer-facing content.
 
-### 2. Preparation freezes the reviewed payload
+Standing-authorized patch execution is a separate path. It requires `AUTO_CONTRIBUTE_ENABLED=true`, a repository-owned patch-queue item containing the exact intended changes, and the deterministic execution checks described below. A candidate merely appearing in discovery or hourly-radar output cannot trigger a pull request.
 
-A contribution run is prepared before an external action can be approved. If the dashboard contains an edited draft proposal, preparation validates that the proposal still matches the selected issue before it becomes the run payload.
+### 2. Interactive preparation freezes the reviewed payload
 
-The legacy direct `/approved-pr` write route has been removed. The canonical flow is now:
+A contribution run is prepared before an interactive external action can be approved. If the dashboard contains an edited draft proposal, preparation validates that the proposal still matches the selected issue before it becomes the run payload.
+
+The legacy direct `/approved-pr` write route has been removed. The canonical interactive flow is now:
 
 `prepare → inspect → approve action → execute`
 
-### 3. Approval is action-scoped
+### 3. Interactive approval is action-scoped
 
-A newly prepared run receives independent capabilities for:
+A newly prepared interactive run receives independent capabilities for:
 
 - `approve-comment`
 - `approve-branch`
@@ -68,13 +97,13 @@ This limits the blast radius of accidental token reuse and makes the authorizati
 
 ### 4. Legacy generic tokens fail closed
 
-Older stored runs may contain `userApprovalToken`. ContributorOps keeps that field readable for migration/history, but it is not accepted for a new external write.
+Older stored runs may contain `userApprovalToken`. ContributorOps keeps that field readable for migration/history, but it is not accepted for a new interactive external write.
 
 A legacy run must be re-prepared to receive action-scoped capabilities.
 
-### 5. Explicit human intent is still required
+### 5. Explicit human intent is still required for interactive writes
 
-A valid capability is not sufficient on its own. Approval validation also requires:
+A valid capability is not sufficient on its own. Interactive approval validation also requires:
 
 - the run to be in an allowed state
 - `explicitApproval` to be true
@@ -83,31 +112,54 @@ A valid capability is not sufficient on its own. Approval validation also requir
 
 The downstream GitHub safety controls remain in force after approval validation.
 
-### 6. Denied attempts are evidence
+### 6. Standing authorization is exact-patch scoped
 
-A rejected action-scoped approval is recorded as an approval event with `approved: false` when the run exists.
+Standing authorization does not grant the scheduler permission to invent arbitrary repository changes. The patch queue must already contain a concrete patch plan with bounded files, exact text replacements, commit metadata, PR copy, and test evidence.
+
+Before execution ContributorOps validates, among other things:
+
+- one to four changed files per queued patch
+- bounded replacement counts and total changed-character budget
+- safe relative paths
+- no placeholder/no-op patch content
+- an open, non-archived upstream issue/repository
+- repository contribution-policy checks, including detected prohibitions on AI-assisted work
+- no open PR already referencing the issue
+- no same-repository ContributorOps PR already opened that day
+- the configured daily PR cap
+- every old-text replacement matches current branch content exactly once
+
+A mismatch fails closed instead of applying a fuzzy or guessed patch.
+
+The standing path opens **draft** pull requests and includes an automation disclosure. It does not mark PRs ready for review or reply to maintainers automatically.
+
+### 7. Denied attempts are evidence
+
+A rejected action-scoped interactive approval is recorded as an approval event with `approved: false` when the run exists.
 
 The run is not automatically destroyed merely because a token was wrong. This preserves evidence of the rejected attempt while allowing the user to retry the legitimate action with the correct capability.
+
+Patch-queue execution records submitted, blocked, and error results so unattended execution remains inspectable.
 
 Unexpected execution failures remain error conditions.
 
 ## External-write protections
 
-The contribution path also applies controls such as:
+The contribution paths apply controls such as:
 
 - issue/repository safety checks
-- duplicate-comment protection
-- duplicate-PR protection
+- duplicate-comment or duplicate-PR protection where applicable
 - daily comment and PR limits
 - fork/branch validation
 - draft pull requests rather than automatically marking work ready for review
 - dry-run behavior when external contribution execution is disabled
+- exact-match patch application for standing-authorized queue execution
 
-The exact checks evolve over time, but changes must not weaken the prepare-and-approve trust boundary without explicit architectural review.
+Changes must not weaken either authorization boundary without explicit architectural review.
 
 ## Regression proof
 
-`npm run test:api` includes deterministic tests for the approval boundary and hourly-radar guardrails.
+`npm run test:api` includes deterministic tests for interactive approval, hourly-radar guardrails, managed-fork behavior, executable patch safety, and patch-queue validation.
 
 Current approval regression coverage includes:
 
@@ -120,6 +172,13 @@ Current approval regression coverage includes:
 - the legacy direct `/approved-pr` route is absent
 - daily planning cannot reference third-party write primitives
 
+Current standing-patch coverage includes:
+
+- focused exact patch plans are accepted
+- unsafe paths and placeholder proposal content are rejected
+- ambiguous or missing exact-text matches fail closed
+- queue items require valid issue/repository metadata and executable patch plans
+
 Tests do not require real credentials and do not write to an external repository.
 
 ## Supply-chain controls
@@ -129,7 +188,7 @@ ContributorOps layers multiple controls rather than treating one tool as compreh
 | Control | Purpose |
 | --- | --- |
 | Runtime `npm audit` | Fails CI on high/critical vulnerabilities reachable through installed production dependencies |
-| Dependency Review | Prevents PRs from introducing newly vulnerable dependency changes at high severity or above |
+| Dependency Review | Prevents PRs from introducing newly vulnerable dependency changes at high severity or above when GitHub Dependency Graph is enabled |
 | Dependabot | Produces regular npm and GitHub Actions update proposals |
 | CodeQL | Static analysis for JavaScript/TypeScript security issues |
 | Secret-pattern scan | Rejects common accidentally committed credential patterns |
@@ -150,8 +209,9 @@ The current controls do **not** prove:
 - that browser or infrastructure configuration is production hardened
 - that local JSON persistence is suitable for multi-user production workloads
 - that every future GitHub API permission is least-privilege by default
+- that deterministic patch checks substitute for maintainer judgment after a draft PR is opened
 
-Manual review remains required for authentication, credentials, GitHub write paths, dependency major upgrades, and changes to approval semantics.
+Manual review remains required for authentication, credentials, GitHub write-path changes, dependency major upgrades, changes to interactive approval semantics, or expansion of the standing-authorized patch envelope.
 
 ## Dependency findings and remediation policy
 
