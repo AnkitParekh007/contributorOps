@@ -56,6 +56,10 @@ export function AutoContributePage({
   onSelectRun
 }: AutoContributePageProps) {
   const locked = !entitlements.features["approved-auto-contribute"];
+  const hasScopedApprovals = Boolean(selectedRun?.approvalTokens);
+  const canApproveComment = Boolean(selectedRun?.approvalTokens?.["approve-comment"]);
+  const canApproveBranch = Boolean(selectedRun?.approvalTokens?.["approve-branch"]);
+  const canApproveDraftPr = Boolean(selectedRun?.approvalTokens?.["approve-draft-pr"]);
 
   return (
     <div className="auto-page-grid">
@@ -65,7 +69,7 @@ export function AutoContributePage({
             <p className="section-kicker">Auto-Contribute</p>
             <h2>Approval-gated contribution execution</h2>
             <p className="muted-copy">
-              Dry-run is the default. External writes require explicit per-action approval and are logged.
+              Dry-run is the default. External writes require explicit, action-scoped human approval and are logged.
             </p>
             {locked ? <p className="muted-copy">Upgrade to Pro to unlock approval-gated auto-contribute flows.</p> : null}
           </div>
@@ -134,6 +138,11 @@ export function AutoContributePage({
                 placeholder="GitHub username for the fork"
               />
             </label>
+            {selectedRun && !hasScopedApprovals ? (
+              <p className="muted-copy" role="status">
+                Legacy run detected. Re-prepare this contribution before any external write; generic run tokens are no longer accepted.
+              </p>
+            ) : null}
           </article>
         </div>
 
@@ -144,7 +153,7 @@ export function AutoContributePage({
           <button
             type="button"
             className="secondary-button"
-            disabled={!selectedRun || isLoading || locked}
+            disabled={!canApproveComment || isLoading || locked}
             onClick={onApproveComment}
           >
             Approve Comment
@@ -152,7 +161,7 @@ export function AutoContributePage({
           <button
             type="button"
             className="secondary-button"
-            disabled={!selectedRun || isLoading || locked}
+            disabled={!canApproveBranch || isLoading || locked}
             onClick={onApproveBranch}
           >
             Approve Fork Branch
@@ -160,7 +169,7 @@ export function AutoContributePage({
           <button
             type="button"
             className="secondary-button"
-            disabled={!selectedRun || isLoading || locked}
+            disabled={!canApproveDraftPr || isLoading || locked}
             onClick={onApproveDraftPr}
           >
             Approve Draft PR
@@ -288,7 +297,9 @@ export function AutoContributePage({
                 ))}
               </ul>
               <p className="muted-copy">Risk score: {selectedRun.riskScore}/100</p>
-              <p className="muted-copy">Approval token: {selectedRun.userApprovalToken}</p>
+              <p className="muted-copy">
+                Approval capabilities: {hasScopedApprovals ? "action-scoped" : "legacy run — re-prepare required"}
+              </p>
               {selectedRun.prUrl ? (
                 <a href={selectedRun.prUrl} target="_blank" rel="noreferrer">
                   Open created draft PR
