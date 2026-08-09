@@ -105,6 +105,7 @@ export function Quality() {
 					<ul>
 						<li>They do not prove production uptime or hosted SaaS reliability.</li>
 						<li>They do not replace manual keyboard, screen-reader, or device testing.</li>
+						<li>The secret-pattern scan does not prove the dependency graph is vulnerability-free; dependency-audit remediation is tracked separately.</li>
 						<li>They do not prove every external integration path works without configured credentials.</li>
 						<li>They do not turn a passing Lighthouse score into a customer or adoption claim.</li>
 					</ul>
