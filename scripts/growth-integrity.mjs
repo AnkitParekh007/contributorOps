@@ -52,7 +52,7 @@ assert(!/phase8-public-launch/.test(share), "Share Hub no longer hardcodes the P
 assert(/48-hour/i.test(guide), "Growth guide defines a 48-hour review");
 assert(/7-day/i.test(guide), "Growth guide defines a 7-day review");
 assert(/anti-gaming/i.test(guide), "Growth guide documents anti-gaming rules");
-assert(/do not.*coordinated.*stars/i.test(guide), "Growth guide rejects coordinated star campaigns");
+assert(/Do not run coordinated star campaigns/i.test(guide), "Growth guide rejects coordinated star campaigns");
 
 console.log(`\nContributorOps growth integrity checks: ${passes.length} passed, ${failures.length} failed.\n`);
 for (const message of passes) console.log(`✓ ${message}`);
