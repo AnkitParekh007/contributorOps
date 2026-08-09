@@ -19,7 +19,7 @@ export function Footer() {
 							</div>
 							<div className="footer-action-row">
 								<a className="footer-cta" href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer">View repository</a>
-								<Link className="footer-secondary-link" to="/adoption">Adoption dashboard</Link>
+								<Link className="footer-secondary-link" to="/try">Try without signup</Link>
 							</div>
 						</section>
 
@@ -28,6 +28,7 @@ export function Footer() {
 								<h4 id="footer-product-links">Product</h4>
 								<div className="footer-link-list">
 									<Link to="/">Home</Link>
+									<Link to="/try">Try</Link>
 									<Link to="/features">Features</Link>
 									<Link to="/showcase">Showcase</Link>
 									<Link to="/adoption">Adoption</Link>
@@ -80,11 +81,11 @@ export function Footer() {
 							<span>Human-approved automation</span>
 						</div>
 						<div className="footer-bottom-links">
+							<Link to="/try">Try</Link>
 							<Link to="/recruiter">Recruiter brief</Link>
 							<Link to="/adoption">Adoption</Link>
 							<Link to="/share">Share</Link>
 							<Link to="/privacy">Privacy</Link>
-							<Link to="/roadmap">Roadmap</Link>
 						</div>
 					</div>
 				</div>
