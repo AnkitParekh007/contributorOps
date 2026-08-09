@@ -3,6 +3,7 @@ import { Footer } from "./components/Footer";
 import { Navbar } from "./components/Navbar";
 import { PreviewBanner } from "./components/PreviewBanner";
 import { ThemeProvider } from "./context/ThemeContext";
+import { Contribute } from "./pages/Contribute";
 import { Docs } from "./pages/Docs";
 import { DocsArticle } from "./pages/DocsArticle";
 import { Features } from "./pages/Features";
@@ -11,6 +12,7 @@ import { NotFound } from "./pages/NotFound";
 import { Pricing } from "./pages/Pricing";
 import { Roadmap } from "./pages/Roadmap";
 import { Safety } from "./pages/Safety";
+import { Showcase } from "./pages/Showcase";
 import { Contact } from "./pages/Contact";
 import { Privacy } from "./pages/Privacy";
 import { Terms } from "./pages/Terms";
@@ -30,6 +32,8 @@ function App() {
 						<Routes>
 							<Route path="/" element={<Home />} />
 							<Route path="/features" element={<Features />} />
+							<Route path="/showcase" element={<Showcase />} />
+							<Route path="/contribute" element={<Contribute />} />
 							<Route path="/pricing" element={<Pricing />} />
 							<Route path="/docs" element={<Docs />} />
 							<Route path="/docs/:slug" element={<DocsArticle />} />
