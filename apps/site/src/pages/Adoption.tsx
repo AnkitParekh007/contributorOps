@@ -1,7 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, ArrowRight, BarChart3, ExternalLink, GitFork, Github, GitPullRequest, RefreshCw, Star, Users } from "lucide-react";
+import {
+	Activity,
+	ArrowRight,
+	BarChart3,
+	Clock3,
+	ExternalLink,
+	GitFork,
+	Github,
+	GitPullRequest,
+	MessageSquareText,
+	RefreshCw,
+	Star,
+	Target,
+	TrendingUp,
+	Users,
+} from "lucide-react";
 import { analyticsConfigured, trackEvent } from "../lib/analytics";
+import { CAMPAIGN_CHANNELS, CAMPAIGN_ID, channelUrl } from "../lib/campaigns";
 
 const REPO = "AnkitParekh007/contributorOps";
 const REPO_URL = `https://github.com/${REPO}`;
@@ -69,36 +85,40 @@ export function Adoption() {
 		{ label: "Listed contributors", value: humanContributors, icon: <Users size={19} />, href: `${REPO_URL}/graphs/contributors` },
 	];
 
-	function record(action: string) {
-		trackEvent("Adoption CTA", { action });
+	function record(action: string, channel?: string) {
+		trackEvent("Growth CTA", { action, ...(channel ? { channel } : {}) });
 	}
 
 	return (
 		<div className="page adoption-page">
 			<section className="adoption-hero">
 				<div>
-					<span className="section-eyebrow">Phase 5 · measurable adoption</span>
-					<h1>Measure whether attention becomes participation.</h1>
+					<span className="section-eyebrow">Phase 9 · growth operating system</span>
+					<h1>Turn launch attention into measurable participation.</h1>
 					<p>
-						ContributorOps treats growth as an engineering funnel: useful visit → repository action → contribution → repeat advocate.
-						This page exposes public GitHub signals without inventing user counts or silently tracking individual visitors.
+						ContributorOps now treats distribution as an engineering loop: attributed visit → demo evaluation → source inspection → contribution → repeat contributor.
+						Public GitHub signals stay separate from private traffic analytics, and no conversion rate is fabricated when data is unavailable.
 					</p>
 					<div className="adoption-actions">
-						<a className="button-primary" href={REPO_URL} target="_blank" rel="noreferrer" onClick={() => record("open_repository")}>
-							<Github size={16} /> Open repository
-						</a>
-						<Link className="button-secondary" to="/contribute" onClick={() => record("open_contribute")}>
-							Find a contribution
+						<Link className="button-primary" to="/launch" onClick={() => record("open_launch_hub")}>
+							<TrendingUp size={16} /> Open launch hub
 						</Link>
+						<Link className="button-secondary" to="/demo" onClick={() => record("open_demo")}>
+							Try browser demo
+						</Link>
+						<a className="button-secondary" href={`${REPO_URL}/issues/new?template=workflow_feedback.yml`} target="_blank" rel="noreferrer" onClick={() => record("open_feedback")}>
+							<MessageSquareText size={16} /> Give workflow feedback
+						</a>
 					</div>
 			</div>
 			<aside className="adoption-status-card">
 				<Activity size={22} />
 				<h2>Measurement posture</h2>
 				<ul>
+					<li>Campaign registry: <strong>{CAMPAIGN_ID}</strong>.</li>
 					<li>Public GitHub metrics load directly from GitHub.</li>
-					<li>GitHub Insights remains the private source for views, clones, referrers, and popular content.</li>
-					<li>Site analytics is optional and currently <strong>{analyticsConfigured() ? "configured" : "disabled"}</strong>.</li>
+					<li>GitHub Insights remains the maintainer source for views, clones, referrers, and popular content.</li>
+					<li>Optional site analytics is currently <strong>{analyticsConfigured() ? "configured" : "disabled"}</strong>.</li>
 				</ul>
 			</aside>
 			</section>
@@ -107,7 +127,7 @@ export function Adoption() {
 				<div className="section-heading adoption-heading-row">
 					<div>
 						<span className="section-eyebrow">Live public signal</span>
-						<h2>Repository adoption, directly from GitHub.</h2>
+						<h2>Repository participation, directly from GitHub.</h2>
 						<p>These are public repository signals, not product-user or customer claims.</p>
 					</div>
 					<button className="button-secondary adoption-refresh" type="button" onClick={() => void loadMetrics()} disabled={loading}>
@@ -127,41 +147,79 @@ export function Adoption() {
 				{repo && <p className="adoption-updated">GitHub repository metadata last updated {new Date(repo.updated_at).toLocaleString()}.</p>}
 			</section>
 
+			<section className="site-section">
+				<div className="section-heading">
+					<span className="section-eyebrow">Canonical campaign registry</span>
+					<h2>Every launch channel gets one attributed destination and one concrete goal.</h2>
+					<p>Links use low-cardinality UTM values from a single source of truth so launch measurement does not drift across docs and UI.</p>
+				</div>
+				<div className="adoption-campaign-grid">
+					{CAMPAIGN_CHANNELS.map((channel) => (
+						<article className="adoption-campaign-card" key={channel.id}>
+							<div className="adoption-campaign-head">
+								<Target size={18} />
+								<span>{channel.medium}</span>
+							</div>
+							<h3>{channel.label}</h3>
+							<p><strong>{channel.audience}</strong></p>
+							<p>{channel.goal}</p>
+							<a className="text-link" href={channelUrl(channel)} target="_blank" rel="noreferrer" onClick={() => record("open_campaign_destination", channel.id)}>
+								Open attributed path <ExternalLink size={14} />
+							</a>
+						</article>
+					))}
+				</div>
+			</section>
+
 			<section className="site-section adoption-layer-grid">
 				<article className="adoption-layer-card">
 					<BarChart3 size={21} />
-					<h3>1. GitHub public signal</h3>
-					<p>Stars, forks, open work, and contributor history show whether visitors are choosing to engage with the project.</p>
+					<h3>1. Public repository signal</h3>
+					<p>Stars and forks indicate interest; issues, PRs, and repeat contributors indicate increasingly stronger participation.</p>
 					<a className="text-link" href={`${REPO_URL}/pulse`} target="_blank" rel="noreferrer">Open repository activity <ExternalLink size={14} /></a>
 				</article>
 				<article className="adoption-layer-card">
 					<Activity size={21} />
 					<h3>2. Maintainer traffic signal</h3>
-					<p>GitHub Insights → Traffic provides the owner with views, unique visitors, clones, referrers, and popular content for the recent traffic window.</p>
+					<p>GitHub Insights → Traffic remains the private source for views, unique visitors, clones, referrers, and popular content.</p>
 					<a className="text-link" href={`${REPO_URL}/graphs/traffic`} target="_blank" rel="noreferrer">Open GitHub Traffic <ExternalLink size={14} /></a>
 				</article>
 				<article className="adoption-layer-card">
-					<BarChart3 size={21} />
-					<h3>3. Optional site conversion signal</h3>
-					<p>When configured, the site can use a Plausible per-site script with hash-route tracking, outbound-link measurement, UTMs, and selected conversion events. Nothing loads when the environment variable is absent.</p>
-					<a className="text-link" href={`${REPO_URL}/blob/main/docs/adoption-scorecard.md`} target="_blank" rel="noreferrer">Read measurement setup <ExternalLink size={14} /></a>
+					<TrendingUp size={21} />
+					<h3>3. Optional conversion signal</h3>
+					<p>When Plausible is configured, selected events automatically receive allowlisted campaign attribution. Nothing loads when the analytics environment variable is absent.</p>
+					<a className="text-link" href={`${REPO_URL}/blob/main/docs/phase-9-growth-operating-system.md`} target="_blank" rel="noreferrer">Read growth measurement policy <ExternalLink size={14} /></a>
 				</article>
 			</section>
 
 			<section className="site-section">
 				<div className="adoption-funnel-panel">
 					<div>
-						<span className="section-eyebrow">Adoption funnel</span>
-						<h2>Optimize for meaningful next actions.</h2>
-						<p>A star is useful intent. A fork is stronger intent. An issue or PR is participation. A second contribution is retention.</p>
+						<span className="section-eyebrow">Phase 9 funnel</span>
+						<h2>Measure stronger intent at every step.</h2>
+						<p>Do not optimize for the easiest vanity metric. The objective is to learn which channel produces evaluation, contribution, and eventual repeat participation.</p>
 					</div>
 					<div className="adoption-funnel-steps">
-						<span>Useful visit</span><ArrowRight size={16} />
-						<span>Star / fork</span><ArrowRight size={16} />
+						<span>Attributed visit</span><ArrowRight size={16} />
+						<span>Demo completed</span><ArrowRight size={16} />
+						<span>Source / Codespaces</span><ArrowRight size={16} />
 						<span>Issue / PR</span><ArrowRight size={16} />
 						<span>Repeat contributor</span>
 					</div>
 				</div>
+			</section>
+
+			<section className="site-section adoption-review-grid">
+				<article className="adoption-review-card">
+					<Clock3 size={20} />
+					<h3>48-hour review</h3>
+					<p>Compare channel traffic, demo completion, repository actions, substantive feedback, and contribution starts against the launch baseline.</p>
+				</article>
+				<article className="adoption-review-card">
+					<TrendingUp size={20} />
+					<h3>7-day review</h3>
+					<p>Keep channels that produce meaningful evaluation or participation, change the artifact where drop-off is visible, and stop low-signal repetition.</p>
+				</article>
 			</section>
 		</div>
 	);
