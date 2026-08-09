@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://ankitparekh007.github.io/contributorOps/</loc><priority>1.0</priority></url>
-  <url><loc>https://ankitparekh007.github.io/contributorOps/#/features</loc><priority>0.9</priority></url>
-  <url><loc>https://ankitparekh007.github.io/contributorOps/#/use-cases</loc><priority>0.8</priority></url>
-  <url><loc>https://ankitparekh007.github.io/contributorOps/#/pricing</loc><priority>0.9</priority></url>
-  <url><loc>https://ankitparekh007.github.io/contributorOps/#/demo</loc><priority>0.8</priority></url>
-  <url><loc>https://ankitparekh007.github.io/contributorOps/#/docs</loc><priority>0.7</priority></url>
-  <url><loc>https://ankitparekh007.github.io/contributorOps/#/safety</loc><priority>0.7</priority></url>
-  <url><loc>https://ankitparekh007.github.io/contributorOps/#/roadmap</loc><priority>0.7</priority></url>
-  <url><loc>https://ankitparekh007.github.io/contributorOps/#/waitlist</loc><priority>0.9</priority></url>
+  <url>
+    <loc>https://ankitparekh007.github.io/contributorOps/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
 </urlset>
