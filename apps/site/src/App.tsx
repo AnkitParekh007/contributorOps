@@ -13,6 +13,7 @@ import { Pricing } from "./pages/Pricing";
 import { RecruiterBrief } from "./pages/RecruiterBrief";
 import { Roadmap } from "./pages/Roadmap";
 import { Safety } from "./pages/Safety";
+import { Share } from "./pages/Share";
 import { Showcase } from "./pages/Showcase";
 import { Contact } from "./pages/Contact";
 import { Privacy } from "./pages/Privacy";
@@ -35,6 +36,7 @@ function App() {
 							<Route path="/features" element={<Features />} />
 							<Route path="/showcase" element={<Showcase />} />
 							<Route path="/recruiter" element={<RecruiterBrief />} />
+							<Route path="/share" element={<Share />} />
 							<Route path="/contribute" element={<Contribute />} />
 							<Route path="/pricing" element={<Pricing />} />
 							<Route path="/docs" element={<Docs />} />

@@ -19,7 +19,7 @@ export function Footer() {
 							</div>
 							<div className="footer-action-row">
 								<a className="footer-cta" href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer">View repository</a>
-								<Link className="footer-secondary-link" to="/recruiter">Recruiter brief</Link>
+								<Link className="footer-secondary-link" to="/share">Share the project</Link>
 							</div>
 						</section>
 
@@ -43,6 +43,7 @@ export function Footer() {
 									<Link to="/safety">Safety</Link>
 									<Link to="/recruiter">Recruiter brief</Link>
 									<Link to="/contribute">Contribute</Link>
+									<Link to="/share">Share</Link>
 									<a href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer">GitHub</a>
 								</div>
 							</nav>
@@ -78,9 +79,9 @@ export function Footer() {
 						</div>
 						<div className="footer-bottom-links">
 							<Link to="/recruiter">Recruiter brief</Link>
+							<Link to="/share">Share</Link>
 							<Link to="/safety">Safety</Link>
 							<Link to="/privacy">Privacy</Link>
-							<Link to="/terms">Terms</Link>
 							<Link to="/roadmap">Roadmap</Link>
 						</div>
 					</div>

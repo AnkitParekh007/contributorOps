@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, BadgeCheck, BriefcaseBusiness, Code2, ExternalLink, GitBranch, ShieldCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, BriefcaseBusiness, Code2, ExternalLink, GitBranch, Share2, ShieldCheck } from "lucide-react";
 
 const STACK = ["React 19", "TypeScript", "Vite", "Node.js", "Express", "Octokit", "GitHub Actions"];
 
@@ -137,6 +137,7 @@ export function RecruiterBrief() {
 					<div className="authority-share-actions">
 						<a className="button-secondary" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer">Share on LinkedIn</a>
 						<a className="button-secondary" href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`} target="_blank" rel="noreferrer">Share on X</a>
+						<Link className="button-secondary" to="/share"><Share2 size={15} /> Open share hub</Link>
 						<Link className="button-primary" to="/contribute">Explore contribution paths</Link>
 					</div>
 				</div>

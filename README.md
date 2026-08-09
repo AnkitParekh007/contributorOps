@@ -30,6 +30,8 @@
   ·
   <a href="https://ankitparekh007.github.io/contributorOps/#/contribute"><strong>Contribute</strong></a>
   ·
+  <a href="https://ankitparekh007.github.io/contributorOps/#/share"><strong>Share</strong></a>
+  ·
   <a href="./docs/architecture.md"><strong>Architecture</strong></a>
 </p>
 
@@ -51,7 +53,7 @@ It structures the contribution loop as:
 
 ## Why this repository is different
 
-Many developer tools show features. ContributorOps also makes the **engineering decisions** public.
+Many developer tools show features. ContributorOps also makes the **engineering decisions and growth rules** public.
 
 | Evidence | What it demonstrates |
 | --- | --- |
@@ -61,7 +63,10 @@ Many developer tools show features. ContributorOps also makes the **engineering 
 | [CI workflow](./.github/workflows/ci.yml) | API/Web/Site builds, TypeScript validation, secret-pattern checks |
 | [Engineering Showcase](https://ankitparekh007.github.io/contributorOps/#/showcase) | how contribution work becomes explainable professional evidence |
 | [Recruiter Brief](https://ankitparekh007.github.io/contributorOps/#/recruiter) | two-minute path from product story to architecture and source evidence |
+| [Share Hub](https://ankitparekh007.github.io/contributorOps/#/share) | audience-specific project sharing without mass-posting generic promotion |
+| [`docs/distribution-playbook.md`](./docs/distribution-playbook.md) | GitHub-first discovery, release-driven distribution, conversion and anti-spam rules |
 | [`CONTRIBUTORS.md`](./CONTRIBUTORS.md) | contribution recognition without commit-count leaderboards |
+| [`CITATION.cff`](./CITATION.cff) | native repository citation metadata |
 
 ## For developers
 
@@ -119,12 +124,14 @@ contributorOps/
 ├─ apps/
 │  ├─ api/       # discovery, scoring, planning, persistence, controlled GitHub actions
 │  ├─ web/       # interactive product application
-│  └─ site/      # public product, docs, showcase, recruiter and contributor surfaces
+│  └─ site/      # public product, docs, showcase, recruiter, share and contributor surfaces
 ├─ data/         # local JSON-backed MVP state
 ├─ docs/
 │  ├─ adr/       # architecture decision records
-│  └─ ...        # product, API, safety, deployment, launch and business docs
-├─ .github/      # CI, Pages, scheduled planning, issue and PR workflows
+│  └─ ...        # product, API, safety, distribution, launch and business docs
+├─ .github/      # CI, Pages, scheduled planning, issue/PR/release workflows
+├─ CHANGELOG.md
+├─ CITATION.cff
 ├─ CONTRIBUTORS.md
 └─ README.md
 ```
@@ -212,11 +219,13 @@ See [`docs/environment-setup.md`](./docs/environment-setup.md) and [`docs/local-
 | --- | --- |
 | Public product + documentation site | ✅ Live |
 | Engineering showcase + recruiter brief | ✅ Implemented |
+| Audience-specific share hub | ✅ Implemented |
 | Discovery and planning workflows | ✅ Implemented |
 | Controlled contribution modes | ✅ Implemented |
 | Local-first portfolio tracking | ✅ Implemented |
 | Safety policy + approval model | ✅ Implemented |
 | Architecture + ADR documentation | ✅ Implemented |
+| Repeatable release / distribution playbook | ✅ Implemented |
 | Real billing/payments | 🟡 Planned |
 | Per-user GitHub OAuth | 🟡 Planned |
 | Production multi-user database | 🟡 Planned |
@@ -237,11 +246,18 @@ The fastest contribution path:
 
 Contributor recognition is described in [`CONTRIBUTORS.md`](./CONTRIBUTORS.md).
 
-## Share / launch kit
+## Distribution and releases
 
-Want to discuss the project with a community, recruiter, or engineering team without inventing marketing claims? [`docs/share-kit.md`](./docs/share-kit.md) contains canonical links, concise pitches, launch-copy drafts, and audience-specific article angles.
+The [Share Hub](https://ankitparekh007.github.io/contributorOps/#/share) gives developers, recruiters, maintainers, and communities a direct audience-specific link and message.
 
-The updated [`docs/launch-checklist.md`](./docs/launch-checklist.md) also records the remaining GitHub Settings steps for repository topics and the native GitHub social preview.
+For repeatable project growth:
+
+- [`docs/distribution-playbook.md`](./docs/distribution-playbook.md) — GitHub-first discovery, launch waves, release strategy, conversion targets, and anti-spam rules
+- [`docs/share-kit.md`](./docs/share-kit.md) — canonical copy and technical article angles
+- [`docs/launch-checklist.md`](./docs/launch-checklist.md) — public launch readiness checklist
+- [`CHANGELOG.md`](./CHANGELOG.md) — milestone history
+- [`.github/release.yml`](./.github/release.yml) — generated release-note categories
+- [`CITATION.cff`](./CITATION.cff) — repository citation metadata
 
 ## Project principles
 
@@ -252,6 +268,7 @@ ContributorOps prioritizes:
 - **human approval over opaque automation**
 - **maintainer trust over growth mechanics**
 - **explainable engineering work over empty GitHub metrics**
+- **audience-specific distribution over mass promotion**
 
 ## License
 
@@ -260,5 +277,5 @@ BSD 3-Clause. See [`LICENSE`](./LICENSE).
 ---
 
 <p align="center">
-  <strong>If ContributorOps is useful, star it. If you can improve it, pick a good-first issue and contribute. If you are evaluating the engineering, start with the recruiter brief and architecture.</strong>
+  <strong>If ContributorOps is useful, star it. If you can improve it, pick a good-first issue and contribute. If someone else would benefit, use the share hub to send them the most relevant evidence.</strong>
 </p>

@@ -1,0 +1,36 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: "🚀 Features"
+      labels:
+        - enhancement
+        - feature
+    - title: "🛡️ Safety & trust"
+      labels:
+        - safety
+        - security
+    - title: "♿ Accessibility & UX"
+      labels:
+        - accessibility
+        - ux
+    - title: "📚 Documentation"
+      labels:
+        - documentation
+    - title: "🧪 Tests & reliability"
+      labels:
+        - testing
+        - reliability
+    - title: "🤝 Community & contributor experience"
+      labels:
+        - good first issue
+        - help wanted
+        - community
+    - title: "🔧 Maintenance"
+      labels:
+        - chore
+        - dependencies
+    - title: "Other changes"
+      labels:
+        - "*"

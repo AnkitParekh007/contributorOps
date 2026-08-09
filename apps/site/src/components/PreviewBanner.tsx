@@ -5,10 +5,10 @@ export function PreviewBanner() {
 		<div className="preview-banner" role="banner" aria-label="Preview status">
 			<span className="preview-banner-dot" aria-hidden="true" />
 			<span className="preview-banner-text">
-				<strong>Founder Preview</strong> — payments not live, no production accounts yet.
+				<strong>Open-source preview</strong> — core workflows are implemented; hosted production accounts and billing are not live yet.
 			</span>
-			<Link to="/waitlist" className="preview-banner-cta">
-				Join Waitlist
+			<Link to="/contribute" className="preview-banner-cta">
+				Contribute
 			</Link>
 		</div>
 	);

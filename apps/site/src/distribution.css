@@ -1,0 +1,198 @@
+.distribution-page {
+	display: grid;
+	gap: 48px;
+}
+
+.distribution-hero {
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+	gap: 26px;
+	padding: 34px;
+	border: 1px solid var(--line-strong);
+	border-radius: 32px;
+	background:
+		radial-gradient(circle at 8% 12%, rgba(34, 211, 238, 0.12), transparent 30%),
+		radial-gradient(circle at 92% 10%, rgba(139, 92, 246, 0.16), transparent 30%),
+		var(--panel);
+	box-shadow: var(--shadow);
+}
+
+.distribution-hero h1 {
+	margin: 12px 0 18px;
+	max-width: 12ch;
+	font-family: var(--font-display);
+	font-size: clamp(2.8rem, 5vw, 5.2rem);
+	line-height: 0.96;
+	letter-spacing: -0.055em;
+}
+
+.distribution-hero p,
+.distribution-principle-card p,
+.distribution-card p,
+.distribution-launch-panel p {
+	color: var(--muted);
+	line-height: 1.7;
+}
+
+.distribution-actions,
+.distribution-card-actions,
+.distribution-launch-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+}
+
+.distribution-actions {
+	margin-top: 24px;
+}
+
+.distribution-principle-card,
+.distribution-card,
+.distribution-launch-panel {
+	border: 1px solid var(--line);
+	background: var(--panel-strong);
+}
+
+.distribution-principle-card {
+	padding: 24px;
+	border-radius: 24px;
+	align-self: stretch;
+}
+
+.distribution-principle-card h2 {
+	margin: 14px 0 10px;
+	font-family: var(--font-display);
+	font-size: 1.7rem;
+	letter-spacing: -0.035em;
+}
+
+.distribution-principle-list {
+	display: grid;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.distribution-principle-list span {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	color: var(--text);
+}
+
+.distribution-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 18px;
+}
+
+.distribution-card {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	padding: 24px;
+	border-radius: 22px;
+}
+
+.distribution-card-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 42px;
+	height: 42px;
+	border: 1px solid var(--line-strong);
+	border-radius: 13px;
+	background: rgba(139, 92, 246, 0.09);
+	color: var(--accent);
+}
+
+.distribution-card h3 {
+	margin: 16px 0 8px;
+	font-family: var(--font-display);
+	font-size: 1.35rem;
+	letter-spacing: -0.03em;
+}
+
+.distribution-copy-box {
+	margin: 10px 0 18px;
+	padding: 16px;
+	border: 1px solid var(--line);
+	border-radius: 15px;
+	background: rgba(2, 6, 23, 0.22);
+	color: var(--muted);
+	font-size: 0.92rem;
+	line-height: 1.65;
+}
+
+html[data-theme="light"] .distribution-copy-box {
+	background: rgba(80, 70, 160, 0.045);
+}
+
+.distribution-card-actions {
+	margin-top: auto;
+}
+
+.distribution-card-actions button {
+	cursor: pointer;
+}
+
+.distribution-launch-panel {
+	display: flex;
+	justify-content: space-between;
+	gap: 24px;
+	align-items: center;
+	padding: 28px;
+	border-radius: 24px;
+}
+
+.distribution-launch-panel h2 {
+	margin: 8px 0 8px;
+	font-family: var(--font-display);
+	font-size: clamp(1.7rem, 3vw, 2.5rem);
+	letter-spacing: -0.04em;
+}
+
+@media (max-width: 900px) {
+	.distribution-hero,
+	.distribution-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.distribution-launch-panel {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}
+
+@media (max-width: 620px) {
+	.distribution-hero {
+		padding: 24px;
+		border-radius: 24px;
+	}
+
+	.distribution-hero h1 {
+		font-size: clamp(2.45rem, 13vw, 3.8rem);
+	}
+
+	.distribution-card,
+	.distribution-principle-card,
+	.distribution-launch-panel {
+		padding: 20px;
+	}
+
+	.distribution-card-actions,
+	.distribution-actions,
+	.distribution-launch-actions {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.distribution-card-actions .button-secondary,
+	.distribution-card-actions .text-link,
+	.distribution-actions .button-primary,
+	.distribution-actions .button-secondary,
+	.distribution-launch-actions .button-primary,
+	.distribution-launch-actions .button-secondary {
+		width: 100%;
+	}
+}
