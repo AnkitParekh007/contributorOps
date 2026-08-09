@@ -1,95 +1,97 @@
-# Launch Checklist
+# ContributorOps Launch Checklist
 
-Use this checklist before announcing ContributorOps publicly. Work through it top to bottom — each section depends on the previous one being solid.
+Use this checklist before a public launch push, recruiter campaign, or community announcement. It reflects the current GitHub Pages routes and the project's open-source-first positioning.
 
----
+## 1. Technical baseline
 
-## Pre-launch Technical
+- [x] GitHub Pages deployment workflow exists
+- [x] CI validates API, Web, Site, TypeScript, and common secret patterns
+- [x] SEO and social metadata exist in `apps/site/index.html`
+- [x] `robots.txt`, `sitemap.xml`, manifest, and favicons exist
+- [x] public safety model is documented
+- [ ] run a fresh Lighthouse pass on the deployed home, Showcase, and Contribute pages
+- [ ] test mobile navigation and CTAs on a real narrow viewport
+- [ ] verify every external GitHub link in the public site after merge
 
-- [ ] GitHub Pages enabled in repo settings (Settings > Pages > Source: GitHub Actions)
-- [ ] `deploy-site.yml` workflow runs successfully end-to-end
-- [ ] Custom domain configured (optional — update `vite.config.ts` base path if used)
-- [ ] SEO meta tags present in `apps/site/index.html` (title, description, og:title, og:description, og:url)
-- [ ] `og:image` accessible at `/og-image.svg` (or `.png`) from the deployed site root
-- [ ] `sitemap.xml` present in `apps/site/public/`
-- [ ] `robots.txt` present in `apps/site/public/`
-- [ ] `site.webmanifest` present in `apps/site/public/`
-- [ ] Favicon present and linked in `index.html`
-- [ ] No broken console errors on the deployed site
-- [ ] Lighthouse score > 90 on the home page (performance, accessibility, best practices, SEO)
+## 2. Public product routes
 
----
+Verify these deployed routes after the launch PR reaches `main`:
 
-## Product Readiness
+- [ ] `/#/` — Home
+- [ ] `/#/features` — Features
+- [ ] `/#/showcase` — Engineering showcase
+- [ ] `/#/contribute` — Contributor onboarding
+- [ ] `/#/recruiter` — Recruiter brief
+- [ ] `/#/pricing` — Pricing architecture
+- [ ] `/#/docs` — Documentation
+- [ ] `/#/safety` — Safety model
+- [ ] `/#/roadmap` — Roadmap
+- [ ] `/#/waitlist` — Early-access interest
 
-- [ ] All site pages loading without errors:
-  - [ ] `/` — Home
-  - [ ] `/#/features` — Features
-  - [ ] `/#/use-cases` — Use Cases
-  - [ ] `/#/demo` — Demo
-  - [ ] `/#/waitlist` — Waitlist
-  - [ ] `/#/pricing` — Pricing
-  - [ ] `/#/docs` — Documentation
-  - [ ] `/#/safety` — Safety
-  - [ ] `/#/roadmap` — Roadmap
-- [ ] Waitlist form tested end-to-end (fill form → submit → success state shown)
-- [ ] Waitlist localStorage submission working on static site (no API dependency)
-- [ ] Pricing page toggle working (monthly/yearly price switch)
-- [ ] Demo page showing polished mock data (no placeholder text visible)
-- [ ] Mobile navigation hamburger opening and closing correctly
-- [ ] All footer links resolve to valid anchors or pages (no dead links)
-- [ ] All CTA buttons link to the right destinations
-- [ ] No "lorem ipsum" or placeholder text visible on any page
+## 3. Repository authority
 
----
+- [x] strong README with quick start and architecture summary
+- [x] `CONTRIBUTING.md`, Code of Conduct, issue forms, and PR template
+- [x] `good first issue` / `help wanted` contribution funnel
+- [x] architecture document
+- [x] Architecture Decision Records for major trust/operability choices
+- [ ] add/update GitHub repository description in Settings/About
+- [ ] set repository website to `https://ankitparekh007.github.io/contributorOps/`
+- [ ] add repository topics in Settings/About
+- [ ] upload the repository social preview image in Settings → General → Social preview
 
-## API / Backend
+### Recommended repository description
 
-- [ ] `data/waitlist.json` file exists (can be empty `[]`)
-- [ ] `POST /api/waitlist` accepts a valid body and returns `{ success: true, position: N }`
-- [ ] `GET /api/waitlist/stats` returns aggregate stats without error
-- [ ] `GET /api/meta` returns version and feature flags without error
-- [ ] `GET /api/launch-offer` returns offer details without error
-- [ ] `GET /api/health` returns `{ status: "ok" }` in both mock and live mode
-- [ ] `npm run build` succeeds (builds api and web)
-- [ ] `npm run build:all` succeeds (builds api, web, and site)
-- [ ] `npm run typecheck` completes without TypeScript errors
-- [ ] CI workflow runs on push to main and all jobs pass
-- [ ] No secrets or tokens committed in source files (secret-scan job passes)
+> Human-approved OSS contribution intelligence: discover better issues, prepare stronger PRs, and turn real contributions into recruiter-readable proof.
 
----
+### Recommended topics
 
-## Documentation
+`open-source`, `developer-tools`, `github`, `typescript`, `react`, `nodejs`, `career`, `portfolio`, `pull-requests`, `ai-tools`
 
-- [ ] `README.md` updated with new pages, features, and badges
-- [ ] `docs/architecture.md` created and accurate
-- [ ] `docs/api-reference.md` created and covers all endpoints
-- [ ] `docs/founder-notes.md` created
-- [ ] `docs/launch-checklist.md` created (this file)
-- [ ] `docs/customer-development.md` created
-- [ ] `docs/safety-policy.md` reflects current three-level safety model
-- [ ] `docs/monetization-plan.md` reflects current pricing tiers
-- [ ] All doc links in README are valid and point to existing files
-- [ ] Docs page on the site (`/#/docs`) links to the correct GitHub doc files
+## 4. Recruiter readiness
 
----
+- [ ] recruiter brief can be understood in under two minutes
+- [ ] architecture and ADR links are visible from the recruiter surface
+- [ ] example proof is clearly labeled as example data
+- [ ] production boundaries are stated without underselling implemented work
+- [ ] shareable recruiter URL works after GitHub Pages deployment
 
-## Launch
+## 5. Community readiness
 
-- [ ] Product Hunt draft prepared (tagline, description, first comment, gallery screenshots)
-- [ ] GitHub repo description updated (one-line description + website URL filled in)
-- [ ] GitHub repo topics added (e.g., `open-source`, `developer-tools`, `career`, `typescript`, `react`)
-- [ ] First demo video planned or recorded (even a simple screen recording works)
-- [ ] Social proof placeholder added to homepage (or remove the section entirely until real proof exists)
-- [ ] README badges verified working (CI badge, GitHub Pages badge)
-- [ ] Announce in relevant communities:
-  - [ ] `r/cscareerquestions` — problem-focused post, not promotional
-  - [ ] `r/webdev` or `r/javascript` — show the project
-  - [ ] JavaScript/TypeScript Discord servers
-  - [ ] Dev.to — founder story post
-  - [ ] Hashnode — technical deep-dive post
-  - [ ] X/Twitter — launch thread
-  - [ ] LinkedIn — founder announcement
-- [ ] Submit to GitHub Trending watch lists or newsletters (e.g., JavaScript Weekly, Node Weekly)
-- [ ] Respond to all early comments and questions within 24 hours
-- [ ] Set up a simple way to track waitlist signups (even a spreadsheet works)
+- [ ] at least three open `good first issue` items remain available
+- [ ] every starter issue has concrete acceptance criteria
+- [ ] contributor setup commands match current package scripts
+- [ ] responses to contributor questions are timely and specific
+- [ ] merged external contributions are acknowledged through release notes / contributor history
+
+## 6. Share package
+
+Use [`docs/share-kit.md`](./share-kit.md) for canonical copy and links.
+
+Before posting:
+- [ ] choose one primary audience per post
+- [ ] lead with the developer problem, not star-count goals
+- [ ] link directly to the most relevant surface (home, Showcase, Contribute, recruiter brief, or GitHub repo)
+- [ ] avoid invented adoption metrics, testimonials, or customer claims
+- [ ] include a concrete ask: feedback, contribution, architecture review, or star if useful
+
+## 7. Suggested launch sequence
+
+1. GitHub + README first: make sure repo metadata, preview image, issues, and CI are clean.
+2. LinkedIn: engineering/product story with recruiter brief link.
+3. Dev.to or Hashnode: architecture deep dive centered on the approval boundary and proof-of-work model.
+4. Reddit/community forums: problem-first discussion, transparent that it is your open-source project.
+5. X / Bluesky: short visual product thread pointing to the live Showcase.
+6. Relevant newsletters/directories: submit only after the public site and repo metadata are stable.
+
+## 8. Post-launch signal to track
+
+Track durable signals rather than vanity traffic alone:
+- stars and forks over time
+- unique contributors and merged external PRs
+- issue-to-PR conversion on `good first issue`
+- repeat visitors to docs/Showcase/Contribute
+- recruiter or engineering-leader conversations generated from the brief
+- qualitative maintainer feedback about contribution quality
+
+Do not optimize the product toward automated contribution volume to improve these numbers. The maintainer-trust model remains the primary constraint.
