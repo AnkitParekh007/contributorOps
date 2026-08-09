@@ -118,25 +118,18 @@ export const apiClient = {
       method: "POST",
       body: JSON.stringify({ issue })
     }),
-  createApprovedPullRequest: (payload: {
+  prepareContributionRun: (payload: {
+    mode: ContributionExecutionMode;
     issue: IssueCandidate;
-    proposal: DraftProposal;
-    forkOwner: string;
-    approvalReason: string;
-    explicitApproval: boolean;
+    proposal?: DraftProposal;
   }) =>
-    request<{ draftPullRequestUrl: string; branchName: string }>("/api/approved-pr", {
-      method: "POST",
-      body: JSON.stringify(payload)
-    }),
-  prepareContributionRun: (payload: { mode: ContributionExecutionMode; issue: IssueCandidate }) =>
     request<ContributionRun>("/api/contribute/prepare", {
       method: "POST",
       body: JSON.stringify(payload)
     }),
   approveContributionComment: (payload: {
     runId: string;
-    userApprovalToken: string;
+    approvalToken: string;
     approvalReason: string;
     explicitApproval: boolean;
   }) =>
@@ -146,7 +139,7 @@ export const apiClient = {
     }),
   approveContributionBranch: (payload: {
     runId: string;
-    userApprovalToken: string;
+    approvalToken: string;
     approvalReason: string;
     explicitApproval: boolean;
     forkOwner: string;
@@ -157,7 +150,7 @@ export const apiClient = {
     }),
   approveContributionDraftPr: (payload: {
     runId: string;
-    userApprovalToken: string;
+    approvalToken: string;
     approvalReason: string;
     explicitApproval: boolean;
     forkOwner: string;
