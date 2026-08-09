@@ -1,11 +1,6 @@
 name: Hourly AI + Frontend OSS Radar
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/hourly-oss-radar.yml'
   schedule:
     - cron: '7 * * * *'
   workflow_dispatch:
