@@ -4,6 +4,7 @@ import { docs } from "../data/docs";
 
 const CATEGORY_COLORS: Record<string, string> = {
 	Product: "docs-cat-product",
+	Architecture: "docs-cat-devsetup",
 	"Developer Setup": "docs-cat-devsetup",
 	"Trust & Safety": "docs-cat-safety",
 	Business: "docs-cat-business",
@@ -20,7 +21,7 @@ export function Docs() {
 				<div className="docs-page-header">
 					<h1>Documentation</h1>
 					<p className="docs-page-intro">
-						Everything you need to understand ContributorOps — the product vision, developer setup,
+						Everything you need to understand ContributorOps — the product vision, architecture, developer setup,
 						deployment, safety model, monetization plan, and roadmap.
 					</p>
 				</div>
@@ -33,9 +34,7 @@ export function Docs() {
 							</span>
 							<h3>{doc.title}</h3>
 							<p>{doc.summary}</p>
-							<span className="docs-home-card-arrow" aria-hidden="true">
-								→
-							</span>
+							<span className="docs-home-card-arrow" aria-hidden="true">→</span>
 						</Link>
 					))}
 				</div>
@@ -43,9 +42,9 @@ export function Docs() {
 				<div className="docs-home-quickstart">
 					<h2>Quick start</h2>
 					<p>
-						New here? Start with <Link to="/docs/product-overview">Product Overview</Link> for the product
-						vision, then <Link to="/docs/local-development">Local Development</Link> to run the site
-						locally.
+						New here? Start with <Link to="/docs/product-overview">Product Overview</Link>, then read the{" "}
+						<Link to="/docs/architecture">Architecture</Link> to understand the system and trust boundary before{" "}
+						<Link to="/docs/local-development">Local Development</Link> to run it locally.
 					</p>
 				</div>
 			</div>

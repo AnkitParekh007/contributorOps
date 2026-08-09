@@ -13,116 +13,119 @@
 </p>
 
 <p align="center">
-  <a href="https://ankitparekh007.github.io/contributorOps/"><img alt="Live site" src="https://img.shields.io/badge/live-demo-8b5cf6?style=for-the-badge"></a>
-  <a href="./LICENSE"><img alt="BSD 3-Clause" src="https://img.shields.io/badge/license-BSD--3--Clause-2563eb?style=for-the-badge"></a>
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
-  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=111827">
+  <a href="https://github.com/AnkitParekh007/contributorOps/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/AnkitParekh007/contributorOps/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://ankitparekh007.github.io/contributorOps/"><img alt="Live site" src="https://img.shields.io/badge/live-site-8b5cf6?style=flat-square"></a>
+  <a href="https://github.com/AnkitParekh007/contributorOps/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/AnkitParekh007/contributorOps?style=flat-square"></a>
+  <a href="https://github.com/AnkitParekh007/contributorOps/forks"><img alt="GitHub forks" src="https://img.shields.io/github/forks/AnkitParekh007/contributorOps?style=flat-square"></a>
+  <a href="https://github.com/AnkitParekh007/contributorOps/issues"><img alt="Open issues" src="https://img.shields.io/github/issues/AnkitParekh007/contributorOps?style=flat-square"></a>
+  <a href="./LICENSE"><img alt="BSD 3-Clause" src="https://img.shields.io/badge/license-BSD--3--Clause-2563eb?style=flat-square"></a>
 </p>
 
 <p align="center">
-  <a href="https://ankitparekh007.github.io/contributorOps/"><strong>Explore the live experience</strong></a>
+  <a href="https://ankitparekh007.github.io/contributorOps/"><strong>Live product</strong></a>
   ·
-  <a href="./CONTRIBUTING.md"><strong>Contribute</strong></a>
+  <a href="https://ankitparekh007.github.io/contributorOps/#/showcase"><strong>Engineering showcase</strong></a>
   ·
-  <a href="./docs/safety-policy.md"><strong>Safety model</strong></a>
+  <a href="https://ankitparekh007.github.io/contributorOps/#/recruiter"><strong>Recruiter brief</strong></a>
   ·
-  <a href="./docs/roadmap.md"><strong>Roadmap</strong></a>
+  <a href="https://ankitparekh007.github.io/contributorOps/#/contribute"><strong>Contribute</strong></a>
+  ·
+  <a href="./docs/architecture.md"><strong>Architecture</strong></a>
 </p>
 
 ---
 
-ContributorOps is an open-source contribution intelligence platform for developers who want to do meaningful OSS work and turn that work into evidence that hiring teams can understand.
+ContributorOps is an open-source contribution intelligence platform for developers who want to do meaningful OSS work and turn that work into evidence that maintainers and hiring teams can understand.
 
-Instead of optimizing for contribution volume, it helps a contributor move through a high-quality loop:
+It structures the contribution loop as:
 
-**Discover → Prepare → Validate → Prove**
+**Discover → Prepare → Validate → Human approval → Prove**
 
 - discover role-relevant contribution opportunities
-- prepare scoped contribution plans and maintainer-friendly PR drafts
-- validate quality, testing, tone, and submission readiness
-- package completed work into portfolio evidence, resume bullets, STAR stories, and recruiter-ready summaries
+- prepare scoped plans, tests, maintainer questions, and PR narrative
+- validate scope, quality, tone, and submission readiness
+- keep external GitHub writes explicitly human-approved
+- package finished work into portfolio evidence, resume bullets, and interview stories
 
-> ContributorOps is intentionally **human-approved**. It is not a mass-commenting bot, mass-PR engine, or contribution-gaming tool.
+> ContributorOps is intentionally **not** a mass-commenting bot, mass-PR engine, or contribution-gaming system. Maintainer trust is an architecture constraint.
 
-## Why developers care
+## Why this repository is different
 
-GitHub activity alone is often noisy. ContributorOps helps turn it into a repeatable professional workflow.
+Many developer tools show features. ContributorOps also makes the **engineering decisions** public.
+
+| Evidence | What it demonstrates |
+| --- | --- |
+| [`docs/architecture.md`](./docs/architecture.md) | system surfaces, data flow, trust boundaries, CI, deployment, production evolution |
+| [`docs/adr/`](./docs/adr/README.md) | durable reasoning behind high-impact architecture choices |
+| [`docs/safety-policy.md`](./docs/safety-policy.md) | explicit rules for external GitHub actions and anti-spam behavior |
+| [CI workflow](./.github/workflows/ci.yml) | API/Web/Site builds, TypeScript validation, secret-pattern checks |
+| [Engineering Showcase](https://ankitparekh007.github.io/contributorOps/#/showcase) | how contribution work becomes explainable professional evidence |
+| [Recruiter Brief](https://ankitparekh007.github.io/contributorOps/#/recruiter) | two-minute path from product story to architecture and source evidence |
+| [`CONTRIBUTORS.md`](./CONTRIBUTORS.md) | contribution recognition without commit-count leaderboards |
+
+## For developers
+
+GitHub activity alone is noisy. ContributorOps turns contribution work into a repeatable workflow.
 
 | Developer problem | ContributorOps response |
 | --- | --- |
-| “I do not know which OSS issue is worth my time.” | Role-aware issue discovery and scoring |
-| “I lose context before I finish a contribution.” | Structured contribution plans and daily missions |
-| “My PRs are technically fine but weakly communicated.” | PR quality and maintainer-readiness checks |
-| “My contribution disappears into GitHub history.” | Proof-of-work portfolio and public contribution pages |
-| “I struggle to explain OSS work in interviews.” | Resume bullets, LinkedIn drafts, and STAR stories |
+| “Which OSS issue is worth my time?” | role-aware issue discovery and scoring |
+| “I lose context before I finish.” | structured contribution plans and daily missions |
+| “My PR is technically fine but poorly communicated.” | PR-quality and maintainer-readiness checks |
+| “I do not want automation spamming maintainers.” | explicit human approval before external writes |
+| “My contribution disappears into GitHub history.” | proof-of-work portfolio and career packaging |
 
-If this is a workflow you would use, **star the repository**. If you want to experiment with a different contribution model, **fork it and build your own intelligence modules**.
+If you would use this workflow, star the repository. If you want a different contribution model, fork it and extend the intelligence layer without removing the trust boundary silently.
 
-## Why recruiters and engineering leaders care
+## For recruiters and engineering leaders
 
-ContributorOps is also a portfolio-grade architecture project that demonstrates more than UI work. The repository includes:
+ContributorOps is also a public engineering/product case study spanning:
 
-- a React + Vite + TypeScript product surface
-- a Node.js + Express orchestration/API layer
+- React 19 + Vite + TypeScript product surfaces
+- Node.js + Express orchestration/API layer
 - GitHub API integration through Octokit
-- deterministic safety checks and approval-gated external writes
-- scheduled planning workflows that are deliberately read-only toward third-party repositories
-- local-first persistence for the MVP with clear production boundaries
-- static product/documentation deployment through GitHub Actions and GitHub Pages
-- product thinking across developer experience, trust, monetization, and hiring signal
+- deterministic guardrails and approval-gated external writes
+- GitHub Actions CI and Pages deployment
+- local-first persistence with explicit production boundaries
+- contributor onboarding and community workflow design
+- architecture documentation and ADR discipline
 
-For hiring teams, the project is designed around a simple idea: **evaluate the reasoning, scope, tests, and impact behind contributions—not just commit counts.**
+**Start here:** [open the two-minute recruiter brief](https://ankitparekh007.github.io/contributorOps/#/recruiter).
 
-## Live product preview
+The intended hiring signal is not commit volume. It is the reasoning, scope, tests, trust boundaries, tradeoffs, and impact behind the work.
 
-**Website:** https://ankitparekh007.github.io/contributorOps/
-
-The public site includes the product story, feature model, safety approach, pricing architecture, roadmap, documentation, and recruiter/developer positioning.
-
-The main product and API remain local-development surfaces while authentication, production persistence, and billing are still planned.
-
-## Product workflow
+## Architecture at a glance
 
 ```mermaid
 flowchart LR
-    A[Discover role-matched issues] --> B[Prepare contribution plan]
-    B --> C[Validate scope, tests and tone]
-    C --> D{Human approval}
-    D -->|Approved| E[Submit controlled action]
-    D -->|Not approved| B
-    E --> F[Capture contribution evidence]
-    F --> G[Resume / Portfolio / STAR story]
+    User[Developer] --> Site[apps/site\nPublic site + docs]
+    User --> Web[apps/web\nProduct UI]
+    Web --> API[apps/api\nExpress orchestration]
+    API --> Data[data\nLocal MVP state]
+    API --> GH[GitHub / Octokit]
+    Actions[GitHub Actions] --> Site
+    Actions --> Planner[Scheduled planning]
+    Planner -. no unattended writes .-> GH
 ```
 
-## Architecture
+The central trust decision is documented in [ADR-0001](./docs/adr/0001-human-approved-external-writes.md): **external GitHub writes require explicit human approval for the exact action.**
 
-```mermaid
-flowchart TB
-    Site[apps/site\nGitHub Pages website + docs]
-    Web[apps/web\nReact product UI]
-    API[apps/api\nExpress orchestration layer]
-    GH[GitHub / Octokit]
-    Data[data\nLocal MVP persistence]
-    Actions[GitHub Actions]
+Read the full [architecture document](./docs/architecture.md) and [ADR index](./docs/adr/README.md).
 
-    Site --> Actions
-    Web --> API
-    API --> Data
-    API --> GH
-    Actions --> Site
-```
-
-### Repository map
+## Repository map
 
 ```text
 contributorOps/
 ├─ apps/
-│  ├─ api/       # discovery, scoring, planning, storage, controlled GitHub operations
-│  ├─ web/       # product application surface
-│  └─ site/      # business site + documentation deployed to GitHub Pages
+│  ├─ api/       # discovery, scoring, planning, persistence, controlled GitHub actions
+│  ├─ web/       # interactive product application
+│  └─ site/      # public product, docs, showcase, recruiter and contributor surfaces
 ├─ data/         # local JSON-backed MVP state
-├─ docs/         # product, safety, deployment, environment and roadmap docs
-├─ .github/      # CI / Pages workflows and community configuration
+├─ docs/
+│  ├─ adr/       # architecture decision records
+│  └─ ...        # product, API, safety, deployment, launch and business docs
+├─ .github/      # CI, Pages, scheduled planning, issue and PR workflows
+├─ CONTRIBUTORS.md
 └─ README.md
 ```
 
@@ -146,13 +149,13 @@ contributorOps/
 - duplicate-action prevention
 - external write rate limits
 - explicit approval gates for higher-risk operations
-- audit logging for external write actions
+- audit-oriented state for controlled actions
 
 ### Proof-of-work packaging
 - contribution portfolio tracking
 - public contribution pages
 - GitHub resume export
-- LinkedIn post generation
+- LinkedIn draft generation
 - interview STAR story generation
 - recruiter-facing summaries
 
@@ -160,13 +163,13 @@ contributorOps/
 
 ContributorOps has three operating modes:
 
-1. **Research Mode** — discovery, scoring, and planning only; no external GitHub writes.
-2. **Draft Mode** — local proposal generation for changes, PR copy, and tests; no submission.
-3. **Approved Auto-Contribute Mode** — exact comments, branches, and draft PR actions require explicit human approval.
+1. **Research Mode** — discovery, scoring, and planning; no external GitHub writes.
+2. **Draft Mode** — local proposal generation for changes, PR copy, and tests; no unattended submission.
+3. **Approved Auto-Contribute Mode** — exact external actions require explicit human approval.
 
-Scheduled workflows are restricted to internal planning and repository-local automation. External repository writes remain approval-gated.
+Scheduled workflows are planning-only toward third-party repositories.
 
-Read the full policy in [`docs/safety-policy.md`](./docs/safety-policy.md).
+Read [`docs/safety-policy.md`](./docs/safety-policy.md) and [ADR-0001](./docs/adr/0001-human-approved-external-writes.md).
 
 ## Quick start
 
@@ -182,7 +185,7 @@ cd contributorOps
 npm install
 ```
 
-### Run the product
+### Run API + product UI
 
 ```bash
 npm run dev
@@ -201,66 +204,44 @@ npm run typecheck
 npm run build:all
 ```
 
-Environment setup is documented in [`docs/environment-setup.md`](./docs/environment-setup.md).
+See [`docs/environment-setup.md`](./docs/environment-setup.md) and [`docs/local-development.md`](./docs/local-development.md).
 
-## Current project status
+## Current project boundary
 
 | Area | Status |
 | --- | --- |
-| Static marketing + documentation site | ✅ Live |
+| Public product + documentation site | ✅ Live |
+| Engineering showcase + recruiter brief | ✅ Implemented |
 | Discovery and planning workflows | ✅ Implemented |
 | Controlled contribution modes | ✅ Implemented |
 | Local-first portfolio tracking | ✅ Implemented |
 | Safety policy + approval model | ✅ Implemented |
+| Architecture + ADR documentation | ✅ Implemented |
 | Real billing/payments | 🟡 Planned |
 | Per-user GitHub OAuth | 🟡 Planned |
-| Production database | 🟡 Planned |
-| Multi-user SaaS operations | 🟡 Planned |
+| Production multi-user database | 🟡 Planned |
+| Hosted multi-user SaaS operations | 🟡 Planned |
 
-ContributorOps should be treated as a **working open-source product foundation and architecture showcase**, not a production SaaS claim.
+ContributorOps is a **working open-source product foundation and architecture showcase**, not a production SaaS claim.
 
 ## Contributing
 
-Contributions are welcome—especially changes that improve developer experience, contribution quality, explainability, testing, accessibility, and recruiter-facing proof.
+The fastest contribution path:
 
-A good contribution path is:
+1. open the [public Contribute page](https://ankitparekh007.github.io/contributorOps/#/contribute)
+2. browse [`good first issue`](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [`help wanted`](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
+3. read [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+4. read the [Safety Policy](./docs/safety-policy.md) before changing GitHub automation
+5. run `npm run typecheck` and `npm run build:all`
+6. open a focused PR that explains user impact and safety implications
 
-1. read [`CONTRIBUTING.md`](./CONTRIBUTING.md)
-2. read the [`Safety Policy`](./docs/safety-policy.md) if your change touches GitHub automation
-3. choose a focused issue or propose one
-4. run `npm run typecheck` and `npm run build:all`
-5. open a focused PR that explains user impact and how safety constraints are preserved
+Contributor recognition is described in [`CONTRIBUTORS.md`](./CONTRIBUTORS.md).
 
-See also [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md).
+## Share / launch kit
 
-## Roadmap
+Want to discuss the project with a community, recruiter, or engineering team without inventing marketing claims? [`docs/share-kit.md`](./docs/share-kit.md) contains canonical links, concise pitches, launch-copy drafts, and audience-specific article angles.
 
-### Foundation
-- business website and documentation
-- GitHub Pages deployment
-- daily contribution planning
-- portfolio tracking
-
-### Professional workflow
-- job-matched issue finding
-- PR quality review
-- resume generation
-- LinkedIn artifact generation
-- public proof-of-work pages
-
-### Career layer
-- GitHub profile audit
-- interview story generation
-- recruiter share workflows
-- weekly career reporting
-
-### Team layer
-- team dashboard
-- bootcamp mode
-- maintainer quality analytics
-- shared contribution radar
-
-Full roadmap: [`docs/roadmap.md`](./docs/roadmap.md)
+The updated [`docs/launch-checklist.md`](./docs/launch-checklist.md) also records the remaining GitHub Settings steps for repository topics and the native GitHub social preview.
 
 ## Project principles
 
@@ -279,5 +260,5 @@ BSD 3-Clause. See [`LICENSE`](./LICENSE).
 ---
 
 <p align="center">
-  <strong>If ContributorOps is useful or interesting, star it, fork it, or open an issue with the workflow you want to see next.</strong>
+  <strong>If ContributorOps is useful, star it. If you can improve it, pick a good-first issue and contribute. If you are evaluating the engineering, start with the recruiter brief and architecture.</strong>
 </p>

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { BriefcaseBusiness, Code2, GitFork, Github, ShieldCheck, Sparkles } from "lucide-react";
 
 const REPO_URL = "https://github.com/AnkitParekh007/contributorOps";
@@ -9,13 +10,17 @@ const AUDIENCES = [
 		title: "Find better work. Ship better PRs. Keep the proof.",
 		body: "Use a structured contribution loop instead of hunting random issues. ContributorOps connects discovery, planning, quality checks, and career packaging in one workflow.",
 		points: ["Role-matched opportunity radar", "PR readiness and test thinking", "Reusable portfolio evidence"],
+		to: "/contribute",
+		cta: "Find a contribution path",
 	},
 	{
 		icon: <BriefcaseBusiness size={21} />,
 		eyebrow: "For recruiters",
 		title: "See engineering signal beyond commit counts.",
 		body: "ContributorOps is designed to make contribution context legible: what changed, why it mattered, how it was tested, and what engineering judgment the developer demonstrated.",
-		points: ["Verifiable contribution history", "Impact and reasoning summaries", "Interview-ready project narratives"],
+		points: ["Verifiable contribution history", "Impact and reasoning summaries", "Architecture and trust evidence"],
+		to: "/recruiter",
+		cta: "Open the recruiter brief",
 	},
 	{
 		icon: <ShieldCheck size={21} />,
@@ -23,6 +28,8 @@ const AUDIENCES = [
 		title: "Automation that respects repository trust.",
 		body: "The project deliberately keeps external writes approval-gated. Scheduled jobs can research and plan, but they do not mass-comment or mass-open pull requests.",
 		points: ["Human approval gates", "No mass external writes", "Audit-friendly action model"],
+		to: "/safety",
+		cta: "Review the safety model",
 	},
 ];
 
@@ -54,10 +61,9 @@ export function AudienceProof() {
 						<h3>{audience.title}</h3>
 						<p>{audience.body}</p>
 						<ul>
-							{audience.points.map((point) => (
-								<li key={point}>{point}</li>
-							))}
+							{audience.points.map((point) => <li key={point}>{point}</li>)}
 						</ul>
+						<Link className="text-link" to={audience.to}>{audience.cta} →</Link>
 					</article>
 				))}
 			</div>

@@ -4,6 +4,7 @@ import App from "./App";
 import "./styles.css";
 import "./engagement.css";
 import "./growth.css";
+import "./authority.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>

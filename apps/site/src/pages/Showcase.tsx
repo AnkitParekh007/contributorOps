@@ -26,7 +26,7 @@ const SIGNALS = [
 	"GitHub API integration through Octokit",
 	"Human approval gates for external writes",
 	"GitHub Actions CI and Pages deployment",
-	"Product, safety, DX, and monetization architecture",
+	"Public architecture decisions and production boundaries",
 ];
 
 export function Showcase() {
@@ -44,7 +44,8 @@ export function Showcase() {
 						<a className="button-primary" href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer">
 							<Code2 size={16} /> Explore the source
 						</a>
-						<Link className="button-secondary" to="/contribute">Contribute to the project</Link>
+						<Link className="button-secondary" to="/recruiter">Open recruiter brief</Link>
+						<Link className="button-secondary" to="/contribute">Contribute</Link>
 					</div>
 				</div>
 				<div className="growth-proof-card">
@@ -91,8 +92,8 @@ export function Showcase() {
 						The value is not only the feature set. The repository exposes architectural decisions around API integration,
 						trust boundaries, automation safety, developer experience, and product packaging.
 					</p>
-					<a className="text-link" href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer">
-						Review the repository <ArrowRight size={14} />
+					<a className="text-link" href="https://github.com/AnkitParekh007/contributorOps/blob/main/docs/architecture.md" target="_blank" rel="noreferrer">
+						Read the architecture <ArrowRight size={14} />
 					</a>
 				</div>
 				<div className="growth-signal-list">
@@ -105,9 +106,10 @@ export function Showcase() {
 					<div>
 						<BriefcaseBusiness size={22} />
 						<h3>Hiring or evaluating engineering work?</h3>
-						<p>Use the source, architecture, safety policy, and contribution model as the evidence—not inflated activity metrics.</p>
+						<p>Use the two-minute recruiter brief to jump from product story to source, architecture, ADRs, safety decisions, and CI evidence.</p>
 					</div>
-					<Link className="button-primary" to="/docs">Read engineering docs</Link>
+					<Link className="button-primary" to="/recruiter">Open recruiter brief</Link>
+					<Link className="button-secondary" to="/docs/architecture">Read architecture docs</Link>
 				</div>
 			</section>
 		</div>

@@ -10,6 +10,7 @@ import { Features } from "./pages/Features";
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
 import { Pricing } from "./pages/Pricing";
+import { RecruiterBrief } from "./pages/RecruiterBrief";
 import { Roadmap } from "./pages/Roadmap";
 import { Safety } from "./pages/Safety";
 import { Showcase } from "./pages/Showcase";
@@ -33,6 +34,7 @@ function App() {
 							<Route path="/" element={<Home />} />
 							<Route path="/features" element={<Features />} />
 							<Route path="/showcase" element={<Showcase />} />
+							<Route path="/recruiter" element={<RecruiterBrief />} />
 							<Route path="/contribute" element={<Contribute />} />
 							<Route path="/pricing" element={<Pricing />} />
 							<Route path="/docs" element={<Docs />} />
