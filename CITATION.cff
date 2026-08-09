@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use or reference ContributorOps, please cite the repository and project author."
+title: "ContributorOps"
+type: software
+authors:
+  - family-names: "Parekh"
+    given-names: "Ankit"
+    alias: "AnkitParekh007"
+repository-code: "https://github.com/AnkitParekh007/contributorOps"
+url: "https://ankitparekh007.github.io/contributorOps/"
+license: BSD-3-Clause
+version: 0.1.0
+date-released: 2026-08-09
+keywords:
+  - open-source
+  - developer-tools
+  - github
+  - contribution-intelligence
+  - proof-of-work
+  - typescript
+  - react
+  - nodejs
+abstract: >-
+  ContributorOps is a human-approved open-source contribution intelligence platform
+  for discovering higher-signal issues, preparing stronger pull requests, preserving
+  maintainer trust, and turning completed engineering work into explainable proof.
