@@ -15,6 +15,7 @@
     "site:build": "npm run build --workspace @contributorops/site",
     "site:preview": "npm run preview --workspace @contributorops/site",
     "site:quality": "npm run site:build && node scripts/site-quality.mjs",
+    "site:lighthouse": "npm run site:build && node scripts/prepare-lighthouse.mjs && npx --yes @lhci/cli@0.15.0 autorun --config=./lighthouserc.json",
     "site:check": "npm run site:quality",
     "typecheck": "cd apps/api && npx tsc --noEmit && cd ../web && npx tsc --noEmit && cd ../site && npx tsc --noEmit",
     "ci": "npm ci && npm run build:all && node scripts/site-quality.mjs"
