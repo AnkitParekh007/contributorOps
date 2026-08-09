@@ -1,3 +1,5 @@
+import { campaignAttribution } from "./campaigns";
+
 type PlausibleProps = Record<string, string | number | boolean>;
 
 type PlausibleOptions = {
@@ -58,5 +60,7 @@ export function initAnalytics(): boolean {
 
 export function trackEvent(eventName: string, props?: PlausibleProps): void {
 	if (!analyticsConfigured() || typeof window === "undefined" || !window.plausible) return;
-	window.plausible(eventName, props ? { props } : undefined);
+	const campaign = campaignAttribution();
+	const mergedProps = { ...campaign, ...props };
+	window.plausible(eventName, Object.keys(mergedProps).length ? { props: mergedProps } : undefined);
 }
