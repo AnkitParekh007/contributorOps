@@ -10,6 +10,7 @@ import "./distribution.css";
 import "./adoption.css";
 import "./try.css";
 import "./quality.css";
+import "./launch.css";
 
 initAnalytics();
 
