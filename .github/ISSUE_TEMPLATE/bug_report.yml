@@ -1,0 +1,59 @@
+name: Bug report
+description: Report a reproducible problem in ContributorOps
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve ContributorOps. Please include enough detail for someone else to reproduce the problem.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      options:
+        - Public website / docs
+        - Web application
+        - API / orchestration
+        - GitHub integration
+        - Scheduled workflow / automation
+        - Developer tooling / CI
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the behavior you observed.
+      placeholder: Tell us what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Start from...
+        2. Run/click...
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Add logs, screenshots, URLs, or relevant output. Remove secrets and tokens.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: I did not include credentials, access tokens, or private repository data in this issue.
+          required: true
