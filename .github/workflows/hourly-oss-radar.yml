@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Restore daily radar state
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: data/hourly-radar-state.json
           key: hourly-radar-state-${{ runner.os }}-${{ github.run_id }}
