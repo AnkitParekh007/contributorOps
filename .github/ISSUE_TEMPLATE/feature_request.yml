@@ -1,0 +1,54 @@
+name: Feature request
+description: Propose a focused improvement to ContributorOps
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Strong feature requests explain the user problem, the expected value, and how the idea fits ContributorOps' quality-first contribution model.
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Who benefits most?
+      options:
+        - Developer / contributor
+        - Recruiter / hiring team
+        - Open-source maintainer
+        - Engineering team / program
+        - Project contributor / maintainer
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What is difficult, missing, or unclear today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the smallest useful version of the feature.
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: Why it matters
+      description: Explain the expected developer, maintainer, recruiter, or product impact.
+    validations:
+      required: true
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation ideas
+      description: Optional architecture, UX, API, data, testing, or documentation ideas.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Contribution safety
+      options:
+        - label: This proposal does not depend on mass-commenting, mass-PR creation, deceptive contribution claims, or bypassing human approval gates.
+          required: true
