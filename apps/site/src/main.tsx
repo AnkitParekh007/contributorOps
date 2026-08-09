@@ -8,6 +8,7 @@ import "./growth.css";
 import "./authority.css";
 import "./distribution.css";
 import "./adoption.css";
+import "./try.css";
 
 initAnalytics();
 
