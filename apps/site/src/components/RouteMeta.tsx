@@ -15,15 +15,23 @@ export const ROUTE_META: Record<string, RouteMetaDefinition> = {
 	},
 	"/features": {
 		title: "Features — ContributorOps",
-		description: "Explore issue discovery, contribution planning, PR-quality checks, human approval, and proof-of-work packaging in ContributorOps.",
+		description: "Explore issue discovery, contribution planning, PR-quality checks, explicit authorization, and proof-of-work packaging in ContributorOps.",
 	},
 	"/showcase": {
 		title: "Engineering Showcase — ContributorOps",
 		description: "Inspect the architecture, safety boundaries, technical stack, and engineering evidence behind ContributorOps.",
 	},
+	"/demo": {
+		title: "Interactive Demo — ContributorOps",
+		description: "Walk through ContributorOps in the browser with fictional example data: discover, prepare, validate, authorize, and package contribution proof without signup or GitHub access.",
+	},
+	"/launch": {
+		title: "Public Launch Hub — ContributorOps",
+		description: "Choose the shortest ContributorOps evaluation path for developers, recruiters, and OSS maintainers, with browser demo, source, Codespaces, safety, and engineering proof.",
+	},
 	"/try": {
-		title: "Try ContributorOps Without Signup",
-		description: "Run ContributorOps in demo-safe mode locally or in GitHub Codespaces without creating an account or providing a GitHub token.",
+		title: "Run ContributorOps Without Signup",
+		description: "Run the real ContributorOps workspace locally or in GitHub Codespaces without creating a hosted account, with demo-safe defaults and no GitHub token required.",
 	},
 	"/recruiter": {
 		title: "Recruiter Brief — ContributorOps",
@@ -39,7 +47,7 @@ export const ROUTE_META: Record<string, RouteMetaDefinition> = {
 	},
 	"/quality": {
 		title: "Quality Gates — ContributorOps",
-		description: "See the CI, metadata, route-integrity, Lighthouse, TypeScript, build, and secret-scanning gates ContributorOps enforces before merge.",
+		description: "See the CI, metadata, route-integrity, Lighthouse, TypeScript, build, dependency-security, and secret-scanning gates ContributorOps enforces before merge.",
 	},
 	"/contribute": {
 		title: "Contribute — ContributorOps",
@@ -55,7 +63,7 @@ export const ROUTE_META: Record<string, RouteMetaDefinition> = {
 	},
 	"/safety": {
 		title: "Safety Model — ContributorOps",
-		description: "Understand ContributorOps human-approval requirements, anti-spam rules, rate limits, and external GitHub write boundaries.",
+		description: "Understand ContributorOps interactive approval boundaries, standing exact-patch authorization, anti-spam rules, rate limits, and GitHub write safeguards.",
 	},
 	"/roadmap": {
 		title: "Roadmap — ContributorOps",
@@ -87,7 +95,7 @@ export const ROUTE_META: Record<string, RouteMetaDefinition> = {
 	},
 	"/github-data-usage": {
 		title: "GitHub Data Usage — ContributorOps",
-		description: "Review how ContributorOps accesses and uses GitHub data in demo, discovery, and approved contribution workflows.",
+		description: "Review how ContributorOps accesses and uses GitHub data in demo, discovery, interactive approval, and standing-authorized contribution workflows.",
 	},
 };
 
@@ -121,7 +129,7 @@ function getRouteMeta(pathname: string): RouteMetaDefinition {
 
 	return ROUTE_META[pathname] ?? {
 		title: "ContributorOps — Open-Source Contribution Intelligence",
-		description: "Open-source contribution intelligence for stronger OSS work, human-approved automation, and recruiter-readable engineering proof.",
+		description: "Open-source contribution intelligence for stronger OSS work, explicitly authorized automation, and recruiter-readable engineering proof.",
 	};
 }
 
