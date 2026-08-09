@@ -1,4 +1,5 @@
 import productOverviewMd from "../content/docs/product-overview.md?raw";
+import architectureMd from "../content/docs/architecture.md?raw";
 import localDevMd from "../content/docs/local-development.md?raw";
 import envSetupMd from "../content/docs/environment-setup.md?raw";
 import ghDeployMd from "../content/docs/github-pages-deployment.md?raw";
@@ -23,6 +24,14 @@ export const docs: DocEntry[] = [
 		category: "Product",
 		content: productOverviewMd,
 		githubUrl: "https://github.com/AnkitParekh007/contributorOps/blob/main/docs/product-overview.md",
+	},
+	{
+		slug: "architecture",
+		title: "Architecture",
+		summary: "System surfaces, trust boundaries, CI, persistence strategy, and the ADRs behind key decisions.",
+		category: "Architecture",
+		content: architectureMd,
+		githubUrl: "https://github.com/AnkitParekh007/contributorOps/blob/main/docs/architecture.md",
 	},
 	{
 		slug: "local-development",
