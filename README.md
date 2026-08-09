@@ -30,9 +30,9 @@
   ·
   <a href="https://ankitparekh007.github.io/contributorOps/#/contribute"><strong>Contribute</strong></a>
   ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/share"><strong>Share</strong></a>
+  <a href="https://ankitparekh007.github.io/contributorOps/#/adoption"><strong>Adoption</strong></a>
   ·
-  <a href="./docs/architecture.md"><strong>Architecture</strong></a>
+  <a href="https://ankitparekh007.github.io/contributorOps/#/share"><strong>Share</strong></a>
 </p>
 
 ---
@@ -53,7 +53,7 @@ It structures the contribution loop as:
 
 ## Why this repository is different
 
-Many developer tools show features. ContributorOps also makes the **engineering decisions and growth rules** public.
+Many developer tools show features. ContributorOps also makes the **engineering decisions, growth rules, and adoption signals** public.
 
 | Evidence | What it demonstrates |
 | --- | --- |
@@ -63,9 +63,10 @@ Many developer tools show features. ContributorOps also makes the **engineering 
 | [CI workflow](./.github/workflows/ci.yml) | API/Web/Site builds, TypeScript validation, secret-pattern checks |
 | [Engineering Showcase](https://ankitparekh007.github.io/contributorOps/#/showcase) | how contribution work becomes explainable professional evidence |
 | [Recruiter Brief](https://ankitparekh007.github.io/contributorOps/#/recruiter) | two-minute path from product story to architecture and source evidence |
-| [Share Hub](https://ankitparekh007.github.io/contributorOps/#/share) | audience-specific project sharing without mass-posting generic promotion |
+| [Adoption Dashboard](https://ankitparekh007.github.io/contributorOps/#/adoption) | live public GitHub signals without invented customer or user claims |
+| [Share Hub](https://ankitparekh007.github.io/contributorOps/#/share) | audience-specific project sharing with campaign attribution support |
+| [`docs/adoption-scorecard.md`](./docs/adoption-scorecard.md) | GitHub traffic, public metrics, optional analytics, and weekly measurement discipline |
 | [`docs/distribution-playbook.md`](./docs/distribution-playbook.md) | GitHub-first discovery, release-driven distribution, conversion and anti-spam rules |
-| [`CONTRIBUTORS.md`](./CONTRIBUTORS.md) | contribution recognition without commit-count leaderboards |
 | [`CITATION.cff`](./CITATION.cff) | native repository citation metadata |
 
 ## For developers
@@ -84,7 +85,7 @@ If you would use this workflow, star the repository. If you want a different con
 
 ## For recruiters and engineering leaders
 
-ContributorOps is also a public engineering/product case study spanning:
+ContributorOps is a public engineering/product case study spanning:
 
 - React 19 + Vite + TypeScript product surfaces
 - Node.js + Express orchestration/API layer
@@ -94,6 +95,7 @@ ContributorOps is also a public engineering/product case study spanning:
 - local-first persistence with explicit production boundaries
 - contributor onboarding and community workflow design
 - architecture documentation and ADR discipline
+- measurable open-source adoption without fake customer metrics
 
 **Start here:** [open the two-minute recruiter brief](https://ankitparekh007.github.io/contributorOps/#/recruiter).
 
@@ -124,11 +126,11 @@ contributorOps/
 ├─ apps/
 │  ├─ api/       # discovery, scoring, planning, persistence, controlled GitHub actions
 │  ├─ web/       # interactive product application
-│  └─ site/      # public product, docs, showcase, recruiter, share and contributor surfaces
+│  └─ site/      # public product, docs, recruiter, adoption, share and contributor surfaces
 ├─ data/         # local JSON-backed MVP state
 ├─ docs/
 │  ├─ adr/       # architecture decision records
-│  └─ ...        # product, API, safety, distribution, launch and business docs
+│  └─ ...        # product, API, safety, adoption, distribution, launch and business docs
 ├─ .github/      # CI, Pages, scheduled planning, issue/PR/release workflows
 ├─ CHANGELOG.md
 ├─ CITATION.cff
@@ -165,6 +167,15 @@ contributorOps/
 - LinkedIn draft generation
 - interview STAR story generation
 - recruiter-facing summaries
+
+### Adoption and growth operations
+- live public GitHub adoption dashboard
+- GitHub Insights scorecard for maintainer-only traffic
+- optional Plausible integration, disabled by default
+- UTM-attributed Share Hub links
+- structured workflow-feedback intake
+- contributor-retention playbook
+- release-driven launch execution
 
 ## Safety model
 
@@ -219,13 +230,15 @@ See [`docs/environment-setup.md`](./docs/environment-setup.md) and [`docs/local-
 | --- | --- |
 | Public product + documentation site | ✅ Live |
 | Engineering showcase + recruiter brief | ✅ Implemented |
-| Audience-specific share hub | ✅ Implemented |
+| Audience-specific Share Hub | ✅ Implemented |
+| Public GitHub adoption dashboard | ✅ Implemented |
 | Discovery and planning workflows | ✅ Implemented |
 | Controlled contribution modes | ✅ Implemented |
 | Local-first portfolio tracking | ✅ Implemented |
 | Safety policy + approval model | ✅ Implemented |
 | Architecture + ADR documentation | ✅ Implemented |
-| Repeatable release / distribution playbook | ✅ Implemented |
+| Distribution + launch execution playbooks | ✅ Implemented |
+| Optional privacy-first site analytics hook | ✅ Implemented, disabled by default |
 | Real billing/payments | 🟡 Planned |
 | Per-user GitHub OAuth | 🟡 Planned |
 | Production multi-user database | 🟡 Planned |
@@ -244,20 +257,18 @@ The fastest contribution path:
 5. run `npm run typecheck` and `npm run build:all`
 6. open a focused PR that explains user impact and safety implications
 
-Contributor recognition is described in [`CONTRIBUTORS.md`](./CONTRIBUTORS.md).
+Contributor recognition is described in [`CONTRIBUTORS.md`](./CONTRIBUTORS.md), and repeat-contributor practices are in [`docs/contributor-retention.md`](./docs/contributor-retention.md).
 
-## Distribution and releases
+## Measure, launch, learn
 
-The [Share Hub](https://ankitparekh007.github.io/contributorOps/#/share) gives developers, recruiters, maintainers, and communities a direct audience-specific link and message.
-
-For repeatable project growth:
-
-- [`docs/distribution-playbook.md`](./docs/distribution-playbook.md) — GitHub-first discovery, launch waves, release strategy, conversion targets, and anti-spam rules
+- [Adoption Dashboard](https://ankitparekh007.github.io/contributorOps/#/adoption) — live public GitHub signals
+- [`docs/adoption-scorecard.md`](./docs/adoption-scorecard.md) — weekly GitHub traffic + adoption measurement model
+- [`docs/launch-execution.md`](./docs/launch-execution.md) — launch waves, baseline capture, UTMs, 48-hour review, weekly operating loop
+- [`docs/distribution-playbook.md`](./docs/distribution-playbook.md) — discovery, audiences, conversion and anti-spam rules
 - [`docs/share-kit.md`](./docs/share-kit.md) — canonical copy and technical article angles
-- [`docs/launch-checklist.md`](./docs/launch-checklist.md) — public launch readiness checklist
-- [`CHANGELOG.md`](./CHANGELOG.md) — milestone history
-- [`.github/release.yml`](./.github/release.yml) — generated release-note categories
-- [`CITATION.cff`](./CITATION.cff) — repository citation metadata
+- [Share Hub](https://ankitparekh007.github.io/contributorOps/#/share) — audience-specific campaign-tagged links
+
+The measurement system deliberately separates repository engagement from customer/user claims and keeps optional site analytics disabled unless explicitly configured.
 
 ## Project principles
 
@@ -269,6 +280,7 @@ ContributorOps prioritizes:
 - **maintainer trust over growth mechanics**
 - **explainable engineering work over empty GitHub metrics**
 - **audience-specific distribution over mass promotion**
+- **measurable learning over invented traction**
 
 ## License
 
@@ -277,5 +289,5 @@ BSD 3-Clause. See [`LICENSE`](./LICENSE).
 ---
 
 <p align="center">
-  <strong>If ContributorOps is useful, star it. If you can improve it, pick a good-first issue and contribute. If someone else would benefit, use the share hub to send them the most relevant evidence.</strong>
+  <strong>If ContributorOps is useful, star it. If you can improve it, pick a good-first issue. If you are evaluating the project, use the recruiter brief or adoption dashboard. If someone else would benefit, send the most relevant Share Hub link.</strong>
 </p>
