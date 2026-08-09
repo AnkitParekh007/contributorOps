@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Zap } from "lucide-react";
+import { Github, BookOpen } from "lucide-react";
 
 const ISSUES = [
 	{
@@ -43,18 +43,17 @@ const PROOFS = [
 ];
 
 export function Hero() {
-  return (
-    <section className="hero reveal-section is-visible">
-      {/* ── Left: copy ─────────────────────────────────────── */}
-      <div className="hero-copy">
-        <div className="hero-badges">
-          <span className="hero-badge hero-badge-green">
-            <span className="hero-badge-dot hero-badge-dot-green" />
-            Human-approved
-          </span>
-          <span className="hero-badge">No spam automation</span>
-          <span className="hero-badge">Proof-of-work focused</span>
-        </div>
+	return (
+		<section className="hero reveal-section is-visible">
+			<div className="hero-copy">
+				<div className="hero-badges">
+					<span className="hero-badge hero-badge-green">
+						<span className="hero-badge-dot hero-badge-dot-green" />
+						Open source
+					</span>
+					<span className="hero-badge">Human-approved</span>
+					<span className="hero-badge">Recruiter-readable proof</span>
+				</div>
 
 				<h1>
 					Turn OSS Contributions
@@ -63,40 +62,44 @@ export function Hero() {
 				</h1>
 
 				<p>
-					AI-powered contribution intelligence. Discover quality issues, prepare better PRs, build a
-					proof-of-work portfolio, and convert real open-source work into resume bullets, LinkedIn posts, and
-					interview stories.
+					ContributorOps is an open-source contribution intelligence platform that helps developers discover
+					higher-signal issues, prepare stronger pull requests, and turn completed work into verifiable evidence
+					that recruiters and engineering teams can actually evaluate.
 				</p>
 
 				<div className="hero-actions">
-					<Link to="/waitlist" className="button-primary">
-						<Zap size={14} />
-						Join Founder Waitlist
-					</Link>
-					<Link to="/safety" className="button-secondary">
-						Read Safety Model
+					<a
+						href="https://github.com/AnkitParekh007/contributorOps"
+						target="_blank"
+						rel="noreferrer"
+						className="button-primary"
+					>
+						<Github size={16} />
+						Star on GitHub
+					</a>
+					<Link to="/docs" className="button-secondary">
+						<BookOpen size={15} />
+						Explore the architecture
 					</Link>
 				</div>
 
 				<div className="hero-trust-row">
 					<span>
-						<strong>100%</strong> human-approved
+						<strong>Discover</strong> better issues
 					</span>
 					<span className="trust-sep" />
 					<span>
-						<strong>Zero</strong> mass automation
+						<strong>Validate</strong> PR quality
 					</span>
 					<span className="trust-sep" />
 					<span>
-						<strong>Real</strong> proof-of-work
+						<strong>Prove</strong> engineering impact
 					</span>
 				</div>
 			</div>
 
-			{/* ── Right: AI command-center dashboard ─────────────── */}
 			<div className="hero-preview">
 				<div className="hero-dashboard">
-					{/* Top bar */}
 					<div className="hd-topbar">
 						<div className="hd-brand">
 							<span className="hd-brand-dot" />
@@ -108,7 +111,6 @@ export function Hero() {
 						</div>
 					</div>
 
-					{/* Radar + Quality */}
 					<div className="hd-body">
 						<div className="hd-panel">
 							<div className="hd-panel-label">Issue Radar · AI Scored</div>
@@ -133,20 +135,19 @@ export function Hero() {
 								<span className="hd-score-denom">/100</span>
 							</div>
 							<div className="hd-checks">
-								{CHECKS.map((c) => (
+								{CHECKS.map((check) => (
 									<div
-										key={c.label}
-										className={`hd-check ${c.pass ? "hd-check-pass" : "hd-check-warn"}`}
+										key={check.label}
+										className={`hd-check ${check.pass ? "hd-check-pass" : "hd-check-warn"}`}
 									>
-										<span className="hd-check-icon">{c.pass ? "✓" : "!"}</span>
-										{c.label}
+										<span className="hd-check-icon">{check.pass ? "✓" : "!"}</span>
+										{check.label}
 									</div>
 								))}
 							</div>
 						</div>
 					</div>
 
-					{/* Mission */}
 					<div className="hd-mission">
 						<div className="hd-mission-label">Today's Mission</div>
 						<div className="hd-mission-text">
@@ -155,22 +156,20 @@ export function Hero() {
 						<div className="hd-mission-est">~2h estimate · Backend role match · High maintainer fit</div>
 					</div>
 
-					{/* Proof export */}
 					<div className="hd-proof">
 						<span className="hd-proof-label">Proof Export</span>
 						<div className="hd-proof-items">
-							{PROOFS.map((p) => (
+							{PROOFS.map((proof) => (
 								<span
-									key={p.label}
-									className={`hd-proof-item ${p.ready ? "hd-proof-ready" : "hd-proof-pending"}`}
+									key={proof.label}
+									className={`hd-proof-item ${proof.ready ? "hd-proof-ready" : "hd-proof-pending"}`}
 								>
-									{p.ready ? "✓" : "◌"} {p.label}
+									{proof.ready ? "✓" : "◌"} {proof.label}
 								</span>
 							))}
 						</div>
 					</div>
 
-					{/* Safety bar */}
 					<div className="hd-safety-bar">
 						<span className="hd-safety-dot" />
 						Safety: Human-approved · No external writes · Approval required for all actions
