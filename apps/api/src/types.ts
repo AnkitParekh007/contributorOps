@@ -1,6 +1,7 @@
 export type Difficulty = "starter" | "steady" | "stretch";
 export type ContributionSafetyLevel = "research" | "draft" | "approved-pr";
 export type ContributionExecutionMode = "research" | "draft" | "approved-auto-contribute";
+export type ContributionApprovalAction = "approve-comment" | "approve-branch" | "approve-draft-pr";
 export type BillingPlan = "free" | "pro" | "career" | "team";
 export type BillingStatus = "active" | "trialing" | "past_due" | "cancelled";
 export type TargetRole =
@@ -252,7 +253,7 @@ export interface ApprovedPullRequestRequest {
 }
 
 export interface ContributionRunApprovalEvent {
-  action: "prepare" | "approve-comment" | "approve-branch" | "approve-draft-pr" | "cancel";
+  action: "prepare" | ContributionApprovalAction | "cancel";
   approved: boolean;
   actor: string;
   reason: string;
@@ -278,7 +279,9 @@ export interface ContributionRun {
   safetyChecks: SafetyCheckResult[];
   approvalEvents: ContributionRunApprovalEvent[];
   errors: string[];
-  userApprovalToken: string;
+  approvalTokens?: Record<ContributionApprovalAction, string>;
+  /** Legacy runs may still contain this field; it is never accepted for new external writes. */
+  userApprovalToken?: string;
   riskScore: number;
   dryRun: boolean;
   proposal: DraftProposal;
@@ -291,11 +294,12 @@ export interface ContributionRun {
 export interface PrepareContributionRequest {
   mode: ContributionExecutionMode;
   issue: IssueCandidate;
+  proposal?: DraftProposal;
 }
 
 export interface ContributionApprovalRequest {
   runId: string;
-  userApprovalToken: string;
+  approvalToken: string;
   approvalReason: string;
   explicitApproval: boolean;
 }
