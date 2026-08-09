@@ -12,14 +12,22 @@ const IssueCandidateSchema = z.object({
   score: z.number(),
 }).passthrough(); // allow full IssueCandidate fields without re-declaring all
 
+const DraftProposalSchemaShape = z.object({
+  proposalId: z.string().min(1),
+  issueId: z.string().min(1),
+  upstreamRepoFullName: z.string().min(1),
+  upstreamIssueUrl: z.string().min(1),
+}).passthrough();
+
 export const PrepareRunSchema = z.object({
   mode: z.enum(["research", "draft", "approved-auto-contribute"]),
   issue: IssueCandidateSchema,
+  proposal: DraftProposalSchemaShape.optional(),
 });
 
 const ApprovalBaseSchema = z.object({
   runId: z.string().uuid(),
-  userApprovalToken: z.string().min(1),
+  approvalToken: z.string().uuid(),
   approvalReason: z.string().min(10).max(500),
   explicitApproval: z.literal(true),
 });
@@ -42,9 +50,10 @@ export const DraftProposalSchema = z.object({
   issue: IssueCandidateSchema,
 });
 
+// Kept for parsing old clients during migration, but no route performs a direct external write.
 export const ApprovedPrSchema = z.object({
   issue: IssueCandidateSchema,
-  proposal: z.object({ proposalId: z.string() }).passthrough(),
+  proposal: DraftProposalSchemaShape,
   forkOwner: z.string().min(1).max(100),
   approvalReason: z.string().min(10).max(500),
   explicitApproval: z.literal(true),
