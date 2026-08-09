@@ -1,5 +1,10 @@
 import crypto from "node:crypto";
 import { Octokit } from "@octokit/rest";
+import {
+  createActionScopedApprovalTokens,
+  createContributionApprovalEvent,
+  validateRunApproval
+} from "./approval-policy.js";
 import { config } from "./config.js";
 import {
   createApprovedDraftPullRequest,
@@ -18,11 +23,10 @@ import {
   writePullRequestActivity
 } from "./storage.js";
 import type {
+  ContributionApprovalAction,
   ContributionApprovalRequest,
   ContributionRun,
   ContributionRunApprovalEvent,
-  ContributionRunStatus,
-  ControlModeState,
   IssueCandidate,
   PrepareContributionRequest,
   SafetyCheckResult
@@ -33,13 +37,12 @@ function createApprovalEvent(
   approved: boolean,
   reason: string
 ): ContributionRunApprovalEvent {
-  return {
+  return createContributionApprovalEvent(
     action,
     approved,
-    actor: config.githubUsername || "local-user",
     reason,
-    createdAt: new Date().toISOString()
-  };
+    config.githubUsername || "local-user"
+  );
 }
 
 function computeDiffSummary(issue: IssueCandidate): string {
@@ -77,34 +80,20 @@ function hasBlockingSafetyChecks(safetyChecks: SafetyCheckResult[]): boolean {
   return safetyChecks.some((check) => check.severity === "error" && !check.passed);
 }
 
-async function validateRunApproval(
-  run: ContributionRun | undefined,
-  request: ContributionApprovalRequest,
-  requiredStatus: ContributionRunStatus | ContributionRunStatus[]
-): Promise<ContributionRun> {
-  if (!run) {
-    throw new Error("Contribution run not found.");
+function validatePreparedProposal(request: PrepareContributionRequest) {
+  if (!request.proposal) {
+    return buildDraftProposal(request.issue);
   }
 
-  if (run.status === "cancelled") {
-    throw new Error("This contribution run has already been cancelled.");
+  if (
+    request.proposal.issueId !== request.issue.id ||
+    request.proposal.upstreamRepoFullName !== request.issue.repoFullName ||
+    request.proposal.upstreamIssueUrl !== request.issue.issueUrl
+  ) {
+    throw new Error("Prepared proposal does not match the selected issue. Generate a new proposal before approval.");
   }
 
-  const allowedStatuses = Array.isArray(requiredStatus) ? requiredStatus : [requiredStatus];
-  const allowsDryRun = allowedStatuses.includes("prepared") && run.status === "dry-run";
-  if (!allowedStatuses.includes(run.status) && !allowsDryRun) {
-    throw new Error(`Run is not in the correct state for this action. Current status: ${run.status}`);
-  }
-
-  if (run.userApprovalToken !== request.userApprovalToken) {
-    throw new Error("Invalid approval token for this run.");
-  }
-
-  if (!request.explicitApproval || !request.approvalReason.trim()) {
-    throw new Error("Explicit approval and a written approval reason are required.");
-  }
-
-  return run;
+  return request.proposal;
 }
 
 function countRunsToday(
@@ -117,7 +106,7 @@ function countRunsToday(
 
 export async function prepareContributionRun(request: PrepareContributionRequest): Promise<ContributionRun> {
   const controlMode = await readControlMode();
-  const proposal = buildDraftProposal(request.issue);
+  const proposal = validatePreparedProposal(request);
   const safetyContext = await fetchIssueSafetyContext(request.issue, controlMode);
   let workspaceError = "";
   let workspaceForkRepo = "";
@@ -182,9 +171,9 @@ export async function prepareContributionRun(request: PrepareContributionRequest
     forkRepo: workspaceForkRepo || (config.githubUsername ? `${config.githubUsername}/${request.issue.repoName}` : ""),
     prUrl: "",
     safetyChecks: safetyContext.safetyChecks,
-    approvalEvents: [createApprovalEvent("prepare", true, "Prepared run for user review.")],
+    approvalEvents: [createApprovalEvent("prepare", true, "Prepared immutable run for user review.")],
     errors: workspaceError ? [workspaceError] : [],
-    userApprovalToken: crypto.randomUUID(),
+    approvalTokens: createActionScopedApprovalTokens(),
     riskScore: computeRiskScore(safetyContext.safetyChecks),
     dryRun: !config.autoContributeEnabled,
     proposal,
@@ -219,12 +208,30 @@ export async function markContributionRunError(runId: string, message: string): 
   await updateRun(run);
 }
 
+export async function recordContributionApprovalDenial(
+  runId: string,
+  action: ContributionApprovalAction,
+  reason: string
+): Promise<void> {
+  const runs = await readContributionRuns();
+  const run = runs.find((entry) => entry.id === runId);
+
+  if (!run) {
+    return;
+  }
+
+  run.approvalEvents.push(createApprovalEvent(action, false, reason));
+  run.errors.push(`Denied ${action}: ${reason}`);
+  await updateRun(run);
+}
+
 export async function approveContributionComment(request: ContributionApprovalRequest): Promise<ContributionRun> {
   const runs = await readContributionRuns();
-  const run = await validateRunApproval(
+  const run = validateRunApproval(
     runs.find((entry) => entry.id === request.runId),
     request,
-    "prepared"
+    "prepared",
+    "approve-comment"
   );
 
   if (hasBlockingSafetyChecks(run.safetyChecks)) {
@@ -254,10 +261,11 @@ export async function approveContributionBranch(
   request: ContributionApprovalRequest & { forkOwner: string }
 ): Promise<ContributionRun> {
   const runs = await readContributionRuns();
-  const run = await validateRunApproval(
+  const run = validateRunApproval(
     runs.find((entry) => entry.id === request.runId),
     request,
-    "prepared"
+    "prepared",
+    "approve-branch"
   );
 
   if (!config.autoContributeEnabled) {
@@ -285,10 +293,11 @@ export async function approveContributionDraftPr(
   request: ContributionApprovalRequest & { forkOwner: string }
 ): Promise<ContributionRun> {
   const runs = await readContributionRuns();
-  const run = await validateRunApproval(
+  const run = validateRunApproval(
     runs.find((entry) => entry.id === request.runId),
     request,
-    ["prepared", "branch approved"]
+    ["prepared", "branch approved"],
+    "approve-draft-pr"
   );
 
   if (hasBlockingSafetyChecks(run.safetyChecks)) {
