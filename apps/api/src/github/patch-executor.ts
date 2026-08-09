@@ -31,16 +31,28 @@ async function readUtf8File(
   repo: string,
   path: string,
   ref: string
-): Promise<string> {
-  const response = await octokit.repos.getContent({ owner, repo, path, ref });
-  const data = response.data;
-  if (Array.isArray(data) || data.type !== "file" || !("content" in data)) {
-    throw new Error(`${owner}/${repo}:${path} is not a readable text file.`);
+): Promise<string | null> {
+  try {
+    const response = await octokit.repos.getContent({ owner, repo, path, ref });
+    const data = response.data;
+    if (Array.isArray(data) || data.type !== "file" || !("content" in data)) {
+      throw new Error(`${owner}/${repo}:${path} is not a readable text file.`);
+    }
+    if (data.encoding !== "base64") {
+      throw new Error(`${owner}/${repo}:${path} returned unsupported encoding ${data.encoding}.`);
+    }
+    return Buffer.from(data.content, "base64").toString("utf8");
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      (error as { status?: number }).status === 404
+    ) {
+      return null;
+    }
+    throw error;
   }
-  if (data.encoding !== "base64") {
-    throw new Error(`${owner}/${repo}:${path} returned unsupported encoding ${data.encoding}.`);
-  }
-  return Buffer.from(data.content, "base64").toString("utf8");
 }
 
 export async function executeExecutablePatchPlan(
