@@ -51,7 +51,7 @@ export function Navbar() {
 
 				<nav className={`nav-links${menuOpen ? " nav-links-open" : ""}`} aria-label="Main navigation">
 					<NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Home</NavLink>
-					<NavLink to="/try" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Try</NavLink>
+					<NavLink to="/demo" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Demo</NavLink>
 					<NavLink to="/showcase" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Showcase</NavLink>
 					<NavLink to="/adoption" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Adoption</NavLink>
 					<NavLink to="/quality" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>Quality</NavLink>

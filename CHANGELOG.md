@@ -2,20 +2,42 @@
 
 ContributorOps uses this changelog for meaningful project milestones. Fine-grained commit history remains available in GitHub.
 
-## Unreleased — Phase 7: Security and trust hardening
+## Unreleased — Phase 8: Public launch and adoption execution
+
+### Tryability
+- added a no-signup browser walkthrough covering Discover → Prepare → Validate → Authorize → Prove
+- uses clearly fictional example scenarios so launch surfaces do not misrepresent stale GitHub issues or contribution status
+- keeps the real Codespaces/local workspace as the deeper evaluation path
+
+### Launch conversion
+- added a public Launch Hub with audience-specific paths for developers, recruiters, and OSS maintainers
+- moved the homepage and primary navigation from waitlist-first messaging to immediate product evaluation
+- made the browser demo the primary hero conversion while retaining source, architecture, contribution, and recruiter evidence paths
+- added route-level metadata and responsive launch styling for `/demo` and `/launch`
+
+### Trust-aligned launch copy
+- updated public safety messaging for the dual authorization model: action-scoped interactive approval plus bounded standing exact-patch authorization
+- removed stale claims that all scheduled external writes are impossible
+- replaced real-looking hero issue examples with explicitly fictional sample data
+- published a Phase 8 launch execution guide with Show HN, Product Hunt, developer-community, recruiter, demo-script, measurement, and anti-gaming guidance
+
+## 2026-08-09 — Phase 7: Security and trust hardening
 
 ### Approval boundary
-- external contribution actions now use separate action-scoped approval capabilities for comments, fork branches, and draft pull requests
-- legacy generic run tokens remain readable for history but fail closed for new external writes
+- external interactive contribution actions now use separate action-scoped approval capabilities for comments, fork branches, and draft pull requests
+- legacy generic run tokens remain readable for history but fail closed for new interactive external writes
 - removed the legacy direct `/approved-pr` external-write route
-- dashboard draft flow now prepares a reviewed run before any external action can be approved
+- dashboard draft flow now prepares a reviewed run before any interactive external action can be approved
 - denied approval attempts are retained as explicit `approved: false` audit events
+- reconciled the interactive approval model with the separately authorized exact-patch queue added to the hourly contribution system
 
 ### Security proof
-- added deterministic regression tests for cross-action token replay, explicit approval, state transitions, legacy token rejection, and scheduled-write separation
+- added deterministic regression tests for cross-action token replay, explicit approval, state transitions, legacy token rejection, and daily-planning/write separation
+- preserved fork-manager, hourly-radar, exact-patch, and patch-queue regression coverage in the combined API suite
+- remediated the observed npm audit findings to zero without force-upgrading dependencies
 - added runtime high/critical dependency auditing as a merge gate
 - added CodeQL analysis, dependency review, and Dependabot update policy
-- updated the security disclosure policy and added a documented security model
+- updated the security disclosure policy and added a documented dual-path security model
 - added reproducible CycloneDX SBOM generation
 
 ## 2026-08-09 — Phase 6: Production-grade quality proof

@@ -10,7 +10,7 @@ function campaignUrl(route: string, audience: string): string {
 	const params = new URLSearchParams({
 		utm_source: "share-hub",
 		utm_medium: "referral",
-		utm_campaign: "phase5-adoption",
+		utm_campaign: "phase8-public-launch",
 		utm_content: audience,
 	});
 	return `${SITE_URL}?${params.toString()}#${route}`;
@@ -21,9 +21,9 @@ const SHARE_PATHS = [
 		id: "developer",
 		icon: <Code2 size={20} />,
 		title: "Developer / contributor",
-		description: "Share the open-source workflow and invite feedback or a focused contribution.",
-		route: "/contribute",
-		copy: "ContributorOps is a human-approved OSS contribution intelligence project for finding higher-signal issues, preparing stronger PRs, and preserving proof of the engineering work. Contributions and architecture feedback are welcome.",
+		description: "Share something immediately usable before asking someone to inspect the full repository.",
+		route: "/demo",
+		copy: "ContributorOps is an open-source workflow for finding higher-signal OSS work, preparing focused changes, validating quality, explicitly authorizing GitHub actions, and turning finished contributions into career proof. The browser demo needs no signup or GitHub token and uses fictional examples.",
 	},
 	{
 		id: "recruiter",
@@ -31,7 +31,7 @@ const SHARE_PATHS = [
 		title: "Recruiter / hiring manager",
 		description: "Send the concise engineering brief rather than asking someone to reverse-engineer the repository.",
 		route: "/recruiter",
-		copy: "ContributorOps is a public engineering case study spanning React, TypeScript, Node/Express, Octokit, GitHub Actions, approval-gated automation, architecture decisions, and contributor experience. This two-minute brief links directly to the evidence.",
+		copy: "ContributorOps is a public engineering case study spanning React, TypeScript, Node/Express, Octokit, GitHub Actions, action-scoped authorization, bounded exact-patch automation, security gates, and contributor experience. This two-minute brief links directly to the evidence.",
 	},
 	{
 		id: "maintainer",
@@ -39,15 +39,15 @@ const SHARE_PATHS = [
 		title: "Open-source maintainer",
 		description: "Lead with the trust boundary and ask for critique of the contribution model.",
 		route: "/safety",
-		copy: "ContributorOps explores how contribution tooling can automate research and planning without turning into mass-comment or mass-PR automation. External writes remain explicitly human-approved. Maintainer feedback on that boundary is especially useful.",
+		copy: "ContributorOps explores contribution automation with two explicit authority paths: action-scoped human approval for interactive writes, and a separately enabled exact-patch queue bounded by repository policy, duplicate checks, daily limits, exact replacements, draft PRs, and automation disclosure. Maintainer feedback on those boundaries is especially useful.",
 	},
 	{
 		id: "community",
 		icon: <MessageCircle size={20} />,
 		title: "Developer community",
-		description: "Use a problem-first message and link to something people can inspect immediately.",
-		route: "/showcase",
-		copy: "I am looking for feedback on ContributorOps, an open-source workflow for choosing worthwhile OSS work, preparing it well, validating PR quality, keeping external writes human-approved, and turning finished contributions into explainable proof of work.",
+		description: "Use a problem-first message and link to something people can try immediately.",
+		route: "/launch",
+		copy: "I’m looking for technical feedback on ContributorOps, an open-source system for choosing worthwhile OSS work, preparing it well, constraining GitHub write authority, and turning finished contributions into explainable proof of work. The launch hub includes a no-signup browser demo, source, architecture, and safety evidence.",
 	},
 ];
 
@@ -81,15 +81,15 @@ export function Share() {
 			<section className="distribution-hero">
 				<div>
 					<span className="section-eyebrow">Share ContributorOps</span>
-					<h1>Send the right evidence to the right audience.</h1>
+					<h1>Send the right proof to the right audience.</h1>
 					<p>
 						Growth should come from useful context, not copy-pasting the same promotion everywhere. Choose the audience,
 						copy a tailored message, and link directly to the surface that answers their question fastest.
 					</p>
 					<div className="distribution-actions">
-						<a className="button-primary" href={REPO_URL} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub</a>
+						<Link className="button-primary" to="/demo">Try browser demo</Link>
+						<a className="button-secondary" href={REPO_URL} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub</a>
 						<Link className="button-secondary" to="/adoption">View adoption signals</Link>
-						<Link className="button-secondary" to="/contribute">Find a contribution</Link>
 					</div>
 				</div>
 				<aside className="distribution-principle-card">
@@ -145,10 +145,10 @@ export function Share() {
 					<div>
 						<span className="section-eyebrow">Launch discipline</span>
 						<h2>Do not treat every community as an announcement channel.</h2>
-						<p>Use the repository share kit and distribution playbook to sequence launches, tailor the message, measure outcomes, and preserve community trust.</p>
+						<p>Use the Phase 8 execution guide and distribution playbook to tailor the artifact, measure outcomes, and preserve community trust.</p>
 					</div>
 					<div className="distribution-launch-actions">
-						<a className="button-primary" href={`${REPO_URL}/blob/main/docs/launch-execution.md`} target="_blank" rel="noreferrer">Launch execution</a>
+						<a className="button-primary" href={`${REPO_URL}/blob/main/docs/phase-8-launch-execution.md`} target="_blank" rel="noreferrer">Phase 8 launch guide</a>
 						<a className="button-secondary" href={`${REPO_URL}/blob/main/docs/distribution-playbook.md`} target="_blank" rel="noreferrer">Distribution playbook</a>
 						<a className="button-secondary" href={`${REPO_URL}/blob/main/docs/share-kit.md`} target="_blank" rel="noreferrer">Share kit</a>
 					</div>
