@@ -36,7 +36,7 @@ export const docs: DocEntry[] = [
 	{
 		slug: "local-development",
 		title: "Local Development",
-		summary: "Run the static business site locally with the workspace scripts.",
+		summary: "Run ContributorOps in demo mode locally or in Codespaces, then configure live integrations only when needed.",
 		category: "Developer Setup",
 		content: localDevMd,
 		githubUrl: "https://github.com/AnkitParekh007/contributorOps/blob/main/docs/local-development.md",

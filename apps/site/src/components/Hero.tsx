@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Github, BookOpen } from "lucide-react";
+import { Github, BookOpen, Play } from "lucide-react";
+import { trackEvent } from "../lib/analytics";
 
 const ISSUES = [
 	{
@@ -73,13 +74,18 @@ export function Hero() {
 						target="_blank"
 						rel="noreferrer"
 						className="button-primary"
+						onClick={() => trackEvent("Hero CTA", { action: "open_repository" })}
 					>
 						<Github size={16} />
 						Star on GitHub
 					</a>
-					<Link to="/docs" className="button-secondary">
+					<Link to="/try" className="button-secondary" onClick={() => trackEvent("Hero CTA", { action: "try_demo" })}>
+						<Play size={15} />
+						Try without signup
+					</Link>
+					<Link to="/docs/architecture" className="button-secondary">
 						<BookOpen size={15} />
-						Explore the architecture
+						Architecture
 					</Link>
 				</div>
 

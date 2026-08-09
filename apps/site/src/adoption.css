@@ -1,0 +1,233 @@
+.adoption-page {
+	display: grid;
+	gap: 50px;
+}
+
+.adoption-hero {
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+	gap: 24px;
+	padding: 34px;
+	border: 1px solid var(--line-strong);
+	border-radius: 30px;
+	background:
+		radial-gradient(circle at 10% 15%, rgba(34, 211, 238, 0.14), transparent 32%),
+		radial-gradient(circle at 88% 5%, rgba(139, 92, 246, 0.16), transparent 30%),
+		var(--panel);
+	box-shadow: var(--shadow);
+}
+
+.adoption-hero h1 {
+	margin: 12px 0 18px;
+	max-width: 12ch;
+	font-family: var(--font-display);
+	font-size: clamp(2.7rem, 5vw, 5rem);
+	line-height: 0.97;
+	letter-spacing: -0.055em;
+}
+
+.adoption-hero p,
+.adoption-status-card li,
+.adoption-layer-card p,
+.adoption-funnel-panel p,
+.adoption-updated {
+	color: var(--muted);
+	line-height: 1.7;
+}
+
+.adoption-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 24px;
+}
+
+.adoption-status-card {
+	padding: 24px;
+	border: 1px solid var(--line-strong);
+	border-radius: 22px;
+	background: var(--panel-strong);
+}
+
+.adoption-status-card h2 {
+	margin: 12px 0;
+}
+
+.adoption-status-card ul {
+	display: grid;
+	gap: 10px;
+	margin: 0;
+	padding-left: 20px;
+}
+
+.adoption-heading-row {
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	gap: 20px;
+}
+
+.adoption-refresh {
+	flex: 0 0 auto;
+}
+
+.adoption-refresh:disabled {
+	opacity: 0.65;
+	cursor: progress;
+}
+
+.adoption-error {
+	margin: 18px 0;
+	padding: 13px 15px;
+	border: 1px solid var(--line-strong);
+	border-radius: 14px;
+	background: rgba(245, 158, 11, 0.08);
+	color: var(--text);
+}
+
+.adoption-metric-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 14px;
+	margin-top: 24px;
+}
+
+.adoption-metric-card {
+	display: grid;
+	gap: 8px;
+	padding: 22px;
+	border: 1px solid var(--line);
+	border-radius: 20px;
+	background: var(--panel);
+	text-decoration: none;
+	transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.adoption-metric-card:hover,
+.adoption-metric-card:focus-visible {
+	transform: translateY(-2px);
+	border-color: var(--line-strong);
+}
+
+.adoption-metric-icon {
+	display: grid;
+	place-items: center;
+	width: 38px;
+	height: 38px;
+	border-radius: 12px;
+	background: rgba(139, 92, 246, 0.1);
+	color: var(--accent);
+}
+
+.adoption-metric-card strong {
+	font-family: var(--font-display);
+	font-size: clamp(2rem, 4vw, 3rem);
+	letter-spacing: -0.04em;
+	color: var(--text);
+}
+
+.adoption-metric-card > span:last-child,
+.adoption-updated {
+	font-size: 0.9rem;
+}
+
+.adoption-updated {
+	margin: 12px 0 0;
+}
+
+.adoption-layer-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.adoption-layer-card {
+	padding: 24px;
+	border: 1px solid var(--line);
+	border-radius: 20px;
+	background: var(--panel);
+}
+
+.adoption-layer-card h3 {
+	margin: 14px 0 8px;
+}
+
+.adoption-funnel-panel {
+	display: grid;
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	gap: 24px;
+	align-items: center;
+	padding: 28px;
+	border: 1px solid var(--line-strong);
+	border-radius: 24px;
+	background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), rgba(139, 92, 246, 0.1));
+}
+
+.adoption-funnel-panel h2 {
+	margin: 10px 0;
+}
+
+.adoption-funnel-steps {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.adoption-funnel-steps span {
+	padding: 10px 12px;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: var(--panel-strong);
+	font-size: 0.9rem;
+	font-weight: 650;
+}
+
+@media (max-width: 900px) {
+	.adoption-hero,
+	.adoption-funnel-panel {
+		grid-template-columns: 1fr;
+	}
+
+	.adoption-metric-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.adoption-layer-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.adoption-funnel-steps {
+		justify-content: flex-start;
+	}
+}
+
+@media (max-width: 620px) {
+	.adoption-hero {
+		padding: 24px 18px;
+	}
+
+	.adoption-heading-row {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.adoption-refresh {
+		width: 100%;
+	}
+
+	.adoption-metric-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.adoption-funnel-steps svg {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.adoption-metric-card {
+		transition: none;
+	}
+}

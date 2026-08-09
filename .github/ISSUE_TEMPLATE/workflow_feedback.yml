@@ -1,0 +1,83 @@
+name: Workflow feedback
+description: Share concrete feedback after trying or evaluating ContributorOps
+title: "[Feedback]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for evaluating ContributorOps. Specific workflow or engineering feedback is more useful than generic praise. Please do not include tokens, private repository content, email addresses, or other sensitive information.
+
+  - type: dropdown
+    id: perspective
+    attributes:
+      label: Which perspective are you bringing?
+      options:
+        - Developer / contributor
+        - Open-source maintainer
+        - Recruiter / hiring manager
+        - Engineering leader / architect
+        - Other evaluator
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: What did you evaluate?
+      options:
+        - Public website / product story
+        - Engineering Showcase
+        - Recruiter Brief
+        - Contributor onboarding
+        - Share Hub
+        - Adoption dashboard
+        - Architecture / ADRs
+        - Local product / API
+        - Safety model
+    validations:
+      required: true
+
+  - type: textarea
+    id: useful
+    attributes:
+      label: What was useful or clear?
+      description: Name the specific workflow, page, engineering decision, or evidence that worked well.
+    validations:
+      required: true
+
+  - type: textarea
+    id: friction
+    attributes:
+      label: Where did you hit friction or confusion?
+      description: Include the step you were taking and what you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvement
+    attributes:
+      label: What is the smallest improvement you would make?
+      description: Prefer one focused change over a broad feature wishlist.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Would you consider contributing this improvement?
+      options:
+        - Yes — I could implement it
+        - Yes — I could test or review it
+        - Maybe — I need more context
+        - No — feedback only
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety acknowledgement
+      options:
+        - label: I have not included secrets, private repository data, or sensitive personal information in this issue.
+          required: true
