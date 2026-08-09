@@ -232,16 +232,14 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       setOnboardingChecked(true);
       return;
     }
-    // Check if onboarding is complete: if user has no portfolio entries they're new
     apiClient
       .getOnboardingStatus()
       .then((status) => {
-        // Show onboarding if GitHub is not connected yet and safety mode is default
         const needsOnboarding = !status.githubConnected && !status.safetyModeSet;
         setOnboardingDone(!needsOnboarding);
       })
       .catch(() => {
-        setOnboardingDone(true); // fail open
+        setOnboardingDone(true);
       })
       .finally(() => setOnboardingChecked(true));
   }, [isSupabaseEnabled, session]);
@@ -550,29 +548,19 @@ function App() {
     setError("");
     setIsLoading(true);
     try {
-      const result = await apiClient.createApprovedPullRequest({
+      const run = await apiClient.prepareContributionRun({
+        mode: "approved-auto-contribute",
         issue: selectedIssue,
-        proposal: draftProposal,
-        forkOwner,
-        approvalReason,
-        explicitApproval: true
+        proposal: draftProposal
       });
-      setPrResultMessage(`Draft PR opened: ${result.draftPullRequestUrl}`);
-      const matchingEntry =
-        selectedPortfolioEntry?.issueUrl === selectedIssue.issueUrl
-          ? selectedPortfolioEntry
-          : portfolio.find((entry) => entry.issueUrl === selectedIssue.issueUrl) || null;
-
-      if (matchingEntry) {
-        const nextEntry = {
-          ...matchingEntry,
-          prUrl: result.draftPullRequestUrl,
-          status: "PR opened" as const
-        };
-        await persistPortfolioEntry(nextEntry);
-      }
+      setContributionRuns((current) => [run, ...current]);
+      setSelectedRunId(run.id);
+      setDraftProposal(run.proposal);
+      setContributionMode("approved-auto-contribute");
+      setPrResultMessage("Prepared an action-scoped approval run. Review the exact write in Auto-Contribute before execution.");
+      setActivePage("auto-contribute");
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Failed to open draft PR.");
+      setError(requestError instanceof Error ? requestError.message : "Failed to prepare approval-gated run.");
     } finally {
       setIsLoading(false);
     }
@@ -606,13 +594,18 @@ function App() {
     if (!selectedRun) {
       return;
     }
+    const approvalToken = selectedRun.approvalTokens?.["approve-comment"];
+    if (!approvalToken) {
+      setError("This legacy run has no action-scoped comment approval. Prepare a new run first.");
+      return;
+    }
 
     setError("");
     setIsLoading(true);
     try {
       const updated = await apiClient.approveContributionComment({
         runId: selectedRun.id,
-        userApprovalToken: selectedRun.userApprovalToken,
+        approvalToken,
         approvalReason,
         explicitApproval: true
       });
@@ -629,13 +622,18 @@ function App() {
     if (!selectedRun) {
       return;
     }
+    const approvalToken = selectedRun.approvalTokens?.["approve-branch"];
+    if (!approvalToken) {
+      setError("This legacy run has no action-scoped branch approval. Prepare a new run first.");
+      return;
+    }
 
     setError("");
     setIsLoading(true);
     try {
       const updated = await apiClient.approveContributionBranch({
         runId: selectedRun.id,
-        userApprovalToken: selectedRun.userApprovalToken,
+        approvalToken,
         approvalReason,
         explicitApproval: true,
         forkOwner
@@ -653,13 +651,18 @@ function App() {
     if (!selectedRun) {
       return;
     }
+    const approvalToken = selectedRun.approvalTokens?.["approve-draft-pr"];
+    if (!approvalToken) {
+      setError("This legacy run has no action-scoped draft-PR approval. Prepare a new run first.");
+      return;
+    }
 
     setError("");
     setIsLoading(true);
     try {
       const updated = await apiClient.approveContributionDraftPr({
         runId: selectedRun.id,
-        userApprovalToken: selectedRun.userApprovalToken,
+        approvalToken,
         approvalReason,
         explicitApproval: true,
         forkOwner
