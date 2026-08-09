@@ -1,0 +1,29 @@
+{
+  "id": "floating-ui-3464-ios-scroll-restore",
+  "upstreamRepoFullName": "floating-ui/floating-ui",
+  "issueNumber": 3464,
+  "issueUrl": "https://github.com/floating-ui/floating-ui/issues/3464",
+  "issueTitle": "FloatingOverlay react component causes visible scrolling on iOS when the scroll behaviour of its container is 'smooth'",
+  "branchName": "fix/floating-overlay-ios-scroll-restore",
+  "plan": {
+    "files": [
+      {
+        "path": "packages/react/src/components/FloatingOverlay.tsx",
+        "replacements": [
+          {
+            "oldText": "      window.scrollTo(scrollX, scrollY);",
+            "newText": "      window.scrollTo({left: scrollX, top: scrollY, behavior: 'instant'});"
+          }
+        ]
+      },
+      {
+        "path": ".changeset/calm-dragons-scroll.md",
+        "createContent": "---\n'@floating-ui/react': patch\n---\n\nPrevent iOS scroll restoration from visibly animating when the document uses smooth scrolling.\n"
+      }
+    ],
+    "commitMessage": "fix(react): restore iOS overlay scroll instantly",
+    "prTitle": "fix(react): restore overlay scroll instantly on iOS",
+    "prBody": "Fixes #3464.\n\n`FloatingOverlay` uses fixed body positioning to implement `lockScroll` on iOS, then restores the previous page position during cleanup. The current positional `window.scrollTo(scrollX, scrollY)` call can inherit the document's `scroll-behavior: smooth`, causing the viewport to jump to the top and visibly animate back to its saved position when the overlay closes.\n\nPass an explicit `behavior: 'instant'` when restoring the saved coordinates so cleanup remains an immediate state restoration regardless of the page's smooth-scroll styling. This only changes the existing iOS cleanup path and does not affect overlay positioning or non-iOS scroll locking.\n\nA patch changeset for `@floating-ui/react` is included.",
+    "testEvidence": "Validated the patch against the current `packages/react/src/components/FloatingOverlay.tsx` iOS cleanup path and confirmed the change is limited to the saved-coordinate restoration call. The reported visual regression is iOS-specific and cannot be faithfully executed in the ContributorOps runner; upstream CI plus maintainer/reporter verification on iOS Safari is requested before merge."
+  }
+}
