@@ -28,6 +28,8 @@
   ·
   <a href="https://ankitparekh007.github.io/contributorOps/#/showcase"><strong>Engineering showcase</strong></a>
   ·
+  <a href="https://ankitparekh007.github.io/contributorOps/#/quality"><strong>Quality gates</strong></a>
+  ·
   <a href="https://ankitparekh007.github.io/contributorOps/#/recruiter"><strong>Recruiter brief</strong></a>
   ·
   <a href="https://ankitparekh007.github.io/contributorOps/#/adoption"><strong>Adoption</strong></a>
@@ -53,14 +55,16 @@ It structures the contribution loop as:
 
 ## Why this repository is different
 
-Many developer tools show features. ContributorOps also makes the **engineering decisions, growth rules, and adoption signals** public.
+Many developer tools show features. ContributorOps also makes the **engineering decisions, quality gates, growth rules, and adoption signals** public.
 
 | Evidence | What it demonstrates |
 | --- | --- |
 | [`docs/architecture.md`](./docs/architecture.md) | system surfaces, data flow, trust boundaries, CI, deployment, production evolution |
 | [`docs/adr/`](./docs/adr/README.md) | durable reasoning behind high-impact architecture choices |
 | [`docs/safety-policy.md`](./docs/safety-policy.md) | explicit rules for external GitHub actions and anti-spam behavior |
-| [CI workflow](./.github/workflows/ci.yml) | API/Web/Site builds, TypeScript validation, secret-pattern checks |
+| [`docs/quality-gates.md`](./docs/quality-gates.md) | deterministic route/metadata checks, Lighthouse budgets, TypeScript/build gates, and their limits |
+| [CI workflow](./.github/workflows/ci.yml) | API/Web/Site builds, TypeScript validation, secret-pattern checks, site integrity, and Lighthouse budgets |
+| [Quality Gates](https://ankitparekh007.github.io/contributorOps/#/quality) | public explanation of quality checks that can actually fail CI |
 | [Try path](https://ankitparekh007.github.io/contributorOps/#/try) | no-signup local/Codespaces evaluation with demo-safe defaults |
 | [Engineering Showcase](https://ankitparekh007.github.io/contributorOps/#/showcase) | how contribution work becomes explainable professional evidence |
 | [Recruiter Brief](https://ankitparekh007.github.io/contributorOps/#/recruiter) | two-minute path from product story to architecture and source evidence |
@@ -92,14 +96,17 @@ ContributorOps is a public engineering/product case study spanning:
 - GitHub API integration through Octokit
 - deterministic guardrails and approval-gated external writes
 - GitHub Actions CI and Pages deployment
+- route-level metadata and public quality policy
+- Lighthouse accessibility/performance/best-practices/SEO budgets
+- deterministic site integrity checks
 - local-first persistence with explicit production boundaries
 - contributor onboarding and community workflow design
 - architecture documentation and ADR discipline
 - measurable open-source adoption without fake customer metrics
 
-**Start here:** [open the two-minute recruiter brief](https://ankitparekh007.github.io/contributorOps/#/recruiter).
+**Start here:** [open the two-minute recruiter brief](https://ankitparekh007.github.io/contributorOps/#/recruiter), then inspect the [Quality Gates](https://ankitparekh007.github.io/contributorOps/#/quality).
 
-The intended hiring signal is not commit volume. It is the reasoning, scope, tests, trust boundaries, tradeoffs, and impact behind the work.
+The intended hiring signal is not commit volume. It is the reasoning, scope, tests, trust boundaries, tradeoffs, quality controls, and impact behind the work.
 
 ## Architecture at a glance
 
@@ -111,13 +118,14 @@ flowchart LR
     API --> Data[data\nLocal MVP state]
     API --> GH[GitHub / Octokit]
     Actions[GitHub Actions] --> Site
+    Actions --> Quality[Route + Lighthouse quality gates]
     Actions --> Planner[Scheduled planning]
     Planner -. no unattended writes .-> GH
 ```
 
 The central trust decision is documented in [ADR-0001](./docs/adr/0001-human-approved-external-writes.md): **external GitHub writes require explicit human approval for the exact action.**
 
-Read the full [architecture document](./docs/architecture.md) and [ADR index](./docs/adr/README.md).
+Read the full [architecture document](./docs/architecture.md), [ADR index](./docs/adr/README.md), and [quality-gates policy](./docs/quality-gates.md).
 
 ## Repository map
 
@@ -127,12 +135,14 @@ contributorOps/
 ├─ apps/
 │  ├─ api/        # discovery, scoring, planning, persistence, controlled GitHub actions
 │  ├─ web/        # interactive product application
-│  └─ site/       # public product, try, recruiter, adoption, share and contributor surfaces
+│  └─ site/       # public product, try, recruiter, adoption, quality, share and contributor surfaces
 ├─ data/          # local JSON-backed MVP state
 ├─ docs/
 │  ├─ adr/        # architecture decision records
-│  └─ ...         # product, API, safety, adoption, distribution, launch and business docs
+│  └─ ...         # product, API, safety, quality, adoption, distribution, launch and business docs
+├─ scripts/       # deterministic site-quality and Lighthouse harness scripts
 ├─ .github/       # CI, Pages, scheduled planning, issue/PR/release workflows
+├─ lighthouserc.json
 ├─ CHANGELOG.md
 ├─ CITATION.cff
 ├─ CONTRIBUTORS.md
@@ -160,6 +170,9 @@ contributorOps/
 - external write rate limits
 - explicit approval gates for higher-risk operations
 - audit-oriented state for controlled actions
+- route and metadata integrity validation
+- Lighthouse quality budgets in CI
+- API/Web/Site builds and TypeScript checks
 
 ### Proof-of-work packaging
 - contribution portfolio tracking
@@ -200,6 +213,31 @@ npm run dev
 ```
 
 Or use the public [Try page](https://ankitparekh007.github.io/contributorOps/#/try) for local commands and evaluation guidance.
+
+## Quality gates
+
+ContributorOps exposes quality controls that are enforced in CI instead of presenting unverified “production-grade” claims.
+
+Run the deterministic site-quality gate locally:
+
+```bash
+npm run site:quality
+```
+
+Run the browser-level Lighthouse gate locally:
+
+```bash
+npm run site:lighthouse
+```
+
+Current Lighthouse regression floors cover **Home, Showcase, Contribute, Try, and Quality**:
+
+- Accessibility ≥ 90
+- Performance ≥ 80
+- Best Practices ≥ 90
+- SEO ≥ 90
+
+Read [`docs/quality-gates.md`](./docs/quality-gates.md) for the exact enforced checks and their limitations.
 
 ## Safety model
 
@@ -246,6 +284,8 @@ npm run site:dev
 ```bash
 npm run typecheck
 npm run build:all
+npm run site:quality
+npm run site:lighthouse
 ```
 
 See [`docs/environment-setup.md`](./docs/environment-setup.md) and [`docs/local-development.md`](./docs/local-development.md).
@@ -259,6 +299,10 @@ See [`docs/environment-setup.md`](./docs/environment-setup.md) and [`docs/local-
 | Engineering showcase + recruiter brief | ✅ Implemented |
 | Audience-specific Share Hub | ✅ Implemented |
 | Public GitHub adoption dashboard | ✅ Implemented |
+| Public Quality Gates surface | ✅ Implemented |
+| Route-level metadata | ✅ Implemented |
+| Deterministic site-quality CI gate | ✅ Implemented |
+| Lighthouse quality budgets | ✅ Implemented |
 | Discovery and planning workflows | ✅ Implemented |
 | Controlled contribution modes | ✅ Implemented |
 | Local-first portfolio tracking | ✅ Implemented |
@@ -281,7 +325,7 @@ The fastest contribution path:
 2. browse [`good first issue`](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [`help wanted`](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 3. read [`CONTRIBUTING.md`](./CONTRIBUTING.md)
 4. read the [Safety Policy](./docs/safety-policy.md) before changing GitHub automation
-5. run `npm run typecheck` and `npm run build:all`
+5. run `npm run typecheck`, `npm run build:all`, and the relevant site-quality commands
 6. open a focused PR that explains user impact and safety implications
 
 Contributor recognition is described in [`CONTRIBUTORS.md`](./CONTRIBUTORS.md), and repeat-contributor practices are in [`docs/contributor-retention.md`](./docs/contributor-retention.md).
@@ -310,6 +354,7 @@ ContributorOps prioritizes:
 - **explainable engineering work over empty GitHub metrics**
 - **audience-specific distribution over mass promotion**
 - **measurable learning over invented traction**
+- **enforced quality gates over unverifiable engineering claims**
 
 ## License
 
@@ -318,5 +363,5 @@ BSD 3-Clause. See [`LICENSE`](./LICENSE).
 ---
 
 <p align="center">
-  <strong>If ContributorOps is useful, star it. If you want to inspect it, use the no-signup Try path. If you can improve it, pick a good-first issue. If you are evaluating the engineering, use the recruiter brief or adoption dashboard.</strong>
+  <strong>If ContributorOps is useful, star it. If you want to inspect it, use the no-signup Try path. If you can improve it, pick a good-first issue. If you are evaluating the engineering, use the recruiter brief, quality gates, or adoption dashboard.</strong>
 </p>

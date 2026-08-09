@@ -9,6 +9,7 @@ import "./authority.css";
 import "./distribution.css";
 import "./adoption.css";
 import "./try.css";
+import "./quality.css";
 
 initAnalytics();
 

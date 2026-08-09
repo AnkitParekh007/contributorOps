@@ -2,6 +2,7 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import { Footer } from "./components/Footer";
 import { Navbar } from "./components/Navbar";
 import { PreviewBanner } from "./components/PreviewBanner";
+import { RouteMeta } from "./components/RouteMeta";
 import { ThemeProvider } from "./context/ThemeContext";
 import { Adoption } from "./pages/Adoption";
 import { Contribute } from "./pages/Contribute";
@@ -11,6 +12,7 @@ import { Features } from "./pages/Features";
 import { Home } from "./pages/Home";
 import { NotFound } from "./pages/NotFound";
 import { Pricing } from "./pages/Pricing";
+import { Quality } from "./pages/Quality";
 import { RecruiterBrief } from "./pages/RecruiterBrief";
 import { Roadmap } from "./pages/Roadmap";
 import { Safety } from "./pages/Safety";
@@ -29,6 +31,7 @@ function App() {
 	return (
 		<ThemeProvider>
 			<HashRouter>
+				<RouteMeta />
 				<div className="site-shell">
 					<PreviewBanner />
 					<Navbar />
@@ -41,6 +44,7 @@ function App() {
 							<Route path="/recruiter" element={<RecruiterBrief />} />
 							<Route path="/share" element={<Share />} />
 							<Route path="/adoption" element={<Adoption />} />
+							<Route path="/quality" element={<Quality />} />
 							<Route path="/contribute" element={<Contribute />} />
 							<Route path="/pricing" element={<Pricing />} />
 							<Route path="/docs" element={<Docs />} />
