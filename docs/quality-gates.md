@@ -75,9 +75,24 @@ That means adding a public route without adding its metadata should fail CI inst
 
 ## Lighthouse budgets
 
-Lighthouse CI runs against the built GitHub Pages site for representative routes including:
+Run the same browser-level quality gate locally with one command:
+
+```bash
+npm run site:lighthouse
+```
+
+That command:
+
+1. builds the Site
+2. prepares a local directory that mirrors the real GitHub Pages `/contributorOps/` base path
+3. runs pinned Lighthouse CI `0.15.0`
+4. fails when any configured category falls below its budget
+
+Lighthouse CI runs against the built GitHub Pages-shaped site for:
 
 - Home
+- Showcase
+- Contribute
 - Try
 - Quality
 
@@ -90,7 +105,7 @@ Current minimum category scores:
 | Best Practices | 0.90 |
 | SEO | 0.90 |
 
-The budgets are stored in `lighthouserc.json`.
+The budgets and route set are stored in `lighthouserc.json`.
 
 They are intended as regression floors, not marketing claims. A score above the floor does not mean the site is universally accessible or production-perfect.
 
