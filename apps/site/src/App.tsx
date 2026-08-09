@@ -10,6 +10,8 @@ import { Docs } from "./pages/Docs";
 import { DocsArticle } from "./pages/DocsArticle";
 import { Features } from "./pages/Features";
 import { Home } from "./pages/Home";
+import { InteractiveDemo } from "./pages/InteractiveDemo";
+import { Launch } from "./pages/Launch";
 import { NotFound } from "./pages/NotFound";
 import { Pricing } from "./pages/Pricing";
 import { Quality } from "./pages/Quality";
@@ -40,6 +42,8 @@ function App() {
 							<Route path="/" element={<Home />} />
 							<Route path="/features" element={<Features />} />
 							<Route path="/showcase" element={<Showcase />} />
+							<Route path="/demo" element={<InteractiveDemo />} />
+							<Route path="/launch" element={<Launch />} />
 							<Route path="/try" element={<Try />} />
 							<Route path="/recruiter" element={<RecruiterBrief />} />
 							<Route path="/share" element={<Share />} />
