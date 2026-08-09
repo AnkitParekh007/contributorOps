@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { Octokit } from "@octokit/rest";
 import { config } from "./config.js";
 import {
   createApprovedDraftPullRequest,
@@ -6,6 +7,8 @@ import {
   fetchIssueSafetyContext,
   postApprovedIssueComment
 } from "./github.js";
+import { prepareManagedContributionWorkspace } from "./github/fork-manager.js";
+import { recordManagedWorkspace } from "./github/fork-registry.js";
 import { buildDraftProposal } from "./planner.js";
 import {
   readContributionRuns,
@@ -70,10 +73,14 @@ function computeRiskScore(safetyChecks: SafetyCheckResult[]): number {
   return Math.min(100, 15 + penalties);
 }
 
+function hasBlockingSafetyChecks(safetyChecks: SafetyCheckResult[]): boolean {
+  return safetyChecks.some((check) => check.severity === "error" && !check.passed);
+}
+
 async function validateRunApproval(
   run: ContributionRun | undefined,
   request: ContributionApprovalRequest,
-  requiredStatus: ContributionRunStatus
+  requiredStatus: ContributionRunStatus | ContributionRunStatus[]
 ): Promise<ContributionRun> {
   if (!run) {
     throw new Error("Contribution run not found.");
@@ -83,7 +90,9 @@ async function validateRunApproval(
     throw new Error("This contribution run has already been cancelled.");
   }
 
-  if (run.status !== requiredStatus && !(requiredStatus === "prepared" && run.status === "dry-run")) {
+  const allowedStatuses = Array.isArray(requiredStatus) ? requiredStatus : [requiredStatus];
+  const allowsDryRun = allowedStatuses.includes("prepared") && run.status === "dry-run";
+  if (!allowedStatuses.includes(run.status) && !allowsDryRun) {
     throw new Error(`Run is not in the correct state for this action. Current status: ${run.status}`);
   }
 
@@ -110,6 +119,52 @@ export async function prepareContributionRun(request: PrepareContributionRequest
   const controlMode = await readControlMode();
   const proposal = buildDraftProposal(request.issue);
   const safetyContext = await fetchIssueSafetyContext(request.issue, controlMode);
+  let workspaceError = "";
+  let workspaceForkRepo = "";
+
+  const shouldPrepareWorkspace =
+    config.autoWorkspaceEnabled &&
+    request.mode !== "research" &&
+    controlMode.safetyLevel !== "research" &&
+    Boolean(config.githubToken) &&
+    Boolean(config.githubUsername) &&
+    !hasBlockingSafetyChecks(safetyContext.safetyChecks);
+
+  if (shouldPrepareWorkspace) {
+    try {
+      const workspace = await prepareManagedContributionWorkspace(
+        new Octokit({ auth: config.githubToken }),
+        {
+          upstreamRepoFullName: request.issue.repoFullName,
+          forkOwner: config.githubUsername,
+          branchName: proposal.branchName
+        },
+        {
+          pollIntervalMs: config.forkPollIntervalMs,
+          readyTimeoutMs: config.forkReadyTimeoutMs
+        }
+      );
+
+      await recordManagedWorkspace(workspace);
+      proposal.branchName = workspace.branchName;
+      workspaceForkRepo = workspace.forkRepoFullName;
+      safetyContext.safetyChecks.push({
+        key: "workspace-prepared",
+        passed: true,
+        detail: `Managed fork synced and branch ready at ${workspace.forkRepoFullName}:${workspace.branchName}.`,
+        severity: "info"
+      });
+    } catch (error) {
+      workspaceError = error instanceof Error ? error.message : "Unknown managed workspace error.";
+      safetyContext.safetyChecks.push({
+        key: "workspace-prepared",
+        passed: false,
+        detail: `Managed workspace provisioning failed: ${workspaceError}`,
+        severity: "warning"
+      });
+    }
+  }
+
   const run: ContributionRun = {
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
@@ -124,11 +179,11 @@ export async function prepareContributionRun(request: PrepareContributionRequest
     prTitle: proposal.prTitle,
     prBody: proposal.prBody,
     branchName: proposal.branchName,
-    forkRepo: config.githubUsername ? `${config.githubUsername}/${request.issue.repoName}` : "",
+    forkRepo: workspaceForkRepo || (config.githubUsername ? `${config.githubUsername}/${request.issue.repoName}` : ""),
     prUrl: "",
     safetyChecks: safetyContext.safetyChecks,
     approvalEvents: [createApprovalEvent("prepare", true, "Prepared run for user review.")],
-    errors: [],
+    errors: workspaceError ? [workspaceError] : [],
     userApprovalToken: crypto.randomUUID(),
     riskScore: computeRiskScore(safetyContext.safetyChecks),
     dryRun: !config.autoContributeEnabled,
@@ -172,7 +227,7 @@ export async function approveContributionComment(request: ContributionApprovalRe
     "prepared"
   );
 
-  if (run.safetyChecks.some((check) => check.severity === "error" && !check.passed)) {
+  if (hasBlockingSafetyChecks(run.safetyChecks)) {
     throw new Error("Safety checks failed. Resolve the blocked checks before commenting.");
   }
 
@@ -207,6 +262,8 @@ export async function approveContributionBranch(
 
   if (!config.autoContributeEnabled) {
     run.status = "dry-run";
+  } else if (run.safetyChecks.some((check) => check.key === "workspace-prepared" && check.passed)) {
+    run.status = "branch approved";
   } else {
     const result = await createApprovedForkBranch({
       issue: run.issue,
@@ -231,10 +288,10 @@ export async function approveContributionDraftPr(
   const run = await validateRunApproval(
     runs.find((entry) => entry.id === request.runId),
     request,
-    "prepared"
+    ["prepared", "branch approved"]
   );
 
-  if (run.safetyChecks.some((check) => check.severity === "error" && !check.passed)) {
+  if (hasBlockingSafetyChecks(run.safetyChecks)) {
     throw new Error("Safety checks failed. Resolve the blocked checks before opening a draft PR.");
   }
 
