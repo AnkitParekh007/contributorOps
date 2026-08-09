@@ -49,7 +49,7 @@ jobs:
         run: npm run build --workspace @contributorops/web
 
   build-site:
-    name: Build Site
+    name: Build Site + Quality
     runs-on: ubuntu-latest
     needs: install
     steps:
@@ -61,6 +61,26 @@ jobs:
       - run: npm ci
       - name: Build Site
         run: npm run site:build
+      - name: Verify routes, metadata, accessibility hygiene, and Pages paths
+        run: node scripts/site-quality.mjs
+
+  lighthouse:
+    name: Lighthouse Quality Budgets
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Build Site
+        run: npm run site:build
+      - name: Install Lighthouse CI
+        run: npm install --global @lhci/cli@0.15.x
+      - name: Run Lighthouse budgets
+        run: lhci autorun --config=./lighthouserc.json
 
   typecheck:
     name: TypeScript Check
