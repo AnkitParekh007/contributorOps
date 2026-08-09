@@ -75,16 +75,10 @@ export function Navbar() {
 					<NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
 						Home
 					</NavLink>
-					<NavLink
-						to="/features"
-						className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}
-					>
+					<NavLink to="/features" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
 						Features
 					</NavLink>
-					<NavLink
-						to="/pricing"
-						className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}
-					>
+					<NavLink to="/pricing" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
 						Pricing
 					</NavLink>
 					<NavLink to="/docs" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
@@ -93,29 +87,24 @@ export function Navbar() {
 					<NavLink to="/safety" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
 						Safety
 					</NavLink>
-					<NavLink
-						to="/roadmap"
-						className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}
-					>
+					<NavLink to="/roadmap" className={({ isActive }) => `nav-link${isActive ? " nav-link-active" : ""}`}>
 						Roadmap
 					</NavLink>
-					<a
-						className="nav-link nav-icon-btn"
-						href="https://github.com/AnkitParekh007/contributorOps"
-						target="_blank"
-						rel="noreferrer"
-						aria-label="GitHub repository"
-						title="GitHub"
-					>
-						<GitHubIcon />
-					</a>
 				</nav>
 
 				<div className="nav-end">
-					<Link
-						to="/waitlist"
-						className="nav-waitlist-btn"
+					<a
+						className="nav-github-btn"
+						href="https://github.com/AnkitParekh007/contributorOps"
+						target="_blank"
+						rel="noreferrer"
+						aria-label="Star ContributorOps on GitHub"
+						title="Star ContributorOps on GitHub"
 					>
+						<GitHubIcon />
+						<span>Star</span>
+					</a>
+					<Link to="/waitlist" className="nav-waitlist-btn">
 						Join Waitlist
 					</Link>
 					<button
