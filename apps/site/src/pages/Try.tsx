@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, Clipboard, Cloud, Code2, Github, Play, ShieldCheck, TerminalSquare } from "lucide-react";
+import { Check, Clipboard, Cloud, Code2, Github, Play, ShieldCheck, SquareTerminal } from "lucide-react";
 import { trackEvent } from "../lib/analytics";
 
 const REPO_URL = "https://github.com/AnkitParekh007/contributorOps";
@@ -62,7 +62,7 @@ export function Try() {
 					<p>This installs the workspace and starts the API plus product UI.</p>
 				</div>
 				<div className="try-command-card">
-					<div className="try-command-title"><TerminalSquare size={18} /> Local terminal</div>
+					<div className="try-command-title"><SquareTerminal size={18} /> Local terminal</div>
 					<code>{CLONE_COMMAND}</code>
 					<button type="button" className="button-secondary" onClick={copyCommand}>
 						{copied ? <Check size={15} /> : <Clipboard size={15} />} {copied ? "Copied" : "Copy command"}
