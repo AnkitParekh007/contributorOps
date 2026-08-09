@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { FeatureCard } from "../components/FeatureCard";
 import { Hero } from "../components/Hero";
+import { AudienceProof } from "../components/AudienceProof";
 import { PricingCard } from "../components/PricingCard";
 import { Section } from "../components/Section";
 import { features } from "../data/features";
@@ -39,11 +40,11 @@ const WORKFLOW = [
 ];
 
 export function Home() {
-  return (
-    <div className="page page-home">
-      <Hero />
+	return (
+		<div className="page page-home">
+			<Hero />
+			<AudienceProof />
 
-			{/* ── Before / After ─────────────────────────────────── */}
 			<Section
 				id="problem"
 				eyebrow="Problem"
@@ -90,7 +91,6 @@ export function Home() {
 				</div>
 			</Section>
 
-			{/* ── 4-step workflow ─────────────────────────────────── */}
 			<Section
 				id="how-it-works"
 				eyebrow="How it works"
@@ -114,7 +114,6 @@ export function Home() {
 				</div>
 			</Section>
 
-			{/* ── Core features ───────────────────────────────────── */}
 			<Section
 				id="features"
 				eyebrow="Core features"
@@ -133,7 +132,6 @@ export function Home() {
 				</div>
 			</Section>
 
-			{/* ── Safety preview ──────────────────────────────────── */}
 			<Section
 				id="safety"
 				eyebrow="Safety-first automation"
@@ -175,7 +173,6 @@ export function Home() {
 				</div>
 			</Section>
 
-			{/* ── Pricing preview ─────────────────────────────────── */}
 			<Section
 				id="pricing-preview"
 				eyebrow="Pricing preview"
@@ -194,7 +191,6 @@ export function Home() {
 				</div>
 			</Section>
 
-			{/* ── Founder Preview ─────────────────────────────────── */}
 			<Section
 				id="founder-preview"
 				eyebrow="Founder Preview"
@@ -229,19 +225,23 @@ export function Home() {
 				</div>
 			</Section>
 
-			{/* ── CTA ─────────────────────────────────────────────── */}
 			<Section
 				id="cta"
-				eyebrow="Get started"
-				title="Start building a public contribution record that hiring teams can verify."
-				description="Use the docs to understand the workflow, the safety model, and the GitHub Pages deployment."
+				eyebrow="Open-source project"
+				title="Build with ContributorOps, fork the workflow, or use it as proof of architecture thinking."
+				description="The repository is public, documented, safety-conscious, and designed to be extended by developers who care about better contribution workflows."
 			>
 				<div className="cta-panel">
-					<Link to="/docs" className="button-primary">
-						Start Building Your Portfolio
-					</Link>
-					<Link to="/safety" className="button-secondary">
-						Read the Safety Policy
+					<a
+						href="https://github.com/AnkitParekh007/contributorOps"
+						target="_blank"
+						rel="noreferrer"
+						className="button-primary"
+					>
+						Star & Explore on GitHub
+					</a>
+					<Link to="/docs" className="button-secondary">
+						Read the Engineering Docs
 					</Link>
 				</div>
 			</Section>
