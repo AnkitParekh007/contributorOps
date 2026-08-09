@@ -42,8 +42,8 @@ export const ROUTE_META: Record<string, RouteMetaDefinition> = {
 		description: "Choose audience-specific ContributorOps links and messages for developers, recruiters, maintainers, and engineering communities.",
 	},
 	"/adoption": {
-		title: "Adoption Signals — ContributorOps",
-		description: "View public GitHub engagement signals for ContributorOps and understand how repository activity is measured without overstating product adoption.",
+		title: "Growth Signals & Campaigns — ContributorOps",
+		description: "Inspect ContributorOps public GitHub participation, canonical Phase 9 campaign paths, measurement boundaries, and the 48-hour and 7-day growth review loop.",
 	},
 	"/quality": {
 		title: "Quality Gates — ContributorOps",
