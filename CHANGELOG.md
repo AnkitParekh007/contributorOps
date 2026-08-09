@@ -2,7 +2,16 @@
 
 ContributorOps uses this changelog for meaningful project milestones. Fine-grained commit history remains available in GitHub.
 
-## Unreleased — Phase 5: Measurable adoption and launch execution
+## Unreleased — Phase 6: Production-grade quality proof
+
+### Quality gates
+- route-level title and description metadata for major public surfaces
+- deterministic site-quality script for routes, links, metadata, JSX accessibility hygiene, and GitHub Pages build paths
+- Lighthouse CI budgets for accessibility, performance, best practices, and SEO
+- public Quality page that maps engineering claims to enforceable CI gates
+- documented quality-policy boundaries so automated scores are not presented as production reliability claims
+
+## 2026-08-09 — Phase 5: Measurable adoption and launch execution
 
 ### Adoption
 - public Adoption dashboard backed by public GitHub API signals
