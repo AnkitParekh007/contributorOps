@@ -5,7 +5,8 @@ export interface ExactTextReplacement {
 
 export interface ExecutablePatchFile {
   path: string;
-  replacements: ExactTextReplacement[];
+  replacements?: ExactTextReplacement[];
+  createContent?: string;
 }
 
 export interface ExecutablePatchPlan {
@@ -68,13 +69,30 @@ export function validateExecutablePatchPlan(plan: ExecutablePatchPlan): void {
     }
     paths.add(file.path);
 
-    if (!file.replacements.length || file.replacements.length > MAX_REPLACEMENTS_PER_FILE) {
+    const isCreate = file.createContent !== undefined;
+    const replacements = file.replacements ?? [];
+    if (isCreate === (replacements.length > 0)) {
+      throw new Error(`${file.path} must use exactly one patch mode: createContent or replacements.`);
+    }
+
+    if (isCreate) {
+      if (!file.createContent?.length) {
+        throw new Error(`${file.path} contains empty createContent.`);
+      }
+      if (/contributorops draft proposal|planned change/i.test(file.createContent)) {
+        throw new Error(`${file.path} contains placeholder proposal content.`);
+      }
+      changedCharacters += file.createContent.length;
+      continue;
+    }
+
+    if (!replacements.length || replacements.length > MAX_REPLACEMENTS_PER_FILE) {
       throw new Error(
         `${file.path} must contain between 1 and ${MAX_REPLACEMENTS_PER_FILE} exact replacements.`
       );
     }
 
-    for (const replacement of file.replacements) {
+    for (const replacement of replacements) {
       if (!replacement.oldText || replacement.oldText === replacement.newText) {
         throw new Error(`${file.path} contains an empty or no-op replacement.`);
       }
@@ -94,9 +112,14 @@ export function validateExecutablePatchPlan(plan: ExecutablePatchPlan): void {
 
 export function applyExecutablePatchFile(content: string, file: ExecutablePatchFile): AppliedPatchFile {
   assertSafePath(file.path);
+  if (file.createContent !== undefined) {
+    throw new Error(`${file.path} is a create operation and cannot be applied as a replacement.`);
+  }
+
+  const replacements = file.replacements ?? [];
   let next = content;
 
-  for (const replacement of file.replacements) {
+  for (const replacement of replacements) {
     const matches = countOccurrences(next, replacement.oldText);
     if (matches !== 1) {
       throw new Error(
@@ -113,19 +136,34 @@ export function applyExecutablePatchFile(content: string, file: ExecutablePatchF
   return {
     path: file.path,
     content: next,
-    replacementCount: file.replacements.length
+    replacementCount: replacements.length
   };
 }
 
 export async function materializeExecutablePatch(
   plan: ExecutablePatchPlan,
-  readFile: (path: string) => Promise<string>
+  readFile: (path: string) => Promise<string | null>
 ): Promise<AppliedPatchFile[]> {
   validateExecutablePatchPlan(plan);
   const materialized: AppliedPatchFile[] = [];
 
   for (const file of plan.files) {
     const current = await readFile(file.path);
+    if (file.createContent !== undefined) {
+      if (current !== null) {
+        throw new Error(`${file.path} already exists. Refusing to overwrite it with createContent.`);
+      }
+      materialized.push({
+        path: file.path,
+        content: file.createContent,
+        replacementCount: 0
+      });
+      continue;
+    }
+
+    if (current === null) {
+      throw new Error(`${file.path} does not exist. Refusing to apply replacements.`);
+    }
     materialized.push(applyExecutablePatchFile(current, file));
   }
 
