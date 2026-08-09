@@ -27,7 +27,7 @@ const WORKFLOW = [
 		num: "03",
 		icon: <BarChart3 size={20} />,
 		title: "Validate",
-		desc: "Run a PR quality check — scope, test coverage, tone, and maintainer-readiness scored before submit.",
+		desc: "Run a PR quality check — scope, test coverage, tone, policy fit, and maintainer-readiness before submit.",
 		color: "feature-icon-validate",
 	},
 	{
@@ -78,7 +78,7 @@ export function Home() {
 						{[
 							"Job-matched issue finder surfaces the right work",
 							"AI plan scopes files and PR narrative up front",
-							"PR quality check before submission",
+							"PR quality and policy checks before submission",
 							"STAR stories and resume bullets generated automatically",
 							"Public portfolio page with verifiable contribution history",
 						].map((item) => (
@@ -103,9 +103,7 @@ export function Home() {
 							<div className="workflow-step-header">
 								<span className={`feature-icon-wrap ${step.color}`}>{step.icon}</span>
 								<span className="workflow-node">{step.num}</span>
-								{i < WORKFLOW.length - 1 && (
-									<ArrowRight size={14} style={{ marginLeft: "auto", opacity: 0.3 }} />
-								)}
+								{i < WORKFLOW.length - 1 && <ArrowRight size={14} style={{ marginLeft: "auto", opacity: 0.3 }} />}
 							</div>
 							<h3>{step.title}</h3>
 							<p>{step.desc}</p>
@@ -121,41 +119,37 @@ export function Home() {
 				description="Every module is aligned around real contributions becoming visible career leverage."
 			>
 				<div className="feature-grid">
-					{features.slice(0, 6).map((feature) => (
-						<FeatureCard key={feature.title} feature={feature} />
-					))}
+					{features.slice(0, 6).map((feature) => <FeatureCard key={feature.title} feature={feature} />)}
 				</div>
 				<div className="section-cta">
-					<Link to="/features" className="button-secondary">
-						Explore all features
-					</Link>
+					<Link to="/features" className="button-secondary">Explore all features</Link>
 				</div>
 			</Section>
 
 			<Section
 				id="safety"
 				eyebrow="Safety-first automation"
-				title="Human-approved by design."
-				description="ContributorOps does not market mass-commenting, mass-PR opening, or deceptive contribution behavior."
+				title="Explicitly authorized by design."
+				description="ContributorOps separates planning from authority and refuses mass-commenting, mass-PR opening, deceptive activity, or unconstrained generated changes."
 			>
 				<div className="safety-mode-grid">
 					{[
 						{
 							num: "01",
 							title: "Research Mode",
-							body: "Discover issues, score opportunities, and generate plans with zero external writes.",
+							body: "Discover issues, score opportunities, and generate plans with zero maintainer-facing writes.",
 							active: false,
 						},
 						{
 							num: "02",
-							title: "Draft Mode",
-							body: "Draft local changes, PR copy, and test paths. User review is mandatory before any submission.",
+							title: "Interactive Approval",
+							body: "Prepare the exact action, inspect it, then use separate human approval capabilities for comments, branches, and draft PRs.",
 							active: false,
 						},
 						{
 							num: "03",
-							title: "Approved Auto-Contribute",
-							body: "Explicit approvals gate all comments, branches, and draft PRs. Scheduled jobs never write to external repos.",
+							title: "Standing Exact-Patch Authorization",
+							body: "Operator-enabled queue execution is limited to pre-authored exact patches, live repository-policy checks, duplicate protection, daily caps, and draft PRs.",
 							active: true,
 						},
 					].map((mode) => (
@@ -167,9 +161,8 @@ export function Home() {
 					))}
 				</div>
 				<div className="section-cta">
-					<Link to="/safety" className="button-secondary">
-						Read full safety policy
-					</Link>
+					<Link to="/safety" className="button-secondary">Read full safety policy</Link>
+					<Link to="/demo" className="button-secondary">See authorization in the demo</Link>
 				</div>
 			</Section>
 
@@ -180,48 +173,45 @@ export function Home() {
 				description="Free, Pro, Career, and Team tiers exist today as product packaging and feature-flag boundaries."
 			>
 				<div className="pricing-grid">
-					{pricingPlans.map((plan) => (
-						<PricingCard key={plan.name} plan={plan} />
-					))}
+					{pricingPlans.map((plan) => <PricingCard key={plan.name} plan={plan} />)}
 				</div>
 				<div className="section-cta">
-					<Link to="/pricing" className="button-secondary">
-						View full pricing
-					</Link>
+					<Link to="/pricing" className="button-secondary">View full pricing</Link>
 				</div>
 			</Section>
 
 			<Section
-				id="founder-preview"
-				eyebrow="Founder Preview"
-				title="Building in public. Join before we launch."
-				description="ContributorOps is in active development. The site is live, the demo works, and the safety model is real. Real accounts, billing, and GitHub OAuth are coming next."
+				id="public-launch"
+				eyebrow="Public OSS launch"
+				title="Evaluate the product now. Hosted SaaS can come later."
+				description="The browser walkthrough, source, documentation, Codespaces path, security gates, and contribution workflow are public today. Hosted production accounts and billing remain clearly labeled future work."
 			>
 				<div className="founder-preview-grid">
 					<div className="founder-preview-card">
 						<span className="founder-preview-num">01</span>
-						<h3>First access</h3>
-						<p>Waitlist members get early access when beta opens — before public launch.</p>
+						<h3>Browser demo</h3>
+						<p>Walk through Discover → Prepare → Validate → Authorize → Prove with fictional example data and no signup.</p>
 					</div>
 					<div className="founder-preview-card">
 						<span className="founder-preview-num">02</span>
-						<h3>Founder pricing</h3>
-						<p>Lock in discounted Founder Lifetime access. One-time payment, permanent access.</p>
+						<h3>Run the real workspace</h3>
+						<p>Use Codespaces or the local quick start to inspect the actual React + Express product in demo-safe mode.</p>
 					</div>
 					<div className="founder-preview-card">
 						<span className="founder-preview-num">03</span>
-						<h3>Shape the product</h3>
-						<p>Direct input on the roadmap. Your use case informs which features ship first.</p>
+						<h3>Inspect the evidence</h3>
+						<p>Architecture, ADRs, CI, CodeQL, dependency audits, Lighthouse budgets, and safety policy are public.</p>
 					</div>
 					<div className="founder-preview-card">
 						<span className="founder-preview-num">04</span>
-						<h3>No production claims</h3>
-						<p>Payments are not live. No accounts yet. We are honest about current state.</p>
+						<h3>Give useful feedback</h3>
+						<p>Open a focused issue, contribute a starter task, or share the recruiter brief instead of joining an artificial launch funnel.</p>
 					</div>
 				</div>
 				<div className="section-cta">
-					<Link to="/waitlist" className="button-primary">Join Founder Waitlist</Link>
-					<Link to="/roadmap" className="button-secondary">See the Roadmap</Link>
+					<Link to="/demo" className="button-primary">Try Browser Demo</Link>
+					<Link to="/launch" className="button-secondary">Open Launch Hub</Link>
+					<Link to="/contribute" className="button-secondary">Contribute</Link>
 				</div>
 			</Section>
 
@@ -232,17 +222,8 @@ export function Home() {
 				description="The repository is public, documented, safety-conscious, and designed to be extended by developers who care about better contribution workflows."
 			>
 				<div className="cta-panel">
-					<a
-						href="https://github.com/AnkitParekh007/contributorOps"
-						target="_blank"
-						rel="noreferrer"
-						className="button-primary"
-					>
-						Star & Explore on GitHub
-					</a>
-					<Link to="/docs" className="button-secondary">
-						Read the Engineering Docs
-					</Link>
+					<a href="https://github.com/AnkitParekh007/contributorOps" target="_blank" rel="noreferrer" className="button-primary">Star & Explore on GitHub</a>
+					<Link to="/docs" className="button-secondary">Read the Engineering Docs</Link>
 				</div>
 			</Section>
 		</div>
