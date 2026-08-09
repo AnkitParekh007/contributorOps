@@ -75,16 +75,8 @@ jobs:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
-      - name: Build Site
-        run: npm run site:build
-      - name: Mirror the GitHub Pages base path
-        run: |
-          mkdir -p .lighthouse-pages/contributorOps
-          cp -R apps/site/dist/. .lighthouse-pages/contributorOps/
-      - name: Install Lighthouse CI
-        run: npm install --global @lhci/cli@0.15.x
-      - name: Run Lighthouse budgets
-        run: lhci autorun --config=./lighthouserc.json
+      - name: Run reproducible Lighthouse budgets
+        run: npm run site:lighthouse
 
   typecheck:
     name: TypeScript Check
