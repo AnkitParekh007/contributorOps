@@ -1,0 +1,77 @@
+name: Execute OSS Patch Queue
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/patch-queue/**'
+  workflow_dispatch:
+
+concurrency:
+  group: contributorops-patch-queue
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  execute:
+    name: Validate and submit exact OSS patches
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_CONTRIBUTOROPS_TOKEN: ${{ secrets.GH_CONTRIBUTOROPS_TOKEN }}
+      GITHUB_USERNAME: ${{ github.repository_owner }}
+      AUTO_WORKSPACE_ENABLED: 'true'
+      AUTO_CONTRIBUTE_ENABLED: 'true'
+      AUTO_PR_DAILY_LIMIT: '2'
+      FORK_READY_TIMEOUT_MS: '60000'
+      FORK_POLL_INTERVAL_MS: '1500'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Verify ContributorOps token
+        run: |
+          if [ -z "$GH_CONTRIBUTOROPS_TOKEN" ]; then
+            echo "GH_CONTRIBUTOROPS_TOKEN is not configured."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and test API safety gates
+        run: |
+          npm run build --workspace @contributorops/api
+          npm run test --workspace @contributorops/api
+
+      - name: Execute patch queue
+        run: npm run patch-queue --workspace @contributorops/api
+
+      - name: Publish execution summary
+        if: always()
+        run: |
+          echo "# ContributorOps OSS Patch Queue" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f data/patch-queue-results.json ]; then
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat data/patch-queue-results.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No patch queue result was generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload execution result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oss-patch-queue-${{ github.run_id }}
+          path: data/patch-queue-results.json
+          if-no-files-found: ignore
+          retention-days: 30

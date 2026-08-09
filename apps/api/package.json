@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "test": "tsx --test src/github/fork-manager.test.ts src/hourly.test.ts",
+    "test": "tsx --test src/github/fork-manager.test.ts src/github/executable-patch.test.ts src/patch-queue.test.ts src/hourly.test.ts",
     "start": "node dist/server.js",
     "daily": "tsx src/daily.ts",
-    "hourly": "tsx src/hourly.ts"
+    "hourly": "tsx src/hourly.ts",
+    "patch-queue": "tsx src/patch-queue.ts"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",
