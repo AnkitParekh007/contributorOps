@@ -30,7 +30,7 @@ jobs:
       FORK_POLL_INTERVAL_MS: '1500'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:

@@ -12,6 +12,10 @@
     "daily": "npm run daily --workspace @contributorops/api",
     "hourly": "npm run hourly --workspace @contributorops/api",
     "start": "npm run start --workspace @contributorops/api",
+    "test:api": "npm run test --workspace @contributorops/api",
+    "security:audit:runtime": "npm audit --omit=dev --audit-level=high",
+    "security:audit": "npm audit --audit-level=high",
+    "security:sbom": "npm sbom --sbom-format cyclonedx",
     "site:dev": "npm run dev --workspace @contributorops/site",
     "site:build": "npm run build --workspace @contributorops/site",
     "site:preview": "npm run preview --workspace @contributorops/site",
@@ -19,7 +23,7 @@
     "site:lighthouse": "npm run site:build && node scripts/prepare-lighthouse.mjs && npx --yes @lhci/cli@0.15.0 autorun --config=./lighthouserc.json",
     "site:check": "npm run site:quality",
     "typecheck": "cd apps/api && npx tsc --noEmit && cd ../web && npx tsc --noEmit && cd ../site && npx tsc --noEmit",
-    "ci": "npm ci && npm run build:all && node scripts/site-quality.mjs"
+    "ci": "npm ci && npm run test:api && npm run build:all && node scripts/site-quality.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

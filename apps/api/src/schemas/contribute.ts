@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Minimal IssueCandidate shape — just what the API needs to validate presence
 const IssueCandidateSchema = z.object({
   id: z.string(),
   repoName: z.string(),
@@ -10,16 +9,24 @@ const IssueCandidateSchema = z.object({
   issueNumber: z.number().int().positive(),
   issueUrl: z.string(),
   score: z.number(),
-}).passthrough(); // allow full IssueCandidate fields without re-declaring all
+}).passthrough();
+
+const DraftProposalSchemaShape = z.object({
+  proposalId: z.string().min(1),
+  issueId: z.string().min(1),
+  upstreamRepoFullName: z.string().min(1),
+  upstreamIssueUrl: z.string().min(1),
+}).passthrough();
 
 export const PrepareRunSchema = z.object({
   mode: z.enum(["research", "draft", "approved-auto-contribute"]),
   issue: IssueCandidateSchema,
+  proposal: DraftProposalSchemaShape.optional(),
 });
 
 const ApprovalBaseSchema = z.object({
   runId: z.string().uuid(),
-  userApprovalToken: z.string().min(1),
+  approvalToken: z.string().uuid(),
   approvalReason: z.string().min(10).max(500),
   explicitApproval: z.literal(true),
 });
@@ -44,7 +51,7 @@ export const DraftProposalSchema = z.object({
 
 export const ApprovedPrSchema = z.object({
   issue: IssueCandidateSchema,
-  proposal: z.object({ proposalId: z.string() }).passthrough(),
+  proposal: DraftProposalSchemaShape,
   forkOwner: z.string().min(1).max(100),
   approvalReason: z.string().min(10).max(500),
   explicitApproval: z.literal(true),

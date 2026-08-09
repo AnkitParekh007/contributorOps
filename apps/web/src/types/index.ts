@@ -1,6 +1,7 @@
 export type Difficulty = "starter" | "steady" | "stretch";
 export type ContributionSafetyLevel = "research" | "draft" | "approved-pr";
 export type ContributionExecutionMode = "research" | "draft" | "approved-auto-contribute";
+export type ContributionApprovalAction = "approve-comment" | "approve-branch" | "approve-draft-pr";
 export type BillingPlan = "free" | "pro" | "career" | "team";
 export type BillingStatus = "active" | "trialing" | "past_due" | "cancelled";
 export type TargetRole =
@@ -199,7 +200,7 @@ export interface DraftProposal extends JobModeDrafts {
 }
 
 export interface ContributionRunApprovalEvent {
-  action: "prepare" | "approve-comment" | "approve-branch" | "approve-draft-pr" | "cancel";
+  action: "prepare" | ContributionApprovalAction | "cancel";
   approved: boolean;
   actor: string;
   reason: string;
@@ -225,7 +226,8 @@ export interface ContributionRun {
   safetyChecks: SafetyCheckResult[];
   approvalEvents: ContributionRunApprovalEvent[];
   errors: string[];
-  userApprovalToken: string;
+  approvalTokens?: Record<ContributionApprovalAction, string>;
+  userApprovalToken?: string;
   riskScore: number;
   dryRun: boolean;
   proposal: DraftProposal;

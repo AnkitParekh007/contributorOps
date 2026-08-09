@@ -31,7 +31,7 @@ export function ContributionModePanel({
   onOpenDraftPullRequest
 }: ContributionModePanelProps) {
   const canDraft = controlMode.safetyLevel !== "research" && Boolean(issue);
-  const canOpenDraftPr =
+  const canPrepareApproval =
     controlMode.safetyLevel === "approved-pr" &&
     Boolean(issue) &&
     Boolean(proposal) &&
@@ -43,7 +43,7 @@ export function ContributionModePanel({
       <div className="panel-header">
         <div>
           <p className="section-kicker">Controlled contribution flow</p>
-          <h2>Move from local draft to forked draft PR with explicit approval.</h2>
+          <h2>Freeze the reviewed draft, then approve the exact external action.</h2>
         </div>
       </div>
 
@@ -142,15 +142,15 @@ export function ContributionModePanel({
             <button
               type="button"
               className="primary-button"
-              disabled={!canOpenDraftPr || isLoading}
+              disabled={!canPrepareApproval || isLoading}
               onClick={onOpenDraftPullRequest}
             >
               <GitPullRequestDraft size={16} />
-              Open draft PR from fork
+              Continue to approval gate
             </button>
             <span className="muted-copy">
               {prResultMessage ||
-                "ContributorOps will only open one draft PR per upstream repo per day and never mark it ready for review."}
+                "This step only prepares the reviewed payload. It cannot write to a third-party repository; the exact draft-PR action must be approved separately."}
             </span>
           </div>
         </div>
