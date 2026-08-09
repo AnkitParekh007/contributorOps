@@ -19,7 +19,7 @@
 
 .adoption-hero h1 {
 	margin: 12px 0 18px;
-	max-width: 12ch;
+	max-width: 13ch;
 	font-family: var(--font-display);
 	font-size: clamp(2.7rem, 5vw, 5rem);
 	line-height: 0.97;
@@ -29,6 +29,8 @@
 .adoption-hero p,
 .adoption-status-card li,
 .adoption-layer-card p,
+.adoption-campaign-card p,
+.adoption-review-card p,
 .adoption-funnel-panel p,
 .adoption-updated {
 	color: var(--muted);
@@ -135,6 +137,56 @@
 	margin: 12px 0 0;
 }
 
+.adoption-campaign-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	margin-top: 24px;
+}
+
+.adoption-campaign-card,
+.adoption-review-card {
+	display: grid;
+	gap: 8px;
+	padding: 22px;
+	border: 1px solid var(--line);
+	border-radius: 20px;
+	background: var(--panel);
+}
+
+.adoption-campaign-card h3,
+.adoption-review-card h3 {
+	margin: 4px 0;
+}
+
+.adoption-campaign-card p,
+.adoption-review-card p {
+	margin: 0;
+}
+
+.adoption-campaign-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	color: var(--accent-3);
+}
+
+.adoption-campaign-head span {
+	padding: 5px 9px;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	color: var(--muted);
+	font-size: 0.76rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.adoption-campaign-card .text-link {
+	margin-top: 8px;
+}
+
 .adoption-layer-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -154,7 +206,7 @@
 
 .adoption-funnel-panel {
 	display: grid;
-	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
 	gap: 24px;
 	align-items: center;
 	padding: 28px;
@@ -184,13 +236,24 @@
 	font-weight: 650;
 }
 
+.adoption-review-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.adoption-review-card > svg {
+	color: var(--accent-3);
+}
+
 @media (max-width: 900px) {
 	.adoption-hero,
 	.adoption-funnel-panel {
 		grid-template-columns: 1fr;
 	}
 
-	.adoption-metric-grid {
+	.adoption-metric-grid,
+	.adoption-campaign-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
@@ -217,7 +280,9 @@
 		width: 100%;
 	}
 
-	.adoption-metric-grid {
+	.adoption-metric-grid,
+	.adoption-campaign-grid,
+	.adoption-review-grid {
 		grid-template-columns: 1fr;
 	}
 

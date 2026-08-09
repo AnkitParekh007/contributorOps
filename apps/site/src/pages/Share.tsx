@@ -2,19 +2,9 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { BriefcaseBusiness, Check, Clipboard, Code2, ExternalLink, Github, MessageCircle, Share2, ShieldCheck } from "lucide-react";
 import { trackEvent } from "../lib/analytics";
+import { campaignUrl } from "../lib/campaigns";
 
 const REPO_URL = "https://github.com/AnkitParekh007/contributorOps";
-const SITE_URL = "https://ankitparekh007.github.io/contributorOps/";
-
-function campaignUrl(route: string, audience: string): string {
-	const params = new URLSearchParams({
-		utm_source: "share-hub",
-		utm_medium: "referral",
-		utm_campaign: "phase8-public-launch",
-		utm_content: audience,
-	});
-	return `${SITE_URL}?${params.toString()}#${route}`;
-}
 
 const SHARE_PATHS = [
 	{
@@ -89,7 +79,7 @@ export function Share() {
 					<div className="distribution-actions">
 						<Link className="button-primary" to="/demo">Try browser demo</Link>
 						<a className="button-secondary" href={REPO_URL} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub</a>
-						<Link className="button-secondary" to="/adoption">View adoption signals</Link>
+						<Link className="button-secondary" to="/adoption">View growth signals</Link>
 					</div>
 				</div>
 				<aside className="distribution-principle-card">
@@ -98,7 +88,7 @@ export function Share() {
 					<p>Lead with a concrete problem or engineering decision. Ask for feedback, contribution, or evaluation—not coordinated stars or artificial engagement.</p>
 					<div className="distribution-principle-list">
 						<span><Check size={15} /> audience-specific link</span>
-						<span><Check size={15} /> campaign-attributed URL</span>
+						<span><Check size={15} /> canonical campaign attribution</span>
 						<span><Check size={15} /> one concrete ask</span>
 					</div>
 				</aside>
@@ -108,12 +98,16 @@ export function Share() {
 				<div className="section-heading">
 					<span className="section-eyebrow">Audience paths</span>
 					<h2>Four useful ways to share the project.</h2>
-					<p>Each card pairs a tagged destination with copy you can adapt rather than mass-post verbatim.</p>
+					<p>Each card pairs a Phase 9 tagged destination with copy you can adapt rather than mass-post verbatim.</p>
 				</div>
 				<div className="distribution-grid">
 					{SHARE_PATHS.map((path) => {
 						const key = path.title;
-						const url = campaignUrl(path.route, path.id);
+						const url = campaignUrl(path.route, {
+							source: "share-hub",
+							medium: "referral",
+							content: path.id,
+						});
 						const fullText = `${path.copy}\n\n${url}`;
 						return (
 							<article className="distribution-card" key={path.title}>
@@ -145,12 +139,12 @@ export function Share() {
 					<div>
 						<span className="section-eyebrow">Launch discipline</span>
 						<h2>Do not treat every community as an announcement channel.</h2>
-						<p>Use the Phase 8 execution guide and distribution playbook to tailor the artifact, measure outcomes, and preserve community trust.</p>
+						<p>Use the Phase 9 growth operating system and distribution playbook to tailor the artifact, measure outcomes, and preserve community trust.</p>
 					</div>
 					<div className="distribution-launch-actions">
-						<a className="button-primary" href={`${REPO_URL}/blob/main/docs/phase-8-launch-execution.md`} target="_blank" rel="noreferrer">Phase 8 launch guide</a>
+						<a className="button-primary" href={`${REPO_URL}/blob/main/docs/phase-9-growth-operating-system.md`} target="_blank" rel="noreferrer">Phase 9 growth system</a>
+						<a className="button-secondary" href={`${REPO_URL}/blob/main/docs/phase-8-launch-execution.md`} target="_blank" rel="noreferrer">Launch packet</a>
 						<a className="button-secondary" href={`${REPO_URL}/blob/main/docs/distribution-playbook.md`} target="_blank" rel="noreferrer">Distribution playbook</a>
-						<a className="button-secondary" href={`${REPO_URL}/blob/main/docs/share-kit.md`} target="_blank" rel="noreferrer">Share kit</a>
 					</div>
 				</div>
 			</section>
