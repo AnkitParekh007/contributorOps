@@ -1,11 +1,11 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./apps/site/dist",
+      "staticDistDir": "./.lighthouse-pages",
       "url": [
-        "http://localhost/",
-        "http://localhost/#/try",
-        "http://localhost/#/quality"
+        "http://localhost/contributorOps/",
+        "http://localhost/contributorOps/#/try",
+        "http://localhost/contributorOps/#/quality"
       ],
       "numberOfRuns": 1,
       "settings": {
