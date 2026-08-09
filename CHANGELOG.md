@@ -2,13 +2,32 @@
 
 ContributorOps uses this changelog for meaningful project milestones. Fine-grained commit history remains available in GitHub.
 
-## Unreleased
+## Unreleased — Phase 5: Measurable adoption and launch execution
 
-### Distribution and growth
-- audience-specific share hub with copy/share actions
-- distribution playbook and launch sequencing
-- GitHub release-note configuration
-- citation metadata for repository reuse/reference
+### Adoption
+- public Adoption dashboard backed by public GitHub API signals
+- clear separation between repository engagement and customer/user claims
+- maintainer adoption scorecard using GitHub Insights traffic metrics
+
+### Measurement
+- optional Plausible integration, disabled unless explicitly configured
+- hash-route and outbound-link measurement support when configured
+- selected conversion-event hooks without intentional PII properties
+- campaign-tagged Share Hub links for aggregate launch attribution
+
+### Launch execution
+- concrete launch execution playbook with baseline capture, launch waves, and 48-hour review
+- contributor-retention playbook focused on repeat contribution quality
+- structured workflow-feedback issue form for developers, maintainers, recruiters, and engineering evaluators
+- updated README, navigation, privacy policy, launch checklist, and Share Kit
+
+## 2026-08-09 — Phase 4: Distribution and growth loops
+
+- added audience-specific Share Hub with copy/share actions
+- published distribution playbook and launch sequencing
+- added GitHub release-note configuration
+- added citation metadata for repository reuse/reference
+- shifted preview messaging toward open-source contribution rather than waitlist-first conversion
 
 ## 2026-08-09 — Phase 3: Authority and shareability
 
