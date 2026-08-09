@@ -10,6 +10,7 @@
     "build": "npm run build --workspace @contributorops/api && npm run build --workspace @contributorops/web",
     "build:all": "npm run build --workspace @contributorops/api && npm run build --workspace @contributorops/web && npm run site:build",
     "daily": "npm run daily --workspace @contributorops/api",
+    "hourly": "npm run hourly --workspace @contributorops/api",
     "start": "npm run start --workspace @contributorops/api",
     "site:dev": "npm run dev --workspace @contributorops/site",
     "site:build": "npm run build --workspace @contributorops/site",
