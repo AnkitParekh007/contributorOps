@@ -1,35 +1,64 @@
 # Security Policy
 
-## Supported Versions
+ContributorOps handles GitHub credentials and can perform explicitly approved external GitHub actions. Security reports that could bypass those boundaries are treated as high priority.
 
-ContributorOps is currently in Founder Preview. Security fixes are applied to the `main` branch.
+## Supported version
 
-## Reporting a Vulnerability
+Security fixes target the current `main` branch. Older commits, local snapshots, and unreleased forks are not maintained as supported security versions.
 
-Please do **not** open a public GitHub Issue for security vulnerabilities.
+## Reporting a vulnerability
 
-To report a security issue:
-1. Open a [GitHub Security Advisory](https://github.com/AnkitParekh007/contributorOps/security/advisories/new) on this repository.
-2. Describe the vulnerability, reproduction steps, and potential impact.
-3. You will receive a response within 7 business days.
+Please do **not** publish exploit details, tokens, private repository data, or a working approval bypass in a public issue.
 
-## Security Model
+If GitHub shows **Report a vulnerability** in this repository's Security tab, use that private reporting flow. If private vulnerability reporting is not available, contact the repository maintainer through the GitHub profile and ask for a private channel before sharing exploit details.
 
-ContributorOps is designed with the following security properties:
+A useful report includes:
 
-- **No external GitHub writes without explicit human approval** — the approval gate is enforced in code
-- **No shared credentials for user actions** — each user's GitHub token is their own (Phase 5+)
-- **No mass automation** — rate limits and approval gates prevent bulk external writes
-- **Audit logs** — every external action is logged with user ID, timestamp, and GitHub result URL
+- affected commit or version
+- impacted component or route
+- expected security boundary
+- observed behavior
+- minimal reproduction steps that do not target third-party repositories
+- whether credentials or external GitHub writes are involved
+- suggested mitigation, if known
 
-## Known Limitations (Preview Phase)
+Never include real access tokens or secrets in the report.
 
-The following are known gaps that will be addressed in upcoming phases:
+## High-value security boundaries
 
-- No user authentication (Phase 3)
-- Server-level GitHub token (per-user OAuth in Phase 5)
-- JSON file storage (Postgres in Phase 3)
-- No rate limiting on API endpoints (Phase 4)
-- No Stripe webhook signature verification (Phase 7)
+Please report issues involving:
 
-These limitations make the product unsuitable for production use with real user data. See the [Project Status](./README.md#project-status) section in README.md.
+- bypassing explicit human approval for an external GitHub write
+- reusing an approval capability for a different action
+- executing a write from a scheduled or daily-planning path
+- creating comments, branches, commits, or pull requests without the documented approval path
+- leaking GitHub, Supabase, or other credentials
+- authentication or authorization bypasses
+- unsafe handling of repository content or generated patches
+- dependency or build-chain vulnerabilities with a credible ContributorOps impact
+
+## Safe research expectations
+
+Security testing should stay within repositories and accounts you control. Do not use ContributorOps to test write behavior against an unrelated third-party repository or maintainer account.
+
+Prefer demo mode, dry-run mode, fixtures, or a repository you own when reproducing a write-path issue.
+
+## Current security controls
+
+The repository currently uses:
+
+- action-scoped approval capabilities for external contribution actions
+- explicit approval reasons and state checks
+- duplicate-action and daily-limit guards
+- approval event history, including denied attempts
+- regression tests for the external-write trust boundary
+- authentication middleware for protected API routes when Supabase auth is configured
+- API rate limiting
+- common secret-pattern scanning
+- runtime dependency auditing
+- pull-request dependency review
+- CodeQL analysis
+- Dependabot update automation
+- reproducible SBOM generation with `npm run security:sbom`
+
+These controls reduce risk; they do not prove the absence of vulnerabilities. See [`docs/security-model.md`](./docs/security-model.md) for the architecture and limitations.
