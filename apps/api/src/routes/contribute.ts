@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { ApprovalDeniedError } from "../approval-policy.js";
 import { ensureFeature } from "../billing.js";
 import {
   approveContributionBranch,
@@ -7,26 +8,45 @@ import {
   cancelContributionRun,
   markContributionRunError,
   prepareContributionRun,
+  recordContributionApprovalDenial,
 } from "../contribute.js";
-import { createApprovedDraftPullRequest, createPlanningIssue, discoverIssues } from "../github.js";
+import { createPlanningIssue, discoverIssues } from "../github.js";
 import { buildDraftProposal, buildGithubProfileAudit, buildIssueCandidate } from "../planner.js";
-import { readContributionRuns, readControlMode, readDailyPlan, readPullRequestActivity, writePullRequestActivity } from "../storage.js";
+import { readContributionRuns, readControlMode, readDailyPlan } from "../storage.js";
 import { validate } from "../middleware/validate.js";
 import { strictLimiter } from "../middleware/rateLimiter.js";
 import {
   ApproveCommentSchema,
   ApproveBranchSchema,
   ApproveDraftPrSchema,
-  ApprovedPrSchema,
   CancelRunSchema,
   DraftProposalSchema,
   PlanningIssueSchema,
   PrepareRunSchema,
   PrQualityCheckSchema,
 } from "../schemas/contribute.js";
-import type { ApprovedPullRequestRequest, ContributionApprovalRequest, DailyPlan } from "../types.js";
+import type { ContributionApprovalAction, ContributionApprovalRequest, DailyPlan } from "../types.js";
 
 const router = Router();
+
+async function auditApprovalFailure(
+  runId: string | undefined,
+  action: ContributionApprovalAction,
+  error: unknown,
+  fallback: string
+) {
+  if (!runId) {
+    return;
+  }
+
+  const message = error instanceof Error ? error.message : fallback;
+  if (error instanceof ApprovalDeniedError) {
+    await recordContributionApprovalDenial(runId, action, message);
+    return;
+  }
+
+  await markContributionRunError(runId, message);
+}
 
 router.post("/create-planning-issue", validate(PlanningIssueSchema), async (req, res, next) => {
   try {
@@ -58,23 +78,8 @@ router.post("/draft-proposal", validate(DraftProposalSchema), async (req, res, n
   }
 });
 
-router.post("/approved-pr", strictLimiter, validate(ApprovedPrSchema), async (req, res, next) => {
-  try {
-    await ensureFeature("approved-auto-contribute");
-    const controlMode = await readControlMode();
-    const activity = await readPullRequestActivity();
-    const body = req.body as ApprovedPullRequestRequest;
-    const result = await createApprovedDraftPullRequest(body, controlMode, activity);
-    await writePullRequestActivity([
-      { upstreamRepoFullName: body.issue.repoFullName, draftPullRequestUrl: result.draftPullRequestUrl, createdAt: new Date().toISOString() },
-      ...activity,
-    ]);
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
+// There is intentionally no direct `/approved-pr` write endpoint.
+// All external contribution writes must flow through prepare -> inspect -> action-scoped approval.
 router.post("/contribute/prepare", validate(PrepareRunSchema), async (req, res, next) => {
   try {
     await ensureFeature("approved-auto-contribute");
@@ -89,9 +94,7 @@ router.post("/contribute/approve-comment", strictLimiter, validate(ApproveCommen
     await ensureFeature("approved-auto-contribute");
     res.json(await approveContributionComment(req.body as ContributionApprovalRequest));
   } catch (error) {
-    if (req.body?.runId) {
-      await markContributionRunError(req.body.runId, error instanceof Error ? error.message : "Unknown comment approval error.");
-    }
+    await auditApprovalFailure(req.body?.runId, "approve-comment", error, "Unknown comment approval error.");
     next(error);
   }
 });
@@ -101,9 +104,7 @@ router.post("/contribute/approve-branch", strictLimiter, validate(ApproveBranchS
     await ensureFeature("approved-auto-contribute");
     res.json(await approveContributionBranch(req.body as ContributionApprovalRequest & { forkOwner: string }));
   } catch (error) {
-    if (req.body?.runId) {
-      await markContributionRunError(req.body.runId, error instanceof Error ? error.message : "Unknown branch approval error.");
-    }
+    await auditApprovalFailure(req.body?.runId, "approve-branch", error, "Unknown branch approval error.");
     next(error);
   }
 });
@@ -113,9 +114,7 @@ router.post("/contribute/approve-draft-pr", strictLimiter, validate(ApproveDraft
     await ensureFeature("approved-auto-contribute");
     res.json(await approveContributionDraftPr(req.body as ContributionApprovalRequest & { forkOwner: string }));
   } catch (error) {
-    if (req.body?.runId) {
-      await markContributionRunError(req.body.runId, error instanceof Error ? error.message : "Unknown draft PR approval error.");
-    }
+    await auditApprovalFailure(req.body?.runId, "approve-draft-pr", error, "Unknown draft PR approval error.");
     next(error);
   }
 });
