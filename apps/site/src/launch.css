@@ -28,7 +28,7 @@
 	max-width: 760px;
 	font-size: 1.04rem;
 	line-height: 1.75;
-	color: var(--text-secondary);
+	color: var(--muted);
 }
 
 .demo-hero-actions,
@@ -43,10 +43,10 @@
 .demo-disclosure-card,
 .launch-status-card {
 	padding: 1.35rem;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--line);
 	border-radius: 1rem;
-	background: var(--surface-card);
-	box-shadow: var(--shadow-card);
+	background: var(--panel);
+	box-shadow: var(--shadow);
 }
 
 .demo-disclosure-card strong,
@@ -58,16 +58,16 @@
 .launch-status-card ul {
 	margin: 0.8rem 0 0;
 	padding-left: 1.15rem;
-	color: var(--text-secondary);
+	color: var(--muted);
 	line-height: 1.7;
 }
 
 .demo-shell {
 	padding: 1.25rem;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--line);
 	border-radius: 1.1rem;
-	background: var(--surface-card);
-	box-shadow: var(--shadow-card);
+	background: var(--panel);
+	box-shadow: var(--shadow);
 }
 
 .demo-role-row,
@@ -81,19 +81,19 @@
 .demo-step-button {
 	min-height: 44px;
 	padding: 0.65rem 0.9rem;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--line);
 	border-radius: 999px;
 	background: transparent;
-	color: var(--text-secondary);
+	color: var(--muted);
 	font: inherit;
 	cursor: pointer;
 }
 
 .demo-role-button.active,
 .demo-step-button.active {
-	border-color: var(--accent-primary);
-	color: var(--text-primary);
-	background: var(--accent-soft);
+	border-color: var(--accent);
+	color: var(--text);
+	background: rgba(139, 92, 246, 0.12);
 }
 
 .demo-step-button {
@@ -107,22 +107,22 @@
 	margin: 1rem 0;
 	overflow: hidden;
 	border-radius: 999px;
-	background: var(--surface-muted);
+	background: var(--bg-2);
 }
 
 .demo-progress-bar {
 	height: 100%;
 	border-radius: inherit;
-	background: var(--accent-primary);
+	background: var(--accent);
 	transition: width 180ms ease;
 }
 
 .demo-stage {
 	margin-top: 1rem;
 	padding: 1.25rem;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--line);
 	border-radius: 1rem;
-	background: var(--surface-subtle);
+	background: var(--bg-2);
 }
 
 .demo-stage-heading {
@@ -142,15 +142,15 @@
 	display: inline-flex;
 	width: fit-content;
 	padding: 0.35rem 0.6rem;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--line);
 	border-radius: 999px;
-	color: var(--text-secondary);
+	color: var(--muted);
 	font-size: 0.78rem;
 }
 
 .demo-card-kicker {
 	display: block;
-	color: var(--text-muted);
+	color: var(--muted);
 	font-size: 0.76rem;
 	font-weight: 700;
 	letter-spacing: 0.08em;
@@ -178,9 +178,9 @@
 .launch-audience-card,
 .launch-proof-grid article {
 	padding: 1rem;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--line);
 	border-radius: 0.9rem;
-	background: var(--surface-card);
+	background: var(--panel-strong);
 }
 
 .demo-work-card-accent {
@@ -208,7 +208,7 @@
 .launch-audience-card p,
 .launch-proof-grid p {
 	margin: 0.35rem 0;
-	color: var(--text-secondary);
+	color: var(--muted);
 	line-height: 1.65;
 }
 
@@ -240,7 +240,7 @@
 	height: 28px;
 	place-items: center;
 	border-radius: 50%;
-	background: var(--accent-soft);
+	background: rgba(139, 92, 246, 0.12);
 	font-size: 0.8rem;
 	font-weight: 700;
 }
@@ -265,7 +265,7 @@
 }
 
 .demo-check-icon.pass { background: rgba(58, 196, 125, 0.13); }
-.demo-check-icon.hold { background: var(--accent-soft); }
+.demo-check-icon.hold { background: rgba(139, 92, 246, 0.12); }
 
 .demo-auth-card {
 	display: flex;
@@ -290,9 +290,9 @@
 	gap: 1.5rem;
 	align-items: center;
 	padding: 1.4rem;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--line);
 	border-radius: 1rem;
-	background: var(--surface-card);
+	background: var(--panel);
 }
 
 .launch-audience-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -306,7 +306,7 @@
 	place-items: center;
 	margin-bottom: 0.8rem;
 	border-radius: 0.75rem;
-	background: var(--accent-soft);
+	background: rgba(139, 92, 246, 0.12);
 }
 
 .launch-proof-grid article > svg { padding: 0.65rem; }
@@ -321,11 +321,11 @@
 	display: grid;
 	gap: 0.2rem;
 	padding: 0.8rem;
-	border: 1px solid var(--border-color);
+	border: 1px solid var(--line);
 	border-radius: 0.75rem;
 }
 
-.launch-channel-list span { color: var(--text-secondary); font-size: 0.9rem; }
+.launch-channel-list span { color: var(--muted); font-size: 0.9rem; }
 
 @media (max-width: 900px) {
 	.demo-hero,
