@@ -1,0 +1,41 @@
+name: Phase 7 Audit Remediation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  remediate-lockfile:
+    name: Apply compatible audit fixes to lockfile
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'agent/phase-7-security-trust-v2'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Apply compatible lockfile-only audit fixes
+        run: npm audit fix --package-lock-only
+      - name: Verify the remediated lockfile installs cleanly
+        run: npm ci
+      - name: Verify no high or critical runtime findings remain
+        run: npm run security:audit:runtime
+      - name: Show remaining full-tree findings for classification
+        run: npm audit --audit-level=low || true
+      - name: Commit lockfile remediation
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "No lockfile changes were needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore(security): apply compatible dependency fixes"
+          git push origin HEAD:${{ github.head_ref }}
