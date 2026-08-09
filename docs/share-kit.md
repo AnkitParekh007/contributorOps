@@ -2,6 +2,10 @@
 
 Use this file when sharing ContributorOps with developers, maintainers, recruiters, engineering leaders, or open-source communities. Keep claims tied to what the repository actually implements.
 
+For an interactive version with audience-specific copy actions, use:
+
+https://ankitparekh007.github.io/contributorOps/#/share
+
 ## Canonical links
 
 - Live site: https://ankitparekh007.github.io/contributorOps/
@@ -9,12 +13,14 @@ Use this file when sharing ContributorOps with developers, maintainers, recruite
 - Engineering showcase: https://ankitparekh007.github.io/contributorOps/#/showcase
 - Contributor onboarding: https://ankitparekh007.github.io/contributorOps/#/contribute
 - Recruiter brief: https://ankitparekh007.github.io/contributorOps/#/recruiter
+- Share hub: https://ankitparekh007.github.io/contributorOps/#/share
 - Architecture: https://github.com/AnkitParekh007/contributorOps/blob/main/docs/architecture.md
 - Safety policy: https://github.com/AnkitParekh007/contributorOps/blob/main/docs/safety-policy.md
+- Distribution playbook: https://github.com/AnkitParekh007/contributorOps/blob/main/docs/distribution-playbook.md
 
 ## One-line description
 
-ContributorOps is a human-approved OSS contribution intelligence platform that helps developers discover better issues, prepare stronger pull requests, and turn real contributions into recruiter-readable proof of work.
+ContributorOps is a human-approved OSS contribution intelligence platform that helps developers discover better issues, prepare stronger PRs, and turn real contributions into recruiter-readable proof of work.
 
 ## Short developer pitch
 
@@ -36,6 +42,8 @@ If this workflow is useful, I would value an architecture review, a contribution
 
 ## Hacker News / Show HN draft
 
+Use this only when the project is directly tryable. Show HN expects something people can run or meaningfully interact with; a static landing page or waitlist is not enough.
+
 **Title:** Show HN: ContributorOps – turn OSS contributions into explainable career proof
 
 I built ContributorOps to make open-source contribution work more deliberate and easier to explain afterward. It helps with issue discovery, contribution planning, PR-quality checks, human-approved GitHub actions, and proof-of-work packaging.
@@ -43,6 +51,12 @@ I built ContributorOps to make open-source contribution work more deliberate and
 The interesting constraint is that scheduled workflows are planning-only toward third-party repositories. External writes remain explicitly approval-gated because I do not want the product optimizing for contribution volume at maintainer expense.
 
 The repo includes the React/TypeScript UI, Node/Express API, GitHub/Octokit integration, public safety model, architecture docs, and ADRs. Feedback on the trust boundary and developer workflow is especially welcome.
+
+Before a Show HN submission:
+- make sure visitors can try the tool without a mandatory signup barrier
+- link directly to the runnable project or clear setup path
+- be available to answer questions
+- do not ask friends or communities to coordinate upvotes/comments
 
 ## Reddit / community draft
 
@@ -71,6 +85,7 @@ Do:
 - ask for concrete feedback
 - state clearly when data or proof examples are illustrative
 - be explicit about current production boundaries
+- credit contributors and reviewers
 
 Avoid:
 - invented user/customer numbers
@@ -78,3 +93,4 @@ Avoid:
 - implying the project opens unattended third-party PRs
 - framing stars or forks as evidence of product quality by themselves
 - mass-posting identical promotional copy across communities
+- coordinated requests for upvotes, comments, or stars
