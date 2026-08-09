@@ -2,7 +2,23 @@
 
 ContributorOps uses this changelog for meaningful project milestones. Fine-grained commit history remains available in GitHub.
 
-## Unreleased — Phase 6: Production-grade quality proof
+## Unreleased — Phase 7: Security and trust hardening
+
+### Approval boundary
+- external contribution actions now use separate action-scoped approval capabilities for comments, fork branches, and draft pull requests
+- legacy generic run tokens are readable for history but fail closed for new writes
+- removed the legacy direct `/approved-pr` external-write route
+- dashboard draft flow now prepares a reviewed run before any external action can be approved
+- denied approval attempts are retained as explicit `approved: false` audit events
+
+### Security proof
+- added deterministic regression tests for cross-action token replay, explicit approval, state transitions, legacy token rejection, and scheduled-write separation
+- added runtime high/critical dependency audit as a merge gate
+- added CodeQL analysis, dependency review, and Dependabot update policy
+- added a current security disclosure policy and documented security model
+- added reproducible CycloneDX SBOM generation
+
+## 2026-08-09 — Phase 6: Production-grade quality proof
 
 ### Quality gates
 - route-level title and description metadata for major public surfaces
