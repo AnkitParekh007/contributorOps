@@ -11,7 +11,7 @@ const repoRoot = path.resolve(__dirname, "../../..");
 
 export const config = {
   port: Number(process.env.PORT || 8787),
-  githubToken: process.env.GITHUB_TOKEN || process.env.GH_CONTRIBUTOROPS_TOKEN || "",
+  githubToken: process.env.GH_CONTRIBUTOROPS_TOKEN || process.env.GITHUB_TOKEN || "",
   githubUsername: process.env.GITHUB_USERNAME || "",
   createDailyIssue: process.env.CREATE_DAILY_ISSUE === "true",
   autoContributeEnabled: process.env.AUTO_CONTRIBUTE_ENABLED === "true",
