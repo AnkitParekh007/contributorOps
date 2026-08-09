@@ -4,27 +4,27 @@ import { trackEvent } from "../lib/analytics";
 
 const ISSUES = [
 	{
-		score: 97,
-		repo: "angular/core",
-		num: "#48291",
-		label: "TypeScript strict mode",
-		tag: "Backend",
+		score: 94,
+		repo: "sample-org/agent-console",
+		num: "#128",
+		label: "Streaming cancellation guard",
+		tag: "Frontend + AI",
 		level: "high" as const,
 	},
 	{
-		score: 84,
-		repo: "expressjs/express",
-		num: "#3946",
-		label: "Error middleware types",
-		tag: "API",
+		score: 91,
+		repo: "sample-org/dev-platform",
+		num: "#84",
+		label: "Workspace path policy",
+		tag: "Platform",
 		level: "med" as const,
 	},
 	{
-		score: 71,
-		repo: "nestjs/nest",
-		num: "#12847",
-		label: "Guard decorator edge",
-		tag: "Platform",
+		score: 89,
+		repo: "sample-org/api-runtime",
+		num: "#57",
+		label: "Idempotent retry jobs",
+		tag: "Backend",
 		level: "low" as const,
 	},
 ];
@@ -32,8 +32,8 @@ const ISSUES = [
 const CHECKS = [
 	{ label: "Scope focused", pass: true },
 	{ label: "Tests included", pass: true },
-	{ label: "Tone respectful", pass: true },
-	{ label: "Changelog missing", pass: false },
+	{ label: "Policy checked", pass: true },
+	{ label: "Write not authorized", pass: false },
 ];
 
 const PROOFS = [
@@ -52,7 +52,7 @@ export function Hero() {
 						<span className="hero-badge-dot hero-badge-dot-green" />
 						Open source
 					</span>
-					<span className="hero-badge">Human-approved</span>
+					<span className="hero-badge">Explicitly authorized</span>
 					<span className="hero-badge">Recruiter-readable proof</span>
 				</div>
 
@@ -69,20 +69,20 @@ export function Hero() {
 				</p>
 
 				<div className="hero-actions">
+					<Link to="/demo" className="button-primary" onClick={() => trackEvent("Hero CTA", { action: "browser_demo" })}>
+						<Play size={15} />
+						Try browser demo
+					</Link>
 					<a
 						href="https://github.com/AnkitParekh007/contributorOps"
 						target="_blank"
 						rel="noreferrer"
-						className="button-primary"
+						className="button-secondary"
 						onClick={() => trackEvent("Hero CTA", { action: "open_repository" })}
 					>
 						<Github size={16} />
 						Star on GitHub
 					</a>
-					<Link to="/try" className="button-secondary" onClick={() => trackEvent("Hero CTA", { action: "try_demo" })}>
-						<Play size={15} />
-						Try without signup
-					</Link>
 					<Link to="/docs/architecture" className="button-secondary">
 						<BookOpen size={15} />
 						Architecture
@@ -90,17 +90,11 @@ export function Hero() {
 				</div>
 
 				<div className="hero-trust-row">
-					<span>
-						<strong>Discover</strong> better issues
-					</span>
+					<span><strong>Discover</strong> better issues</span>
 					<span className="trust-sep" />
-					<span>
-						<strong>Validate</strong> PR quality
-					</span>
+					<span><strong>Validate</strong> PR quality</span>
 					<span className="trust-sep" />
-					<span>
-						<strong>Prove</strong> engineering impact
-					</span>
+					<span><strong>Prove</strong> engineering impact</span>
 				</div>
 			</div>
 
@@ -113,13 +107,13 @@ export function Hero() {
 						</div>
 						<div className="hd-status">
 							<span className="hd-live-dot" />
-							<span>Live · Daily plan active</span>
+							<span>Example · browser demo</span>
 						</div>
 					</div>
 
 					<div className="hd-body">
 						<div className="hd-panel">
-							<div className="hd-panel-label">Issue Radar · AI Scored</div>
+							<div className="hd-panel-label">Issue Radar · Example Scores</div>
 							{ISSUES.map((item) => (
 								<div key={item.num} className="hd-issue">
 									<span className={`hd-score hd-score-${item.level}`}>{item.score}</span>
@@ -137,15 +131,12 @@ export function Hero() {
 						<div className="hd-panel">
 							<div className="hd-panel-label">PR Quality</div>
 							<div className="hd-quality-score">
-								<span className="hd-score-big">88</span>
+								<span className="hd-score-big">92</span>
 								<span className="hd-score-denom">/100</span>
 							</div>
 							<div className="hd-checks">
 								{CHECKS.map((check) => (
-									<div
-										key={check.label}
-										className={`hd-check ${check.pass ? "hd-check-pass" : "hd-check-warn"}`}
-									>
+									<div key={check.label} className={`hd-check ${check.pass ? "hd-check-pass" : "hd-check-warn"}`}>
 										<span className="hd-check-icon">{check.pass ? "✓" : "!"}</span>
 										{check.label}
 									</div>
@@ -155,21 +146,16 @@ export function Hero() {
 					</div>
 
 					<div className="hd-mission">
-						<div className="hd-mission-label">Today's Mission</div>
-						<div className="hd-mission-text">
-							Fix TypeScript strict mode violations · angular/core #48291
-						</div>
-						<div className="hd-mission-est">~2h estimate · Backend role match · High maintainer fit</div>
+						<div className="hd-mission-label">Example Mission</div>
+						<div className="hd-mission-text">Harden streamed agent responses against cancelled navigation</div>
+						<div className="hd-mission-est">Frontend + AI role match · focused diff · deterministic test path</div>
 					</div>
 
 					<div className="hd-proof">
 						<span className="hd-proof-label">Proof Export</span>
 						<div className="hd-proof-items">
 							{PROOFS.map((proof) => (
-								<span
-									key={proof.label}
-									className={`hd-proof-item ${proof.ready ? "hd-proof-ready" : "hd-proof-pending"}`}
-								>
+								<span key={proof.label} className={`hd-proof-item ${proof.ready ? "hd-proof-ready" : "hd-proof-pending"}`}>
 									{proof.ready ? "✓" : "◌"} {proof.label}
 								</span>
 							))}
@@ -178,7 +164,7 @@ export function Hero() {
 
 					<div className="hd-safety-bar">
 						<span className="hd-safety-dot" />
-						Safety: Human-approved · No external writes · Approval required for all actions
+						Safety: action-scoped interactive approval · bounded exact-patch standing authorization
 					</div>
 				</div>
 			</div>
