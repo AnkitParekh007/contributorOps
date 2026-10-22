@@ -20,7 +20,7 @@ jobs:
       # It does NOT write to any external GitHub repository.
       # External contribution actions require explicit human approval via the web app.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
         uses: actions/setup-node@v4
