@@ -2,6 +2,8 @@
 
 Thanks for making open-source contributions easier to discover, review, and explain. **Small, useful changes are welcome.** Documentation, examples, accessibility fixes, regression tests, and API improvements all count.
 
+New here? Follow the [first-contribution walkthrough](./docs/first-contribution.md) for Node.js 22 setup, safe demo mode, creating a fork, validation, and opening your first PR.
+
 ## Pick your first issue
 
 Start with [good first issues](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [help wanted](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22). Before you begin, check whether an issue already has an open pull request and leave a short note when coordination would help. You can also report a confusing step using the workflow-feedback issue template.
