@@ -13,8 +13,10 @@ const router = Router();
  */
 export function configuredSupabaseProjectRef(value: string): string | null {
   try {
-    const hostname = new URL(value).hostname;
-    return /^([a-z0-9]{20})\.supabase\.co$/i.exec(hostname)?.[1].toLowerCase() ?? null;
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.username || url.password || url.port ||
+        url.pathname !== "/" || url.search || url.hash) return null;
+    return /^([a-z0-9]{20})\.supabase\.co$/i.exec(url.hostname)?.[1].toLowerCase() ?? null;
   } catch {
     return null;
   }
