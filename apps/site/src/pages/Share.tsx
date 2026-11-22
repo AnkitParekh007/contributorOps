@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { BriefcaseBusiness, Check, Clipboard, Code2, ExternalLink, Github, MessageCircle, Share2, ShieldCheck } from "lucide-react";
 import { trackEvent } from "../lib/analytics";
@@ -41,18 +41,33 @@ const SHARE_PATHS = [
 	},
 ];
 
+type ShareFeedback = { key: string; kind: "success" | "error"; message: string };
+
 export function Share() {
-	const [copied, setCopied] = useState<string | null>(null);
+	const [feedback, setFeedback] = useState<ShareFeedback | null>(null);
+	const feedbackTimeout = useRef<number | null>(null);
 	const canNativeShare = useMemo(() => typeof navigator !== "undefined" && typeof navigator.share === "function", []);
+
+	useEffect(() => () => {
+		if (feedbackTimeout.current !== null) window.clearTimeout(feedbackTimeout.current);
+	}, []);
+
+	function announce(key: string, kind: ShareFeedback["kind"], message: string) {
+		if (feedbackTimeout.current !== null) window.clearTimeout(feedbackTimeout.current);
+		setFeedback({ key, kind, message });
+		feedbackTimeout.current = window.setTimeout(() => {
+			setFeedback((current) => current?.key === key ? null : current);
+			feedbackTimeout.current = null;
+		}, 3500);
+	}
 
 	async function copyText(key: string, audience: string, text: string) {
 		try {
 			await navigator.clipboard.writeText(text);
-			setCopied(key);
+			announce(key, "success", `Copied message for ${audience} to clipboard.`);
 			trackEvent("Share Action", { action: "copy", audience });
-			window.setTimeout(() => setCopied(null), 1600);
 		} catch {
-			setCopied(null);
+			announce(key, "error", `Couldn't copy the ${audience} message. Check clipboard permissions or select the text manually.`);
 		}
 	}
 
@@ -60,14 +75,17 @@ export function Share() {
 		if (!canNativeShare) return;
 		try {
 			await navigator.share({ title, text, url });
+			announce(audience, "success", `Shared the ${audience} message.`);
 			trackEvent("Share Action", { action: "native_share", audience });
-		} catch {
-			// User cancellation is expected and should not create an error state.
+		} catch (error) {
+			if (error instanceof DOMException && error.name === "AbortError") return;
+			announce(audience, "error", `Unable to share the ${audience} message. Try copying it instead.`);
 		}
 	}
 
 	return (
 		<div className="page distribution-page">
+			<div className="sr-only" role="status" aria-live="polite" aria-atomic="true">{feedback?.message ?? ""}</div>
 			<section className="distribution-hero">
 				<div>
 					<span className="section-eyebrow">Share ContributorOps</span>
@@ -103,7 +121,7 @@ export function Share() {
 				</div>
 				<div className="distribution-grid">
 					{SHARE_PATHS.map((path) => {
-						const key = path.title;
+						const key = path.id;
 						const url = campaignUrl(path.route, {
 							source: "share-hub",
 							medium: "referral",
@@ -117,11 +135,11 @@ export function Share() {
 								<p>{path.description}</p>
 								<div className="distribution-copy-box">{path.copy}</div>
 								<div className="distribution-card-actions">
-									<button className="button-secondary" type="button" onClick={() => copyText(key, path.id, fullText)}>
-										{copied === key ? <Check size={15} /> : <Clipboard size={15} />} {copied === key ? "Copied" : "Copy message"}
+									<button className="button-secondary" type="button" aria-label={`Copy message for ${path.title}`} onClick={() => copyText(key, path.id, fullText)}>
+										{feedback?.key === key && feedback.kind === "success" ? <Check size={15} aria-hidden="true" /> : <Clipboard size={15} aria-hidden="true" />} {feedback?.key === key && feedback.kind === "success" ? "Copied" : "Copy message"}
 									</button>
 									{canNativeShare && (
-										<button className="button-secondary" type="button" onClick={() => nativeShare(path.id, "ContributorOps", path.copy, url)}>
+										<button className="button-secondary" type="button" aria-label={`Share ContributorOps with ${path.title}`} onClick={() => nativeShare(path.id, "ContributorOps", path.copy, url)}>
 											<Share2 size={15} /> Share
 										</button>
 									)}
@@ -129,6 +147,9 @@ export function Share() {
 										Open destination <ExternalLink size={14} />
 									</a>
 								</div>
+								<p className={`share-feedback${feedback?.key === key && feedback.kind === "error" ? " is-error" : ""}`} aria-hidden="true">
+									{feedback?.key === key ? feedback.message : "\u00a0"}
+								</p>
 							</article>
 						);
 					})}
