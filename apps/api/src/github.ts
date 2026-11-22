@@ -126,22 +126,43 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
     };
   }
 
-  const repoQueryParts = [
-    "archived:false",
-    "is:public",
-    "stars:>50",
-    `(${filters.topics.map((topic) => `topic:${topic}`).join(" OR ")})`,
-    `(${filters.languages.map((language) => `language:${language}`).join(" OR ")})`
-  ];
+  // GitHub repository search does not interpret parenthesized OR groups of
+  // topic/language qualifiers as the union we want. Run a bounded number of
+  // supported single-qualifier searches and interleave the results instead.
+  const topics = filters.topics.slice(0, 8);
+  const languages = filters.languages.length ? filters.languages : ["typescript"];
+  const searchTerms = (topics.length ? topics : ["developer-tools"]).map((topic, index) =>
+    [
+      "archived:false",
+      "is:public",
+      "stars:>50",
+      `topic:${topic}`,
+      `language:${languages[index % languages.length]}`
+    ].join(" ")
+  );
 
-  const repos = await octokit.search.repos({
-    q: repoQueryParts.join(" "),
-    per_page: 24,
-    sort: "updated",
-    order: "desc"
-  });
+  const searchPages = await Promise.all(
+    searchTerms.map((q) =>
+      octokit.search.repos({
+        q,
+        per_page: 8,
+        sort: "updated",
+        order: "desc"
+      })
+    )
+  );
 
-  const repoItems = repos.data.items.filter((repo) => !repo.fork);
+  const repoItems: (typeof searchPages)[number]["data"]["items"] = [];
+  const seen = new Set<string>();
+  for (let rank = 0; rank < 8 && repoItems.length < 20; rank++) {
+    for (const search of searchPages) {
+      const repo = search.data.items[rank];
+      if (!repo || repo.fork || seen.has(repo.full_name.toLowerCase())) continue;
+      seen.add(repo.full_name.toLowerCase());
+      repoItems.push(repo);
+      if (repoItems.length >= 20) break;
+    }
+  }
 
   const issueLists = await Promise.all(
     repoItems.map(async (repo) => {
