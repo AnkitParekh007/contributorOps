@@ -2,14 +2,14 @@
  * ContributorOps real staging HTTP acceptance.
  * Fail closed: no discovery of credentials, no production host, no external GitHub writes.
  * "public" is strictly non-mutating; "two-user" requires explicit isolated test accounts
- * and only creates and deletes a temporary internal portfolio fixture.
+ * and only changes and restores A's internal control-mode fixture.
  */
 import { writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const STAGING_HOST = /(^|[.-])(staging|stage|preview)([.-]|$)/i;
 const STAGING_ACK = "I_CONFIRM_ISOLATED_CONTRIBUTOROPS_STAGING";
-const MUTATION_ACK = "ALLOW_TEMPORARY_TEST_PORTFOLIO_ONLY";
+const MUTATION_ACK = "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY";
 
 function parseSecureOrigin(value, name) {
   if (!value) throw new Error(`Missing ${name}`);
@@ -39,7 +39,7 @@ export function validateStagingConfig(env = process.env) {
   if (!["public", "two-user"].includes(mode)) throw new Error("STAGING_MODE must be public or two-user");
   if (mode === "two-user") {
     if (env.STAGING_MUTATION_APPROVAL !== MUTATION_ACK) {
-      throw new Error("Two-user isolation requires explicit temporary-portfolio mutation approval");
+      throw new Error("Two-user isolation requires explicit temporary control-mode mutation approval");
     }
     if (!env.STAGING_USER_A_TOKEN || !env.STAGING_USER_B_TOKEN ||
         env.STAGING_USER_A_TOKEN === env.STAGING_USER_B_TOKEN) {
@@ -109,69 +109,60 @@ export async function runTwoUserChecks(config, fetcher = fetch) {
   if (config.mode !== "two-user" || !config.tokenA || !config.tokenB) {
     throw new Error("Two-user acceptance requires explicit staging setup");
   }
-  const checks = [];
-  const tokenA = config.tokenA, tokenB = config.tokenB;
-  // Test tokens must be for free staging-only accounts, not paid or real users.
+  const checks = [], tokenA = config.tokenA, tokenB = config.tokenB;
+  // This test deliberately uses two FREE staging identities. Portfolio
+  // creation requires a paid entitlement and needs a separate approved test.
   for (const [label, token] of [["A", tokenA], ["B", tokenB]]) {
     const billing = await check(fetcher, checks, config.api, "/api/billing", 200, { token });
     if (billing?.billing?.plan !== "free") throw new Error(`Staging user ${label} must have a free subscription`);
-    await portfolioList(config, fetcher, checks, token);
+    const portfolio = await check(fetcher, checks, config.api, "/api/portfolio", 200, { token });
+    if (!Array.isArray(portfolio)) throw new Error(`Staging user ${label} portfolio response must be an array`);
   }
   await check(fetcher, checks, config.api, "/api/billing/mock-select-plan", 403, {
     method: "POST", token: tokenA, body: { plan: "team" },
   });
   const afterBilling = await check(fetcher, checks, config.api, "/api/billing", 200, { token: tokenA });
   if (afterBilling?.billing?.plan !== "free") throw new Error("Mock plan request escalated free user A");
-  // Even a valid test user cannot invoke GitHub writes from the hosted HTTP API.
+  // Even a valid staging user cannot invoke GitHub writes from hosted HTTP.
   await check(fetcher, checks, config.api, "/api/contribute/approve-comment", 403, {
     method: "POST", token: tokenA, body: {},
   });
   await check(fetcher, checks, config.api, "/api/create-planning-issue", 403, {
     method: "POST", token: tokenB, body: {},
   });
-
-  const marker = `staging-acceptance-${crypto.randomUUID()}`;
-  let createdId;
-  let failed = false;
+  // Fresh disposable A/B staging users must both begin in research mode.
+  // Snapshot B and prove that A's update does NOT modify B's scoped state.
+  const beforeA = await check(fetcher, checks, config.api, "/api/control-mode", 200, { token: tokenA });
+  const beforeB = await check(fetcher, checks, config.api, "/api/control-mode", 200, { token: tokenB });
+  if (beforeA?.safetyLevel !== "research" || beforeB?.safetyLevel !== "research") {
+    throw new Error("Two-user acceptance requires fresh A/B test accounts in research mode");
+  }
+  let changedA = false, firstError = null;
   try {
-    const created = await check(fetcher, checks, config.api, "/api/portfolio", 201, {
-      method: "POST", token: tokenA,
-      body: { selectedRepo: "contributorops/staging-fixture", status: "planned", notes: marker,
-        resumeBullet: "Temporary staging acceptance fixture (deleted after test)" },
+    await check(fetcher, checks, config.api, "/api/control-mode", 200, {
+      method: "POST", token: tokenA, body: { safetyLevel: "draft" },
     });
-    if (!created || typeof created.id !== "string") throw new Error("Staging portfolio creation did not return a record ID");
-    createdId = created.id;
-    const own = await portfolioList(config, fetcher, checks, tokenA);
-    if (!own.some(x => x.id === createdId && x.notes === marker)) {
-      throw new Error("Owner A cannot read its own created portfolio fixture");
+    changedA = true;
+    const afterA = await check(fetcher, checks, config.api, "/api/control-mode", 200, { token: tokenA });
+    if (afterA?.safetyLevel !== "draft") throw new Error("User A cannot read its own temporary state");
+    const afterB = await check(fetcher, checks, config.api, "/api/control-mode", 200, { token: tokenB });
+    if (JSON.stringify(afterB) !== JSON.stringify(beforeB)) {
+      throw new Error("Cross-user state leak: A's control-mode mutation changed B's state");
     }
-    const other = await portfolioList(config, fetcher, checks, tokenB);
-    if (other.some(x => x.id === createdId || x.notes === marker)) {
-      throw new Error("Cross-user data leak: B can read A's portfolio");
-    }
-    await check(fetcher, checks, config.api, `/api/portfolio/${encodeURIComponent(createdId)}`, 404, {
-      method: "PATCH", token: tokenB, body: { notes: "unauthorized-cross-user-write" },
-    });
-    const verified = await portfolioList(config, fetcher, checks, tokenA);
-    if (!verified.some(x => x.id === createdId && x.notes === marker)) {
-      throw new Error("Cross-user mutation: A's record changed after B's rejected PATCH");
-    }
-  } catch (e) {
-    failed = true;
-    throw e;
+  } catch (error) {
+    firstError = error;
   } finally {
-    if (createdId) {
-      // Always attempt owner cleanup even if a cross-user assertion failed.
+    if (changedA) {
       try {
-        await check(fetcher, checks, config.api, `/api/portfolio/${encodeURIComponent(createdId)}`, 204, {
-          method: "DELETE", token: tokenA,
+        await check(fetcher, checks, config.api, "/api/control-mode", 200, {
+          method: "POST", token: tokenA, body: { safetyLevel: "research" },
         });
       } catch (cleanupError) {
-        if (!failed) throw cleanupError;
-        throw new Error("Staging check failed and fixture cleanup failed; inspect test database", { cause: cleanupError });
+        throw new Error("Control-mode staging check failed to restore A's research mode", { cause: cleanupError });
       }
     }
   }
+  if (firstError) throw firstError;
   return checks;
 }
 
@@ -188,7 +179,8 @@ export async function runStagingAcceptance(env = process.env, fetcher = fetch) {
       "real GitHub OAuth browser callback and same-account nonce binding",
       "Supabase migration history and security advisors",
       "database-direct RLS under authenticated/anon roles",
-      "cross-user run, approval and control-state mutation coverage",
+      "portfolio-entry ownership and cross-user PATCH with separately entitled test accounts",
+      "cross-user run, approval and broader control-state mutation coverage",
       "hosting rollback, disaster recovery and billing webhook authenticity",
     ],
   };
