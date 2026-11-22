@@ -1,0 +1,42 @@
+# Branch-scoped one-time security update, removed after successful validation.
+name: One-shot full npm advisory remediation
+on:
+  push:
+    branches:
+      - fix/dev-dependency-audit-20261122
+    paths:
+      - .github/workflows/fix-full-audit-once.yml
+permissions:
+  contents: write
+jobs:
+  remediate:
+    if: github.repository == 'AnkitParekh007/contributorOps' && github.ref == 'refs/heads/fix/dev-dependency-audit-20261122'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Remediate compatible development advisories
+        run: |
+          npm ci
+          npm audit fix
+          npm ci
+          npm audit --audit-level=high
+      - name: Validate
+        run: |
+          npm run test:api
+          npm run typecheck
+          npm run build:all
+          npm run site:quality
+      - name: Commit verified updates and remove one-shot workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm .github/workflows/fix-full-audit-once.yml
+          git add package-lock.json package.json apps/api/package.json apps/site/package.json apps/web/package.json .github/workflows/fix-full-audit-once.yml
+          git diff --cached --check
+          git commit -m "chore(security): patch dev dependency vulnerabilities and remove one-shot workflow"
+          git push origin HEAD:fix/dev-dependency-audit-20261122
