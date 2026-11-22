@@ -1,0 +1,41 @@
+name: One-shot daily discovery outage recovery test
+on:
+  push:
+    branches:
+      - fix/github-discovery-partial-outage-20261122
+    paths:
+      - .github/workflows/daily-resilience-test-once.yml
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_CONTRIBUTOROPS_TOKEN: ''
+      GITHUB_USERNAME: ${{ github.repository_owner }}
+      AUTO_WORKSPACE_ENABLED: 'false'
+      AUTO_CONTRIBUTE_ENABLED: 'false'
+      CREATE_DAILY_ISSUE: 'false'
+      STORAGE_MODE: demo
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Require a freshly generated live daily plan with no writes
+        run: |
+          set -euo pipefail
+          rm -f data/daily-plan.json
+          npm run daily 2>&1 | tee /tmp/contributorops-daily-smoke.log
+          test -s data/daily-plan.json
+          node -e "const p=require('./data/daily-plan.json'); if(!Array.isArray(p.topOpportunities)||!p.topOpportunities.length) { console.error('No verified opportunities');process.exit(1) } console.log('Verified '+p.topOpportunities.length+' opportunities')"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-resilience-evidence-${{ github.run_id }}
+          path: data/daily-plan.json
+          if-no-files-found: warn
