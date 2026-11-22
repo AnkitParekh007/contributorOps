@@ -1,4 +1,5 @@
 name: One-shot P1 hosted startup acceptance
+# Rerun after the validated StorageMode union type fix
 on:
   push:
     branches: [security/p1-hosted-startup-config-20261123]
