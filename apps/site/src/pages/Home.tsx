@@ -2,10 +2,8 @@ import { Link } from "react-router-dom";
 import { FeatureCard } from "../components/FeatureCard";
 import { Hero } from "../components/Hero";
 import { AudienceProof } from "../components/AudienceProof";
-import { PricingCard } from "../components/PricingCard";
 import { Section } from "../components/Section";
 import { features } from "../data/features";
-import { pricingPlans } from "../data/pricing";
 import { Search, FileCode2, BarChart3, Briefcase, ArrowRight } from "lucide-react";
 
 const WORKFLOW = [
@@ -167,16 +165,31 @@ export function Home() {
 			</Section>
 
 			<Section
-				id="pricing-preview"
-				eyebrow="Pricing preview"
-				title="Monetization-ready without live billing."
-				description="Free, Pro, Career, and Team tiers exist today as product packaging and feature-flag boundaries."
+				id="verified-result"
+				eyebrow="Verified upstream contribution"
+				title="From a focused change to a merged open-source PR."
+				description="A real, independently inspectable outcome — not a hypothetical score, invented testimonial, or claim about hiring results."
 			>
-				<div className="pricing-grid">
-					{pricingPlans.map((plan) => <PricingCard key={plan.name} plan={plan} />)}
+				<div className="founder-preview-grid">
+					<div className="founder-preview-card">
+						<span className="founder-preview-num">01</span>
+						<h3>Actual maintainer problem</h3>
+						<p>Floating UI's iOS overlay scroll restoration could animate unexpectedly when the document used smooth scrolling.</p>
+					</div>
+					<div className="founder-preview-card">
+						<span className="founder-preview-num">02</span>
+						<h3>Reviewable patch</h3>
+						<p>A small scrollTo correction plus the project's required React package changeset — with explicit automation disclosure.</p>
+					</div>
+					<div className="founder-preview-card">
+						<span className="founder-preview-num">03</span>
+						<h3>Merged upstream</h3>
+						<p>floating-ui/floating-ui PR #3494 merged October 26, 2026. The public PR records the scope, limitations, and outcome.</p>
+					</div>
 				</div>
 				<div className="section-cta">
-					<Link to="/pricing" className="button-secondary">View full pricing</Link>
+					<a href="https://github.com/floating-ui/floating-ui/pull/3494" target="_blank" rel="noreferrer" className="button-primary">Inspect the merged PR</a>
+					<a href="https://github.com/AnkitParekh007/contributorOps/blob/main/docs/case-study-floating-ui-3494.md" target="_blank" rel="noreferrer" className="button-secondary">Read the verified case study</a>
 				</div>
 			</Section>
 
