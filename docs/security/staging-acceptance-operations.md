@@ -17,7 +17,7 @@ There are two explicit modes. **Public** executes strictly non-mutating public H
 3. Deploy the API and React web application to distinct explicitly named HTTPS **staging** origins (e.g. `https://api.staging.example.org` and `https://app.staging.example.org`), keeping them same-site so the OAuth HttpOnly/SameSite cookie is sent with `credentials: include`.
 4. Configure the API with `STORAGE_MODE=supabase`, staging-only Supabase service key and URL, an unpredictable token-encryption key, explicit HTTPS `PUBLIC_APP_URL`, `CORS_ORIGINS` and OAuth app ID/secret. Never put a service key or OAuth client secret in Vite variables.
 5. Keep `GH_CONTRIBUTOROPS_TOKEN`, `GITHUB_TOKEN`, `AUTO_CONTRIBUTE_ENABLED`, `AUTO_WORKSPACE_ENABLED` and `CREATE_DAILY_ISSUE` absent or disabled in the hosted HTTP service. Its external-write endpoints must still return HTTP 403.
-6. In the repository, create GitHub **Environment → `contributorops-staging`**, restrict deployment branches to `main` and configure an authorized reviewer/approval gate when supported by your GitHub plan. Configure environment **variables** `STAGING_API_URL`, `STAGING_WEB_URL` (bare HTTPS origins with `staging` or `preview` in their hostname) and `STAGING_SUPABASE_PROJECT_REF` (the actual staging project ID). A value entered here is an operator attestation, *not* cryptographic proof of project ownership.
+6. In the repository, create GitHub **Environment → `contributorops-staging`**, restrict deployment branches to `main` and configure an authorized reviewer/approval gate when supported by your GitHub plan. Configure environment **variables** `STAGING_API_URL`, `STAGING_WEB_URL` (bare HTTPS origins with `staging` or `preview` in their hostname), `STAGING_SUPABASE_PROJECT_REF` (the actual staging project ID), and `STAGING_EXPECTED_SHA` (the **exact deployed commit**, 40 lowercase hexadecimal characters). Set the deployed API's `CONTRIBUTOROPS_BUILD_SHA` to that exact same commit as part of the build/release configuration. A value entered here is an operator attestation, *not* cryptographic proof of project ownership.
 7. For the two-user run only, create two isolated **free** test identities A and B. Store their **short-lived JWT access tokens** as environment secrets `STAGING_USER_A_TOKEN` and `STAGING_USER_B_TOKEN`. Never store JWTs, OAuth codes or service-role keys in repository files, PR descriptions or workflow inputs.
 
 Neither staging environment nor project is inferred automatically from other connected services.
@@ -26,7 +26,7 @@ Neither staging environment nor project is inferred automatically from other con
 
 Open [GitHub Actions → ContributorOps staging acceptance (manual, fail closed)](https://github.com/AnkitParekh007/contributorOps/actions/workflows/staging-acceptance.yml) and click **Run workflow** on `main`.
 
-First run **`public`** and explicitly tick `confirm_staging`. The script refuses missing attestations, unconfigured project references, non-HTTPS/origin URLs and hosts lacking `staging` or `preview`. It does not run automatically for a push, PR or cron event. If GitHub creates an empty environment implicitly, checks fail before network access because required variables are missing.
+First run **`public`** and explicitly tick `confirm_staging`. The script refuses missing attestations, unconfigured project references or deployed-commit identity, non-HTTPS/origin URLs and hosts lacking `staging` or `preview`. It also checks `GET /api/meta` reports `mode: hosted`, `hostedWritesEnabled: false` and the exact expected SHA, rather than accidentally verifying an outdated build. It does not run automatically for a push, PR or cron event. If GitHub creates an empty environment implicitly, checks fail before network access because required variables are missing.
 
 When public acceptance passes, refresh both test-user JWTs and select **`two-user`**, enabling `allow_control_mode_mutation` deliberately. Both test accounts must start on the **free plan** in **Research mode**. The script:
 
@@ -40,7 +40,7 @@ When public acceptance passes, refresh both test-user JWTs and select **`two-use
 
 A failed control-mode restoration requires manual review of the test account's safety settings before further runs. These tests use *isolated test users only*; they never mutate real users.
 
-Successful runs attach a **sanitized JSON evidence artifact** (14-day retention) with the observed HTTP statuses, timestamp, mode and staging origins; no tokens or OAuth codes. Retain durable evidence elsewhere if the release audit requires longer retention.
+Successful runs attach a **sanitized JSON evidence artifact** (14-day retention) with the observed HTTP statuses, deployed SHA, timestamp, mode and staging origins; no tokens or OAuth codes. Retain durable evidence elsewhere if the release audit requires longer retention.
 
 ## 3. Complete the acceptance this workflow cannot automate
 
