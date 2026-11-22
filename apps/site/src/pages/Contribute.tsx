@@ -37,6 +37,9 @@ export function Contribute() {
 						<a className="button-primary" href="https://github.com/AnkitParekh007/contributorOps/contribute" target="_blank" rel="noreferrer">
 							<HeartHandshake size={16} /> Find a good first issue
 						</a>
+						<a className="button-secondary" href="https://github.com/AnkitParekh007/contributorOps/blob/main/docs/first-contribution.md" target="_blank" rel="noreferrer">
+							Start with the first-PR guide
+						</a>
 						<a className="button-secondary" href="https://github.com/AnkitParekh007/contributorOps/blob/main/CONTRIBUTING.md" target="_blank" rel="noreferrer">
 							Read CONTRIBUTING.md
 						</a>
@@ -44,8 +47,8 @@ export function Contribute() {
 				</div>
 				<div className="growth-command-card">
 					<div className="growth-command-title"><Github size={17} /> Local setup</div>
-					<pre><code>{`git clone https://github.com/AnkitParekh007/contributorOps.git\ncd contributorOps\nnpm install\nnpm run dev`}</code></pre>
-					<div className="growth-command-footer">Before PR: npm run typecheck && npm run build:all</div>
+					<pre><code>{`git clone https://github.com/AnkitParekh007/contributorOps.git\ncd contributorOps\nnpm ci\nnpm run dev`}</code></pre>
+					<div className="growth-command-footer">Node.js 22+ · npm 10+ · Before PR: npm run typecheck && npm run build:all</div>
 				</div>
 			</section>
 
