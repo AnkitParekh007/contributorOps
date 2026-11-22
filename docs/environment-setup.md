@@ -2,6 +2,8 @@
 
 This guide explains exactly how to configure `ContributorOps` for local development and GitHub Actions.
 
+**Runtime requirement:** Node.js 22 or newer and npm 10 or newer. The current Supabase client dependency requires Node.js 22+.
+
 It covers:
 - where each environment file belongs
 - which variables are required vs optional
@@ -174,7 +176,7 @@ Required:
 |---|---|---:|---|
 | `GITHUB_TOKEN` | Recommended for live mode | `ghp_...` | Main backend GitHub token for discovery, planning, and live GitHub API access |
 | `GITHUB_USERNAME` | Recommended | `AnkitParekh007` | Used when generating forked PR flows and profile-aware output |
-| `GH_CONTRIBUTOROPS_TOKEN` | Optional alternative | `ghp_...` | Fallback token used by scheduled jobs if `GITHUB_TOKEN` is not set |
+| `GH_CONTRIBUTOROPS_TOKEN` | Optional for manual local discovery; required for opt-in write-capable scheduled workflows | (secret, never commit) | Preferred explicit token for ContributorOps radar and authorized fork preparation; invalid custom secrets fall back to the read-only GitHub Actions token |
 
 ### GitHub OAuth variables
 
