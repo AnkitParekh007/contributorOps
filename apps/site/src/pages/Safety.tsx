@@ -73,12 +73,13 @@ export function Safety() {
 	return (
 		<div className="page">
 			<Section
+				headingLevel="h1"
 				eyebrow="Safety & Trust"
 				title={(
 					<span>
 						Explicit authorization for <span className="ai-gradient-text">real open-source work</span>
 					</span>
-				) as unknown as string}
+				)}
 				description="ContributorOps treats maintainer trust as a product constraint. A generated plan is never authority by itself: interactive writes require action-scoped approval, while standing automation is limited to bounded exact patch plans that fail closed when reality drifts."
 			>
 				<div className="approval-gate">

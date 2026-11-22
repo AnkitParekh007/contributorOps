@@ -3,12 +3,14 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 interface SectionProps {
 	id?: string;
 	eyebrow?: string;
-	title: string;
+	title: ReactNode;
+	headingLevel?: "h1" | "h2";
 	description?: string;
 	children: ReactNode;
 }
 
-export function Section({ id, eyebrow, title, description, children }: SectionProps) {
+export function Section({ id, eyebrow, title, description, children, headingLevel = "h2" }: SectionProps) {
+  const Heading = headingLevel;
   const ref = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -38,7 +40,7 @@ export function Section({ id, eyebrow, title, description, children }: SectionPr
       <div className="site-section-panel">
         <div className="section-heading">
           {eyebrow ? <span className="section-eyebrow">{eyebrow}</span> : null}
-          <h2>{title}</h2>
+          <Heading>{title}</Heading>
           {description ? <p>{description}</p> : null}
         </div>
         <div className="section-body">{children}</div>
