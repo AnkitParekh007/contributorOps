@@ -1,0 +1,35 @@
+name: One-shot P1 API errors acceptance
+on:
+  push:
+    branches: [fix/p1-api-error-contract-20261123]
+    paths: [.github/workflows/verify-p1-api-errors-once.yml]
+permissions:
+  contents: write
+jobs:
+  acceptance:
+    if: github.repository == 'AnkitParekh007/contributorOps'
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Full API trust and public error contract regression tests
+        run: npm run test:api
+      - name: Build API and all frontend apps
+        run: npm run build:all
+      - name: Typecheck all workspaces
+        run: npm run typecheck
+      - name: Enforce high-severity dependency audit
+        run: npm run security:audit:runtime
+      - name: Remove temporary workflow after successful acceptance
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm .github/workflows/verify-p1-api-errors-once.yml
+          git add .github/workflows/verify-p1-api-errors-once.yml
+          git commit -m "test(qa): record passing P1 error response acceptance"
+          git push origin HEAD:fix/p1-api-error-contract-20261123
