@@ -43,6 +43,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const authHeaders = await getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
+    credentials: "include",
     headers: {
       ...authHeaders,
       ...(init?.headers as Record<string, string> | undefined),
@@ -63,6 +64,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const apiClient = {
   health: () => request<HealthResponse>("/api/health"),
+  beginGithubConnect: () => request<{ authorizationUrl: string }>("/api/github/connect", { method: "POST", body: "{}" }),
   getPricing: () => request<PricingTier[]>("/api/pricing"),
   getBilling: () =>
     request<{ billing: BillingState; entitlements: FeatureFlags }>("/api/billing"),
