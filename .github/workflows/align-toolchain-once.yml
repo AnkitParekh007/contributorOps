@@ -1,0 +1,50 @@
+name: One-shot align Node 22 types and supported tsx patch
+on:
+  push:
+    branches: [fix/toolchain-node22-maintenance-20261122]
+    paths: [.github/workflows/align-toolchain-once.yml]
+permissions:
+  contents: write
+jobs:
+  align:
+    if: github.repository == 'AnkitParekh007/contributorOps'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Apply Node 22 type package and compatible tsx patch
+        run: |
+          npm ci
+          npm install -D --workspace @contributorops/api '@types/node@^22'
+          npm update --workspace @contributorops/api tsx
+          npm ci
+          node - <<'JS'
+          const lock = require('./package-lock.json')
+          const types = lock.packages['node_modules/@types/node'].version
+          const tsx = lock.packages['node_modules/tsx'].version
+          if (!types.startsWith('22.')) throw new Error('Expected Node 22 types, got ' + types)
+          if (!tsx.startsWith('4.')) throw new Error('Expected compatible tsx 4.x, got ' + tsx)
+          console.log('Verified Node 22 types:', types, 'tsx:', tsx)
+          JS
+      - name: Validate API and public-site compatibility
+        run: |
+          npm run test:api
+          npm run typecheck
+          npm run build:all
+          npm run site:quality
+          npm run security:audit
+          npm run security:audit:runtime
+      - name: Commit verified dependency edits and self-remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm .github/workflows/align-toolchain-once.yml
+          git add apps/api/package.json package-lock.json .github/workflows/align-toolchain-once.yml
+          git diff --cached --check
+          git diff --cached --quiet && { echo 'No changes to commit'; exit 1; }
+          git commit -m 'chore(deps): align Node 22 types and compatible tsx, remove one-shot workflow'
+          git push origin HEAD:fix/toolchain-node22-maintenance-20261122
