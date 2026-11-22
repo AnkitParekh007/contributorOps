@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiClient } from "../api/client";
 import { OnboardingStep } from "./OnboardingStep";
 
@@ -20,6 +20,8 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
   });
   const [loading, setLoading] = useState(true);
   const [activeStep, setActiveStep] = useState(1);
+  const [connectError, setConnectError] = useState("");
+  const oauthCompletionStarted = useRef(false);
 
   useEffect(() => {
     apiClient
@@ -37,19 +39,44 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
       .finally(() => setLoading(false));
   }, []);
 
-  // Check if onboarding is complete after GitHub callback redirect
+  // GitHub returns to the browser, then the current authenticated Supabase
+  // session finalizes the one-time code. Switching user accounts fails closed.
   useEffect(() => {
     const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
-    if (params.get("github") === "connected") {
-      setStatus((prev) => ({ ...prev, githubConnected: true }));
-      setActiveStep(2);
-      // Clean up the URL
-      window.history.replaceState({}, "", window.location.pathname + "#/onboarding");
+    const code = params.get("github_code");
+    const state = params.get("github_state");
+    if (!code && !state) return;
+    if (oauthCompletionStarted.current) return;
+    oauthCompletionStarted.current = true;
+
+    // Remove the short-lived OAuth authorization code from browser history first.
+    window.history.replaceState({}, "", window.location.pathname + "#/onboarding");
+    if (!code || !state) {
+      setConnectError("Incomplete GitHub OAuth response. Please restart the connection.");
+      return;
     }
+
+    void apiClient.completeGithubConnect({ code, state })
+      .then(async () => {
+        const fresh = await apiClient.getOnboardingStatus();
+        if (!fresh.githubConnected) throw new Error("The account connection could not be verified.");
+        setStatus(fresh);
+        setActiveStep(2);
+      })
+      .catch((error: unknown) => {
+        setConnectError(error instanceof Error ? error.message : "GitHub connection failed. Please retry.");
+      });
   }, []);
 
-  const handleConnectGithub = () => {
-    window.location.href = "/api/github/connect";
+  const handleConnectGithub = async () => {
+    setConnectError("");
+    try {
+      const { authorizationUrl } = await apiClient.beginGithubConnect();
+      if (!authorizationUrl.startsWith("https://github.com/login/oauth/authorize?")) throw new Error("Invalid authorization destination");
+      window.location.assign(authorizationUrl);
+    } catch (error) {
+      setConnectError(error instanceof Error ? error.message : "Unable to start GitHub connection.");
+    }
   };
 
   const handleSetSafetyMode = async () => {
@@ -90,7 +117,7 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
         <OnboardingStep
           stepNumber={1}
           title="Connect your GitHub account"
-          description="We use your GitHub token to discover real issues and open PRs on your behalf."
+          description="Connect your GitHub identity for account-specific features. Hosted GitHub writes remain disabled until the user-owned approval workflow is available."
           isCompleted={status.githubConnected}
           isActive={activeStep === 1}
         >
@@ -101,9 +128,9 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
               <button type="button" className="primary-button" onClick={handleConnectGithub}>
                 Connect GitHub
               </button>
+              {connectError ? <p className="step-note" role="alert">{connectError}</p> : null}
               <p className="step-note">
-                This requests <code>public_repo</code> scope — enough to fork repos and open draft PRs.
-                You can request broader access later if needed.
+                This connection requests only <code>read:user</code> permission. Repository writes are not available from the hosted API.
               </p>
             </div>
           )}

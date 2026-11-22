@@ -1,0 +1,45 @@
+name: Hosted API migration security contract
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - 'apps/api/src/**'
+      - '.github/workflows/hosted-api-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - 'apps/api/src/**'
+      - '.github/workflows/hosted-api-contract.yml'
+permissions:
+  contents: read
+jobs:
+  postgres-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 3s --health-retries 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Apply all committed migrations to disposable PostgreSQL
+        run: |
+          DB="$(docker ps --filter ancestor=postgres:16 --format '{{.ID}}' | head -1)"
+          test -n "$DB" || { echo "PostgreSQL service missing"; exit 1; }
+          for file in             supabase/tests/003_bootstrap_auth.sql             supabase/migrations/001_initial_schema.sql             supabase/migrations/002_rls_policies.sql             supabase/migrations/003_security_oauth_and_user_state.sql             supabase/tests/003_security_contract.sql; do
+            echo "::group::Checking $file"
+            docker exec -i "$DB" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < "$file"
+            echo "::endgroup::"
+          done
+          echo "Fresh migration 001→002→003, tenant and OAuth contract passed."

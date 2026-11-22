@@ -43,6 +43,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const authHeaders = await getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
+    credentials: "include",
     headers: {
       ...authHeaders,
       ...(init?.headers as Record<string, string> | undefined),
@@ -63,6 +64,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const apiClient = {
   health: () => request<HealthResponse>("/api/health"),
+  beginGithubConnect: () => request<{ authorizationUrl: string }>("/api/github/connect", { method: "POST", body: "{}" }),
+  completeGithubConnect: (payload: { code: string; state: string }) =>
+    request<{ connected: boolean }>("/api/github/complete", { method: "POST", body: JSON.stringify(payload) }),
   getPricing: () => request<PricingTier[]>("/api/pricing"),
   getBilling: () =>
     request<{ billing: BillingState; entitlements: FeatureFlags }>("/api/billing"),
@@ -188,7 +192,7 @@ export const apiClient = {
   getGithubStatus: () =>
     request<{ connected: boolean; scopes: string[]; demo?: boolean }>("/api/github/status"),
   connectGithub: () =>
-    request<void>("/api/github/connect"),
+    request<{ authorizationUrl: string }>("/api/github/connect", { method: "POST", body: "{}" }),
   disconnectGithub: () =>
     request<{ message: string }>("/api/github/disconnect", { method: "DELETE" }),
   getOnboardingStatus: () =>

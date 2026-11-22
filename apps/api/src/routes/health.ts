@@ -7,6 +7,11 @@ const router = Router();
 
 router.get("/health", async (_req, res, next) => {
   try {
+    if (config.storageMode === "supabase") {
+      // Public readiness must never return tenant billing, controls or usage.
+      res.json({ ok: true, mode: "hosted", createDailyIssue: false, autoContributeEnabled: false });
+      return;
+    }
     const [controlMode, billing, usage] = await Promise.all([
       readControlMode(),
       getBillingState(),

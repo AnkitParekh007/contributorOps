@@ -3,6 +3,7 @@ import { isSupabaseMode } from "../db/index.js";
 import { getGithubToken } from "../db/users.js";
 import { getUserId } from "../auth/session.js";
 import { readControlMode, readPortfolio } from "../storage.js";
+import { getPortfolioByUser } from "../db/portfolio.js";
 import { config } from "../config.js";
 
 const router = Router();
@@ -22,9 +23,7 @@ router.get("/onboarding/status", async (req, res, next) => {
       const [token, controlMode, portfolio] = await Promise.all([
         getGithubToken(userId),
         readControlMode(),
-        // In supabase mode, an empty portfolio = no runs yet
-        // We use the JSON portfolio as a proxy until full DB wiring is complete
-        readPortfolio(),
+        getPortfolioByUser(userId),
       ]);
       githubConnected = !!token;
       safetyModeSet = controlMode.safetyLevel !== "research";

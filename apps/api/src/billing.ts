@@ -1,4 +1,6 @@
 import { config } from "./config.js";
+import { requireRequestUserId } from "./auth/request-context.js";
+import { getSubscription } from "./db/billing.js";
 import { readBillingState, readPortfolio, readUsageSnapshot, writeBillingState, writeUsageSnapshot } from "./storage.js";
 import type {
   BillingPlan,
@@ -199,8 +201,35 @@ function normalizeUsage(usage: UsageSnapshot): UsageSnapshot {
   };
 }
 
+/** A trusted server-created subscription row is the only hosted source of paid entitlements. */
+export function resolveHostedPlan(subscription: { plan: string; status: string } | null): BillingPlan {
+  if (subscription?.status !== "active") return "free";
+  switch (subscription.plan) {
+    case "free": case "pro": case "career": case "team":
+      return subscription.plan;
+    default:
+      return "free";
+  }
+}
+
 export async function getBillingState(): Promise<BillingState> {
   const state = await readBillingState();
+  if (config.storageMode === "supabase") {
+    // Never derive hosted entitlements from local JSON, mock plan selection,
+    // or user-editable feature override fields.
+    const userId = requireRequestUserId();
+    const subscription = await getSubscription(userId);
+    const plan = resolveHostedPlan(subscription);
+    return {
+      ...state,
+      plan,
+      status: subscription?.status ?? "cancelled",
+      provider: "stripe",
+      featureOverrides: {},
+      customerEmail: state.customerEmail || "",
+      publicPortfolioSlug: state.publicPortfolioSlug || `user-${userId.slice(0, 12)}`,
+    };
+  }
   if (state.publicPortfolioSlug) {
     return state;
   }
@@ -215,6 +244,7 @@ export async function getBillingState(): Promise<BillingState> {
 }
 
 export async function updateBillingPlan(plan: BillingPlan): Promise<BillingState> {
+  if (config.storageMode === "supabase") throw new Error("Mock plan changes are disabled in hosted mode.");
   const current = await getBillingState();
   const seatCount = plan === "team" ? 5 : 1;
   const next = {
@@ -247,9 +277,9 @@ export async function updatePublicProfile(payload: Partial<BillingState>): Promi
 
 export function buildEntitlements(state: BillingState): FeatureFlags {
   const baseFeatures = { ...featureMatrix[state.plan] };
-  for (const [feature, value] of Object.entries(state.featureOverrides)) {
-    if (typeof value === "boolean") {
-      baseFeatures[feature as FeatureKey] = value;
+  if (config.storageMode === "demo") {
+    for (const [feature, value] of Object.entries(state.featureOverrides)) {
+      if (typeof value === "boolean") baseFeatures[feature as FeatureKey] = value;
     }
   }
 

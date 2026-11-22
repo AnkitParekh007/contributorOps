@@ -43,19 +43,22 @@ export async function upsertWaitlistEntry(entry: {
   return data as WaitlistEntryDB;
 }
 
-export async function getWaitlistStats(): Promise<{ total: number; byRole: Record<string, number> }> {
+export async function getWaitlistStats(): Promise<{ total: number; byRole: Record<string, number>; byPlan: Record<string, number> }> {
   const db = getSupabaseAdmin();
   const { data, error } = await db
     .from("waitlist_entries")
-    .select("target_role");
+    .select("target_role, plan_interest");
 
   if (error) throw new Error(`Waitlist stats failed: ${error.message}`);
 
-  const entries = (data || []) as { target_role: string | null }[];
+  const entries = (data || []) as { target_role: string | null; plan_interest: string | null }[];
   const byRole: Record<string, number> = {};
+  const byPlan: Record<string, number> = {};
   for (const e of entries) {
+    const plan = e.plan_interest || "Unknown";
+    byPlan[plan] = (byPlan[plan] || 0) + 1;
     const role = e.target_role || "Unknown";
     byRole[role] = (byRole[role] || 0) + 1;
   }
-  return { total: entries.length, byRole };
+  return { total: entries.length, byRole, byPlan };
 }

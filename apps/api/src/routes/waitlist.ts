@@ -5,8 +5,7 @@ import { Router } from "express";
 import { validate } from "../middleware/validate.js";
 import { WaitlistSchema } from "../schemas/waitlist.js";
 import { isSupabaseMode } from "../db/index.js";
-import { upsertWaitlistEntry } from "../db/waitlist.js";
-import { logger } from "../logger.js";
+import { upsertWaitlistEntry, getWaitlistStats } from "../db/waitlist.js";
 
 const WAITLIST_PATH = path.join(process.cwd(), "data", "waitlist.json");
 
@@ -33,6 +32,21 @@ router.post("/waitlist", validate(WaitlistSchema), async (req, res, next) => {
   try {
     const { name, email, targetRole, planInterest, githubUsername, problemStatement, source } = req.body;
 
+    if (isSupabaseMode()) {
+      // Public registration persists exclusively in Supabase, never server-wide JSON.
+      const entry = await upsertWaitlistEntry({
+        email, name, githubUsername: githubUsername || "",
+        targetRole, planInterest: planInterest || "Free",
+        problemStatement: problemStatement || "", source: source || "site",
+      });
+      res.status(201).json({
+        id: entry.id, name: entry.name, targetRole: entry.target_role,
+        planInterest: entry.plan_interest, createdAt: entry.created_at,
+        message: "Successfully joined the waitlist.",
+      });
+      return;
+    }
+
     const entries = readWaitlist();
     const existing = entries.find((e) => e.email.toLowerCase() === email.toLowerCase());
     if (existing) {
@@ -52,21 +66,6 @@ router.post("/waitlist", validate(WaitlistSchema), async (req, res, next) => {
     entries.push(entry);
     writeWaitlist(entries);
 
-    if (isSupabaseMode()) {
-      try {
-        await upsertWaitlistEntry({
-          email,
-          name,
-          githubUsername: githubUsername || "",
-          targetRole,
-          planInterest: planInterest || "",
-          problemStatement: problemStatement || "",
-          source: "api",
-        });
-      } catch (dbErr) {
-        logger.error({ err: dbErr }, "Supabase waitlist write failed");
-      }
-    }
 
     res.status(201).json({
       id: entry.id,
@@ -81,8 +80,12 @@ router.post("/waitlist", validate(WaitlistSchema), async (req, res, next) => {
   }
 });
 
-router.get("/waitlist/stats", (_req, res, next) => {
+router.get("/waitlist/stats", async (_req, res, next) => {
   try {
+    if (isSupabaseMode()) {
+      res.json(await getWaitlistStats());
+      return;
+    }
     const entries = readWaitlist();
     const byPlan: Record<string, number> = {};
     const byRole: Record<string, number> = {};
