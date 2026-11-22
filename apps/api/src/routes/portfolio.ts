@@ -11,12 +11,12 @@ import {
 } from "../billing.js";
 import { validate } from "../middleware/validate.js";
 import { PortfolioEntrySchema, PortfolioUpdateSchema } from "../schemas/portfolio.js";
-import { readPortfolio, writePortfolio } from "../storage.js";
+import { readPortfolio, writePortfolio, toExportPortfolioEntry, toHostedPortfolioWrite } from "../storage.js";
 import { isSupabaseMode } from "../db/index.js";
 import {
   createPortfolioEntry,
   deletePortfolioEntry,
-  getPortfolioByUser,
+  getPortfolioEntryById,
   updatePortfolioEntry,
 } from "../db/portfolio.js";
 import { getUserId } from "../auth/session.js";
@@ -25,13 +25,10 @@ import type { PortfolioEntry } from "../types.js";
 
 const router = Router();
 
-router.get("/portfolio", async (req, res, next) => {
+router.get("/portfolio", async (_req, res, next) => {
   try {
-    if (isSupabaseMode()) {
-      const userId = getUserId(req);
-      res.json(await getPortfolioByUser(userId));
-      return;
-    }
+    // The storage adapter returns the same editor contract in both modes,
+    // with Supabase reads scoped to the verified user context.
     res.json(await readPortfolio());
   } catch (error) {
     next(error);
@@ -43,17 +40,12 @@ router.post("/portfolio", validate(PortfolioEntrySchema), async (req, res, next)
     await ensureFeature("portfolio-tracker");
     if (isSupabaseMode()) {
       const userId = getUserId(req);
-      const payload = req.body;
+      const payload = req.body as Partial<PortfolioEntry>;
       const entry = await createPortfolioEntry(userId, {
-        repo: payload.selectedRepo || "",
-        prUrl: payload.prUrl || undefined,
-        title: payload.issueUrl || payload.selectedRepo || "",
-        description: payload.notes || "",
-        tags: [],
-        status: payload.status || "discovered",
+        ...toHostedPortfolioWrite(payload),
         isPublic: false,
       });
-      res.status(201).json(entry);
+      res.status(201).json(toExportPortfolioEntry(entry));
       return;
     }
     const payload = req.body as Partial<PortfolioEntry>;
@@ -94,15 +86,19 @@ router.patch("/portfolio/:id", validate(PortfolioUpdateSchema), async (req, res,
     await ensureFeature("portfolio-tracker");
     if (isSupabaseMode()) {
       const userId = getUserId(req);
-      const payload = req.body;
-      const entry = await updatePortfolioEntry(userId, String(req.params.id), {
-        repo: payload.selectedRepo,
-        prUrl: payload.prUrl,
-        description: payload.notes,
-        status: payload.status,
+      const id = String(req.params.id);
+      const existing = await getPortfolioEntryById(userId, id);
+      if (!existing) {
+        res.status(404).json({ message: "Portfolio entry not found." });
+        return;
+      }
+      // Merge partial editor updates with existing proof data; never accept
+      // a caller-supplied user ID or a public-publication flag.
+      const entry = await updatePortfolioEntry(userId, id, {
+        ...toHostedPortfolioWrite(req.body as Partial<PortfolioEntry>, existing),
         isPublic: false,
       });
-      res.json(entry);
+      res.json(toExportPortfolioEntry(entry));
       return;
     }
     const entries = await readPortfolio();

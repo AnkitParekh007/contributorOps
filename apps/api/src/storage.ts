@@ -11,7 +11,10 @@ export function toExportPortfolioEntry(entry: PortfolioEntryDB): PortfolioEntry 
   return {
     id: entry.id,
     selectedRepo: entry.repo,
-    issueUrl: entry.title.startsWith("https://") ? entry.title : "",
+    // New rows store issueUrl in proof. Legacy rows used the title column.
+    issueUrl: typeof proof.issueUrl === "string"
+      ? proof.issueUrl
+      : entry.title.startsWith("https://") ? entry.title : "",
     prUrl: entry.prUrl || "",
     status: entry.status,
     notes: entry.description,
@@ -28,7 +31,44 @@ export function toExportPortfolioEntry(entry: PortfolioEntryDB): PortfolioEntry 
     recruiterOutreach: field("recruiterOutreach"),
     githubProfileSnippet: field("githubProfileSnippet"),
     createdAt: entry.createdAt,
-    updatedAt: entry.createdAt,
+    updatedAt: entry.updatedAt || entry.createdAt,
+  };
+}
+
+/** Map the public React editor contract to the canonical Supabase entry.
+ * Partial writes merge existing proof fields instead of silently erasing them.
+ * In hosted mode a portfolio's public flag is controlled separately by publication.
+ */
+const PROOF_FIELDS = [
+  "issueUrl", "resumeBullet", "interviewStarStory", "interviewSituation",
+  "interviewTask", "interviewAction", "interviewResult", "linkedInPost",
+  "linkedInShort", "linkedInMedium", "linkedInDetailed", "recruiterOutreach",
+  "githubProfileSnippet",
+] as const;
+
+export function toHostedPortfolioWrite(
+  payload: Partial<PortfolioEntry>,
+  existing?: PortfolioEntryDB
+): Partial<PortfolioEntryDB> {
+  const proof: Record<string, unknown> = { ...(existing?.proof || {}) };
+  for (const key of PROOF_FIELDS) {
+    const value = payload[key];
+    if (value !== undefined) proof[key] = value;
+  }
+  const repo = payload.selectedRepo ?? existing?.repo ?? "";
+  const issueUrl = payload.issueUrl ??
+    (typeof proof.issueUrl === "string" ? proof.issueUrl : undefined);
+  // The initial schema has no issue_url column: retain legacy title mapping
+  // for compatibility, while the proof object preserves explicit clearing.
+  const title = issueUrl || existing?.title || repo;
+  return {
+    ...(payload.selectedRepo !== undefined && { repo }),
+    ...(payload.issueUrl !== undefined && { title }),
+    ...(payload.prUrl !== undefined && { prUrl: payload.prUrl }),
+    ...(payload.status !== undefined && { status: payload.status }),
+    ...(payload.notes !== undefined && { description: payload.notes }),
+    ...(existing === undefined && { repo, title, status: payload.status || "discovered" }),
+    proof,
   };
 }
 

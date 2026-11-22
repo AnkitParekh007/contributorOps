@@ -13,6 +13,7 @@ const rawStorageMode = process.env.STORAGE_MODE || "demo";
 if (rawStorageMode !== "demo" && rawStorageMode !== "supabase") {
   throw new Error("STORAGE_MODE must be exactly demo or supabase.");
 }
+const storageMode: "demo" | "supabase" = rawStorageMode;
 
 
 export const config = {
@@ -33,7 +34,7 @@ export const config = {
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || "",
   tokenEncryptionKey: process.env.TOKEN_ENCRYPTION_KEY || "",
-  storageMode: rawStorageMode,
+  storageMode,
   repoRoot,
   dataDir: path.join(repoRoot, "data"),
   portfolioPath: path.join(repoRoot, "data", "portfolio.json"),

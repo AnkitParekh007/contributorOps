@@ -13,6 +13,7 @@ export interface PortfolioEntryDB {
   isPublic: boolean;
   mergedAt?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 function dbRowToPortfolioEntry(row: Record<string, unknown>): PortfolioEntryDB {
@@ -28,6 +29,7 @@ function dbRowToPortfolioEntry(row: Record<string, unknown>): PortfolioEntryDB {
     isPublic: (row.is_public as boolean) || false,
     mergedAt: (row.merged_at as string) || undefined,
     createdAt: row.created_at as string,
+    updatedAt: (row.updated_at as string) || (row.created_at as string),
   };
 }
 
@@ -41,6 +43,16 @@ export async function getPortfolioByUser(userId: string): Promise<PortfolioEntry
 
   if (error) throw new Error(`Get portfolio failed: ${error.message}`);
   return (data || []).map(dbRowToPortfolioEntry);
+}
+
+/** Account-owned lookup used before a partial proof update.
+ * Never fetch a portfolio row solely by ID with a service-role client.
+ */
+export async function getPortfolioEntryById(userId: string, id: string): Promise<PortfolioEntryDB | null> {
+  const { data, error } = await getSupabaseAdmin().from("portfolio_entries")
+    .select("*").eq("id", id).eq("user_id", userId).maybeSingle();
+  if (error) throw new Error(`Get portfolio entry failed: ${error.message}`);
+  return data ? dbRowToPortfolioEntry(data as Record<string, unknown>) : null;
 }
 
 export async function createPortfolioEntry(userId: string, entry: Partial<PortfolioEntryDB>): Promise<PortfolioEntryDB> {
@@ -71,6 +83,7 @@ export async function updatePortfolioEntry(userId: string, id: string, updates: 
   const { data, error } = await db
     .from("portfolio_entries")
     .update({
+      ...(updates.repo !== undefined && { repo: updates.repo }),
       ...(updates.prUrl !== undefined && { pr_url: updates.prUrl }),
       ...(updates.title !== undefined && { title: updates.title }),
       ...(updates.description !== undefined && { description: updates.description }),
