@@ -31,10 +31,10 @@ test("two-user mode is blocked without both distinct user tokens and explicit mu
   assert.throws(() => validateStagingConfig({ ...safe, STAGING_MODE: "two-user" }), /approval/);
   const approved = { ...safe, STAGING_MODE: "two-user",
     STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY" };
-  assert.throws(() => validateStagingConfig(approved), /two different/);
+  assert.throws(() => validateStagingConfig(approved), /two different/i);
   assert.throws(() => validateStagingConfig({
     ...approved, STAGING_USER_A_TOKEN: "same", STAGING_USER_B_TOKEN: "same",
-  }), /two different/);
+  }), /two different/i);
 });
 
 function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false } = {}) {
