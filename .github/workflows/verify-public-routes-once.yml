@@ -1,0 +1,49 @@
+name: One-shot public Phase 9 route smoke
+on:
+  push:
+    branches: [ops/phase9-route-and-baseline-20261122]
+    paths: [.github/workflows/verify-public-routes-once.yml]
+permissions:
+  contents: write
+jobs:
+  verify:
+    if: github.repository == 'AnkitParekh007/contributorOps'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Visit eight deployed public routes in a real browser
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.56.0
+          python - <<'PY'
+          import os
+          from playwright.sync_api import sync_playwright
+          chrome = next((p for p in ['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium'] if os.path.exists(p)), None)
+          assert chrome, 'Chrome executable not available'
+          url='https://ankitparekh007.github.io/contributorOps/'
+          routes=['demo','launch','adoption','share','recruiter','safety','quality','contribute']
+          with sync_playwright() as p:
+              browser=p.chromium.launch(executable_path=chrome,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+              for route in routes:
+                  page=browser.new_page(viewport={'width':1280,'height':800},reduced_motion='reduce')
+                  response=page.goto(url+'#/'+route,wait_until='domcontentloaded',timeout=25000)
+                  page.locator('main h1').first.wait_for(state='visible',timeout=12000)
+                  title=page.locator('main h1').first.inner_text()
+                  assert title and 'not found' not in title.lower(), (route,title)
+                  assert page.evaluate('location.hash') == '#/'+route, route
+                  assert response and response.status == 200, (route,response.status if response else None)
+                  print('PASS /#/'+route+' :: '+title[:120],flush=True)
+                  page.close()
+              browser.close()
+          PY
+      - name: Remove this one-time workflow from the branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm .github/workflows/verify-public-routes-once.yml
+          git add .github/workflows/verify-public-routes-once.yml
+          git commit -m 'test: retire validated public route smoke workflow'
+          git push origin HEAD:ops/phase9-route-and-baseline-20261122
