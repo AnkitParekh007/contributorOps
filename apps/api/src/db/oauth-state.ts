@@ -27,13 +27,42 @@ export async function createOAuthState(userId: string, requestedScope: string, d
   return { state, browserBinding };
 }
 
-export async function consumeOAuthState(state: string, browserBinding: string, db = getSupabaseAdmin()): Promise<string | null> {
-  if (!/^[A-Za-z0-9_-]{43}$/.test(state) || !/^[A-Za-z0-9_-]{43}$/.test(browserBinding)) return null;
-  // A single conditional UPDATE atomically enforces one-use, browser binding and expiry.
+function validOpaqueState(state: string, browserBinding: string): boolean {
+  return /^[A-Za-z0-9_-]{43}$/.test(state) && /^[A-Za-z0-9_-]{43}$/.test(browserBinding);
+}
+
+/** Validate the public GitHub redirect before sending it back to the first-party app.
+ * This does not consume the nonce or authorize persistence of any token.
+ */
+export async function inspectOAuthState(state: string, browserBinding: string, db = getSupabaseAdmin()): Promise<boolean> {
+  if (!validOpaqueState(state, browserBinding)) return false;
+  const { data, error } = await db.from("oauth_states")
+    .select("user_id")
+    .eq("state_hash", oauthHash(state))
+    .eq("browser_binding_hash", oauthHash(browserBinding))
+    .is("consumed_at", null)
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle();
+  if (error) throw new Error(`OAuth state inspection failed: ${error.message}`);
+  return Boolean(data?.user_id);
+}
+
+/** A user may finalize OAuth only while authenticated as the original initiator.
+ * The owner predicate is part of the one-use atomic UPDATE: switching accounts
+ * in the same browser cannot attach A's GitHub credentials to account B.
+ */
+export async function consumeOAuthState(
+  state: string,
+  browserBinding: string,
+  authenticatedUserId: string,
+  db = getSupabaseAdmin()
+): Promise<string | null> {
+  if (!validOpaqueState(state, browserBinding) || !authenticatedUserId) return null;
   const { data, error } = await db.from("oauth_states")
     .update({ consumed_at: new Date().toISOString() })
     .eq("state_hash", oauthHash(state))
     .eq("browser_binding_hash", oauthHash(browserBinding))
+    .eq("user_id", authenticatedUserId)
     .is("consumed_at", null)
     .gt("expires_at", new Date().toISOString())
     .select("user_id")
