@@ -13,10 +13,9 @@ export function readOAuthCookie(header: string | undefined): string | null {
   return entry ? entry.slice(OAUTH_COOKIE.length + 1) : null;
 }
 
-export async function createOAuthState(userId: string, requestedScope: string): Promise<{ state: string; browserBinding: string }> {
+export async function createOAuthState(userId: string, requestedScope: string, db = getSupabaseAdmin()): Promise<{ state: string; browserBinding: string }> {
   const state = crypto.randomBytes(32).toString("base64url");
   const browserBinding = crypto.randomBytes(32).toString("base64url");
-  const db = getSupabaseAdmin();
   const { error } = await db.from("oauth_states").insert({
     state_hash: oauthHash(state),
     browser_binding_hash: oauthHash(browserBinding),
@@ -28,10 +27,10 @@ export async function createOAuthState(userId: string, requestedScope: string): 
   return { state, browserBinding };
 }
 
-export async function consumeOAuthState(state: string, browserBinding: string): Promise<string | null> {
+export async function consumeOAuthState(state: string, browserBinding: string, db = getSupabaseAdmin()): Promise<string | null> {
   if (!/^[A-Za-z0-9_-]{43}$/.test(state) || !/^[A-Za-z0-9_-]{43}$/.test(browserBinding)) return null;
   // A single conditional UPDATE atomically enforces one-use, browser binding and expiry.
-  const { data, error } = await getSupabaseAdmin().from("oauth_states")
+  const { data, error } = await db.from("oauth_states")
     .update({ consumed_at: new Date().toISOString() })
     .eq("state_hash", oauthHash(state))
     .eq("browser_binding_hash", oauthHash(browserBinding))
