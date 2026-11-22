@@ -1,0 +1,80 @@
+name: ContributorOps staging acceptance (manual, fail closed)
+
+# No cron or PR trigger: real service access is reserved for an authorized maintainer.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Public read-only smoke or temporary two-user control-mode isolation"
+        required: true
+        type: choice
+        options: [public, two-user]
+        default: public
+      confirm_staging:
+        description: "I verified the isolated staging hosts/project and accept running checks there"
+        required: true
+        type: boolean
+        default: false
+      allow_control_mode_mutation:
+        description: "Two-user only: permit temporary change and restoration of A's control mode"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    name: Isolated staging HTTP checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    # Configure this environment with required reviewer approvals and scoped variables
+    # BEFORE running. An empty/unprotected environment fails the script's preflight.
+    environment: contributorops-staging
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify staging probe logic without network access
+        run: node --test scripts/staging-acceptance.test.mjs
+      - name: Probe only explicitly designated HTTPS staging hosts
+        env:
+          STAGING_API_URL: ${{ vars.STAGING_API_URL }}
+          STAGING_WEB_URL: ${{ vars.STAGING_WEB_URL }}
+          STAGING_SUPABASE_PROJECT_REF: ${{ vars.STAGING_SUPABASE_PROJECT_REF }}
+          STAGING_EXPECTED_SHA: ${{ vars.STAGING_EXPECTED_SHA }}
+          STAGING_MODE: ${{ inputs.mode }}
+          STAGING_ATTESTATION: ${{ inputs.confirm_staging && 'I_CONFIRM_ISOLATED_CONTRIBUTOROPS_STAGING' || '' }}
+          STAGING_MUTATION_APPROVAL: ${{ inputs.allow_control_mode_mutation && 'ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY' || '' }}
+          STAGING_USER_A_TOKEN: ${{ secrets.STAGING_USER_A_TOKEN }}
+          STAGING_USER_B_TOKEN: ${{ secrets.STAGING_USER_B_TOKEN }}
+          STAGING_REPORT_PATH: ${{ runner.temp }}/staging-acceptance.json
+        run: node scripts/staging-acceptance.mjs
+      - name: Write pass/fail scope and remaining proof requirements
+        if: success()
+        env:
+          REPORT: ${{ runner.temp }}/staging-acceptance.json
+        run: |
+          node --input-type=module <<'NODE' >> "$GITHUB_STEP_SUMMARY"
+          import { readFileSync } from "node:fs";
+          const result = JSON.parse(readFileSync(process.env.REPORT, "utf8"));
+          console.log("## ContributorOps staging HTTP acceptance");
+          console.log(`- **Mode:** ${result.mode}`);
+          console.log(`- **Checks passed:** ${result.passed}`);
+          console.log(`- **Staging API:** ${result.apiOrigin}`);
+          console.log(`- **Staging project reference:** ${result.stagingProjectRef}`);
+          console.log(`- **Verified API build SHA:** ${result.releaseCommit}`);
+          console.log("\n**Not yet verified by this automated smoke:**");
+          for (const item of result.notVerified) console.log(`- ${item}`);
+          console.log("\nThis is not authorization to activate hosted GitHub writes.");
+          NODE
+      - name: Upload sanitized machine-readable evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contributorops-staging-http-${{ inputs.mode }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/staging-acceptance.json
+          retention-days: 14
+          if-no-files-found: error

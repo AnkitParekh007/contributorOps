@@ -36,6 +36,8 @@ jobs:
       - run: npm ci
       - name: Verify approval-gated external writes
         run: npm run test:api
+      - name: Verify staging probe fail-closed behavior and two-user fixture cleanup
+        run: node --test scripts/staging-acceptance.test.mjs
 
   runtime-dependency-audit:
     name: Runtime Dependency Audit

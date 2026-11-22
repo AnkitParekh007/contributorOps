@@ -101,6 +101,18 @@ test("two real HTTP sessions isolate tenant state and reject mock paid plans and
     }
     assert.ok(ready, "Hosted API failed to start");
     assert.equal((await call("/api/health")).status, 200);
+    // Public metadata must not misidentify hosted as demo or advertise writes
+    // that are deliberately disabled by the hosted policy gate.
+    const metaResponse = await call("/api/meta");
+    assert.equal(metaResponse.status, 200);
+    const metadata = await metaResponse.json() as {
+      mode: string; hostedWritesEnabled: boolean;
+      enabledFeatures: string[]; releaseCommit: string | null;
+    };
+    assert.equal(metadata.mode, "hosted");
+    assert.equal(metadata.hostedWritesEnabled, false);
+    assert.equal(metadata.enabledFeatures.includes("safe-auto-contribute"), false);
+    assert.equal(metadata.releaseCommit, null, "unconfigured local test builds must not invent a commit SHA");
     assert.equal((await call("/api/waitlist", undefined, "POST", {
       name:"Example", email:"example@example.com", targetRole:"Engineer"
     })).status, 201);

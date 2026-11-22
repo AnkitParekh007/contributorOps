@@ -33,11 +33,17 @@ router.get("/health", async (_req, res, next) => {
 });
 
 router.get("/meta", (_req, res) => {
+  const hosted = config.storageMode === "supabase";
+  const rawCommit = process.env.CONTRIBUTOROPS_BUILD_SHA || "";
+  const releaseCommit = /^[a-f0-9]{40}$/i.test(rawCommit) ? rawCommit.toLowerCase() : null;
+  res.setHeader("Cache-Control", "no-store");
   res.json({
     appName: "ContributorOps",
     version: "0.1.0",
     repo: "https://github.com/AnkitParekh007/contributorOps",
-    mode: config.githubToken ? "github" : "demo",
+    mode: hosted ? "hosted" : config.githubToken ? "github" : "demo",
+    releaseCommit,
+    hostedWritesEnabled: false,
     publicAppUrl: "https://ankitparekh007.github.io/contributorOps/",
     enabledFeatures: [
       "issue-discovery",
@@ -47,7 +53,6 @@ router.get("/meta", (_req, res) => {
       "resume-export",
       "linkedin-generator",
       "interview-star-generator",
-      "safe-auto-contribute",
       "public-portfolio",
       "team-radar",
     ],
