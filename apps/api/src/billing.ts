@@ -201,6 +201,17 @@ function normalizeUsage(usage: UsageSnapshot): UsageSnapshot {
   };
 }
 
+/** A trusted server-created subscription row is the only hosted source of paid entitlements. */
+export function resolveHostedPlan(subscription: { plan: string; status: string } | null): BillingPlan {
+  if (subscription?.status !== "active") return "free";
+  switch (subscription.plan) {
+    case "free": case "pro": case "career": case "team":
+      return subscription.plan;
+    default:
+      return "free";
+  }
+}
+
 export async function getBillingState(): Promise<BillingState> {
   const state = await readBillingState();
   if (config.storageMode === "supabase") {
@@ -208,9 +219,7 @@ export async function getBillingState(): Promise<BillingState> {
     // or user-editable feature override fields.
     const userId = requireRequestUserId();
     const subscription = await getSubscription(userId);
-    const validPlan = subscription?.status === "active" &&
-      ["free", "pro", "career", "team"].includes(subscription.plan);
-    const plan = validPlan ? subscription!.plan as BillingPlan : "free";
+    const plan = resolveHostedPlan(subscription);
     return {
       ...state,
       plan,
