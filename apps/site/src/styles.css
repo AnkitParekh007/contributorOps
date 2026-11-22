@@ -277,6 +277,7 @@ html[data-theme="light"] .nav-link-active {
 }
 
 .hero-copy h1,
+.section-heading h1,
 .section-heading h2,
 .docs-hero h1,
 .not-found h1 {
@@ -508,6 +509,7 @@ html[data-theme="light"] .nav-link-active {
 	color: var(--accent);
 }
 
+.section-heading h1,
 .section-heading h2,
 .docs-hero h1 {
 	font-size: clamp(2rem, 4vw, 3.4rem);
