@@ -30,5 +30,5 @@ export function getSupabaseAdmin() {
 
 /** Returns true if Supabase is configured and STORAGE_MODE=supabase */
 export function isSupabaseMode(): boolean {
-  return config.storageMode === "supabase" && !!config.supabaseUrl && !!config.supabaseServiceKey;
+  return config.storageMode === "supabase";
 }
