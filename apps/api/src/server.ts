@@ -101,8 +101,8 @@ const host = process.env.API_HOST || (config.storageMode === "demo" ? "127.0.0.1
 if (config.storageMode === "demo" && !["127.0.0.1", "localhost", "::1"].includes(host)) {
   throw new Error("Demo API must bind to localhost. Use Supabase mode for network access.");
 }
-if (config.storageMode === "supabase" && (config.autoContributeEnabled || config.autoWorkspaceEnabled || config.createDailyIssue) && config.githubToken) {
-  throw new Error("Hosted API cannot enable write automation using a shared GitHub token.");
+if ((config.autoContributeEnabled || config.autoWorkspaceEnabled || config.createDailyIssue) && config.githubToken) {
+  throw new Error("HTTP API cannot run write automation with a process-wide GitHub token. Run dedicated operator-controlled CLI jobs instead.");
 }
 app.listen(config.port, host, () => {
   logger.info(`ContributorOps API listening on http://${host}:${config.port}`);
