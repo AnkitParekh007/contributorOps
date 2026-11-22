@@ -2,6 +2,11 @@ name: Daily ContributorOps
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - fix/scheduled-workflow-token-fallback-20261122
+    paths:
+      - .github/workflows/daily-contributorops.yml
   schedule:
     - cron: "15 6 * * *"
 
