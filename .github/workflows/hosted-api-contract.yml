@@ -37,9 +37,9 @@ jobs:
         run: |
           DB="$(docker ps --filter ancestor=postgres:16 --format '{{.ID}}' | head -1)"
           test -n "$DB" || { echo "PostgreSQL service missing"; exit 1; }
-          for file in             supabase/tests/003_bootstrap_auth.sql             supabase/migrations/001_initial_schema.sql             supabase/migrations/002_rls_policies.sql             supabase/migrations/003_security_oauth_and_user_state.sql             supabase/tests/003_security_contract.sql; do
+          for file in             supabase/tests/003_bootstrap_auth.sql             supabase/migrations/001_initial_schema.sql             supabase/migrations/002_rls_policies.sql             supabase/migrations/003_security_oauth_and_user_state.sql             supabase/migrations/004_restrict_auth_trigger_rpc.sql             supabase/tests/003_security_contract.sql             supabase/tests/004_rpc_privileges_contract.sql; do
             echo "::group::Checking $file"
             docker exec -i "$DB" psql -X -U postgres -d postgres -v ON_ERROR_STOP=1 < "$file"
             echo "::endgroup::"
           done
-          echo "Fresh migration 001→002→003, tenant and OAuth contract passed."
+          echo "Fresh migration 001→002→003→004, tenant, OAuth and RPC-grant contract passed."
