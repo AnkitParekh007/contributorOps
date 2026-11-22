@@ -58,6 +58,8 @@ DROP POLICY IF EXISTS "Users can manage their own OAuth accounts" ON public.oaut
 REVOKE INSERT, UPDATE, DELETE ON public.oauth_accounts FROM anon, authenticated;
 REVOKE ALL ON public.oauth_states FROM anon, authenticated;
 REVOKE ALL ON public.user_scoped_state FROM anon, authenticated;
+-- Only trusted service-role billing events may change paid entitlements.
+REVOKE INSERT, UPDATE, DELETE ON public.subscriptions FROM anon, authenticated;
 
 -- All sensitive service-role tables must enforce RLS even when directly exposed.
 ALTER TABLE public.waitlist_entries ENABLE ROW LEVEL SECURITY;
