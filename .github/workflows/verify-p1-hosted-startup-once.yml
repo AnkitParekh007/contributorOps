@@ -1,0 +1,35 @@
+name: One-shot P1 hosted startup acceptance
+on:
+  push:
+    branches: [security/p1-hosted-startup-config-20261123]
+    paths: [.github/workflows/verify-p1-hosted-startup-once.yml]
+permissions:
+  contents: write
+jobs:
+  acceptance:
+    if: github.repository == 'AnkitParekh007/contributorOps'
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Run all API security and startup checks
+        run: npm run test:api
+      - name: Build all packages
+        run: npm run build:all
+      - name: Typecheck all workspaces
+        run: npm run typecheck
+      - name: Reject high-severity runtime dependencies
+        run: npm run security:audit:runtime
+      - name: Self-remove workflow after successful checks
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm .github/workflows/verify-p1-hosted-startup-once.yml
+          git add .github/workflows/verify-p1-hosted-startup-once.yml
+          git commit -m "test(qa): capture passing hosted startup safety check"
+          git push origin HEAD:security/p1-hosted-startup-config-20261123
