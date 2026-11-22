@@ -54,7 +54,7 @@ npm ci
 npm run dev
 ```
 
-Node.js 20+ and npm 10+ are required. Live authenticated GitHub actions require credentials and separately defined authorization. Without a GitHub token, discovery uses demo fixtures.
+Node.js 22+ and npm 10+ are required. Live authenticated GitHub actions require credentials and separately defined authorization. Without a GitHub token, discovery uses demo fixtures.
 
 ## What it does
 
@@ -222,7 +222,7 @@ contributorOps/
 ## Quick start
 
 ### Prerequisites
-- Node.js 20+
+- Node.js 22+
 - npm 10+
 
 ### Install

@@ -10,7 +10,7 @@ The monorepo contains `apps/site` (public website), `apps/web` (product interfac
 
 ## Local development
 
-Use Node.js 20+ and npm 10+:
+Use Node.js 22+ and npm 10+:
 
 ```bash
 git clone https://github.com/AnkitParekh007/contributorOps.git
