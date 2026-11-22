@@ -86,7 +86,8 @@ test("Supabase mode returns public health/pricing but rejects anonymous and inva
       headers: { Authorization: "Bearer invalid-token" },
     });
     assert.equal(invalidToken.status, 401);
-    assert.equal((await fetch(api.url + "/api/github/callback?code=fake", { redirect: "manual" })).status, 400);
+    const invalidCallback = await fetch(api.url + "/api/github/callback?code=fake", { redirect: "manual" });
+    assert.equal(invalidCallback.status, 400, await invalidCallback.text());
   } finally {
     api.stop();
   }
