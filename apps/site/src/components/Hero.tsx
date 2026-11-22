@@ -57,15 +57,15 @@ export function Hero() {
 				</div>
 
 				<h1>
-					Turn OSS Contributions
+					Make OSS Work Count
 					<br />
-					<span className="ai-gradient-text">Into Career Proof</span>
+					<span className="ai-gradient-text">With Better Pull Requests</span>
 				</h1>
 
 				<p>
-					ContributorOps is an open-source contribution intelligence platform that helps developers discover
-					higher-signal issues, prepare stronger pull requests, and turn completed work into verifiable evidence
-					that recruiters and engineering teams can actually evaluate.
+					Find worthwhile GitHub issues, prepare reviewable changes, and show
+					exactly what you shipped. ContributorOps connects issue discovery, PR safety
+					and verifiable contribution evidence in one open-source workflow.
 				</p>
 
 				<div className="hero-actions">
@@ -81,12 +81,12 @@ export function Hero() {
 						onClick={() => trackEvent("Hero CTA", { action: "open_repository" })}
 					>
 						<Github size={16} />
-						Star on GitHub
+						Browse source
 					</a>
-					<Link to="/docs/architecture" className="button-secondary">
+					<a href="https://github.com/floating-ui/floating-ui/pull/3494" target="_blank" rel="noreferrer" className="button-secondary">
 						<BookOpen size={15} />
-						Architecture
-					</Link>
+						See a merged PR
+					</a>
 				</div>
 
 				<div className="hero-trust-row">
