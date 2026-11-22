@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiClient } from "../api/client";
 import { OnboardingStep } from "./OnboardingStep";
 
@@ -21,6 +21,7 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
   const [loading, setLoading] = useState(true);
   const [activeStep, setActiveStep] = useState(1);
   const [connectError, setConnectError] = useState("");
+  const oauthCompletionStarted = useRef(false);
 
   useEffect(() => {
     apiClient
@@ -38,17 +39,33 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
       .finally(() => setLoading(false));
   }, []);
 
-  // Check if onboarding is complete after GitHub callback redirect
+  // GitHub returns to the browser, then the current authenticated Supabase
+  // session finalizes the one-time code. Switching user accounts fails closed.
   useEffect(() => {
     const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
-    if (params.get("github") === "connected") {
-      // Callback alone is not proof of connection; confirm server-side ownership.
-      apiClient.getOnboardingStatus().then((fresh) => {
-        setStatus(fresh);
-        setActiveStep(fresh.githubConnected ? 2 : 1);
-      }).catch(() => setConnectError("Unable to verify GitHub connection. Please retry."));
-      window.history.replaceState({}, "", window.location.pathname + "#/onboarding");
+    const code = params.get("github_code");
+    const state = params.get("github_state");
+    if (!code && !state) return;
+    if (oauthCompletionStarted.current) return;
+    oauthCompletionStarted.current = true;
+
+    // Remove the short-lived OAuth authorization code from browser history first.
+    window.history.replaceState({}, "", window.location.pathname + "#/onboarding");
+    if (!code || !state) {
+      setConnectError("Incomplete GitHub OAuth response. Please restart the connection.");
+      return;
     }
+
+    void apiClient.completeGithubConnect({ code, state })
+      .then(async () => {
+        const fresh = await apiClient.getOnboardingStatus();
+        if (!fresh.githubConnected) throw new Error("The account connection could not be verified.");
+        setStatus(fresh);
+        setActiveStep(2);
+      })
+      .catch((error: unknown) => {
+        setConnectError(error instanceof Error ? error.message : "GitHub connection failed. Please retry.");
+      });
   }, []);
 
   const handleConnectGithub = async () => {
