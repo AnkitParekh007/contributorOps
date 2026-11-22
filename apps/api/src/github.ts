@@ -112,6 +112,23 @@ function repoMatchesFilters(candidate: RawIssueCandidate, filters: DiscoveryFilt
   return topicMatch && languageMatch && labelMatch;
 }
 
+// GitHub repository search does not support the boolean qualifier group
+// syntax `(topic:a OR topic:b)` used by issue searches. Produce bounded,
+// independently valid queries to cover categories without a silent zero-result.
+export function buildRepoSearchTerms(filters: DiscoveryFilters): string[] {
+  const topics = filters.topics.slice(0, 8);
+  const languages = filters.languages.length ? filters.languages : ["typescript"];
+  return (topics.length ? topics : ["developer-tools"]).map((topic, index) =>
+    [
+      "archived:false",
+      "is:public",
+      "stars:>50",
+      `topic:${topic}`,
+      `language:${languages[index % languages.length]}`
+    ].join(" ")
+  );
+}
+
 export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): Promise<{
   mode: "demo" | "github";
   candidates: RawIssueCandidate[];
@@ -126,21 +143,32 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
     };
   }
 
-  const repoQueryParts = [
-    "archived:false",
-    "is:public",
-    `(${filters.topics.map((topic) => `topic:${topic}`).join(" OR ")})`,
-    `(${filters.languages.map((language) => `language:${language}`).join(" OR ")})`
-  ];
+  // Bound the number of authenticated repository searches and interleave
+  // matching topic/language results so one broad category cannot dominate.
+  const searchTerms = buildRepoSearchTerms(filters);
 
-  const repos = await octokit.search.repos({
-    q: repoQueryParts.join(" "),
-    per_page: 8,
-    sort: "updated",
-    order: "desc"
-  });
+  const searchPages = await Promise.all(
+    searchTerms.map((q) =>
+      octokit.search.repos({
+        q,
+        per_page: 8,
+        sort: "updated",
+        order: "desc"
+      })
+    )
+  );
 
-  const repoItems = repos.data.items.filter((repo) => !repo.fork);
+  const repoItems: (typeof searchPages)[number]["data"]["items"] = [];
+  const seen = new Set<string>();
+  for (let rank = 0; rank < 8 && repoItems.length < 20; rank++) {
+    for (const search of searchPages) {
+      const repo = search.data.items[rank];
+      if (!repo || repo.fork || seen.has(repo.full_name.toLowerCase())) continue;
+      seen.add(repo.full_name.toLowerCase());
+      repoItems.push(repo);
+      if (repoItems.length >= 20) break;
+    }
+  }
 
   const issueLists = await Promise.all(
     repoItems.map(async (repo) => {
@@ -154,7 +182,7 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
         state: "open",
         sort: "updated",
         direction: "desc",
-        per_page: 12
+        per_page: 80
       });
 
       return issues.data
@@ -182,10 +210,16 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
     })
   );
 
-  const flattened = issueLists
-    .flat()
+  const scanned = issueLists.flat();
+  const flattened = scanned
     .filter((candidate) => repoMatchesFilters(candidate, filters))
-    .slice(0, 30);
+    .slice(0, 60);
+
+  if (flattened.length === 0) {
+    console.warn(
+      `GitHub discovery matched no candidate issues: ${repoItems.length} active repos scanned, ${scanned.length} open issues inspected. Recheck topic, language and label filters.`
+    );
+  }
 
   return { mode: "github", candidates: flattened };
 }
