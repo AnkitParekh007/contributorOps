@@ -1,5 +1,7 @@
 import { Octokit } from "@octokit/rest";
 import { config, defaultFilters } from "./config.js";
+import { requireRequestUserId } from "./auth/request-context.js";
+import { getGithubToken } from "./db/users.js";
 import { readPullRequestActivity } from "./storage.js";
 import type {
   ApprovedPullRequestRequest,
@@ -144,9 +146,17 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
   candidates: RawIssueCandidate[];
 }> {
   const filters = normalizeFilters(filtersInput);
-  const octokit = getOctokit(config.githubToken);
+  // Hosted discovery must use only the currently authenticated user's OAuth
+  // identity. Never borrow the API operator's process-level GitHub PAT.
+  const githubToken = config.storageMode === "supabase"
+    ? (await getGithubToken(requireRequestUserId()))?.token ?? ""
+    : config.githubToken;
+  const octokit = getOctokit(githubToken);
 
   if (!octokit) {
+    if (config.storageMode === "supabase") {
+      throw new Error("Connect your own GitHub account before live discovery.");
+    }
     return {
       mode: "demo",
       candidates: mockIssues.filter((candidate) => repoMatchesFilters(candidate, filters))
