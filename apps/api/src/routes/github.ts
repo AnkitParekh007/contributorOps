@@ -38,7 +38,9 @@ router.post("/github/connect", async (req, res, next) => {
       res.status(501).json({ message: "GitHub OAuth is not configured on this server." });
       return;
     }
-    const scope = req.body?.scope === "repo" ? "repo read:user" : "public_repo read:user";
+    // Identity-only OAuth until a separate user-owned GitHub write adapter is implemented.
+    // Never request repository-write scopes for a read-only hosted connection.
+    const scope = "read:user";
     const { state, browserBinding } = await createOAuthState(getUserId(req), scope);
     const secure = new URL(config.publicAppUrl).protocol === "https:";
     res.cookie(OAUTH_COOKIE, browserBinding, {
