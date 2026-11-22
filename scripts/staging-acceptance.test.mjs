@@ -7,6 +7,7 @@ const safe = {
   STAGING_API_URL: "https://api.staging.contributorops.example",
   STAGING_WEB_URL: "https://app.staging.contributorops.example",
   STAGING_SUPABASE_PROJECT_REF: "a".repeat(20),
+  STAGING_EXPECTED_SHA: "b".repeat(40),
   STAGING_MODE: "public",
 };
 
@@ -20,6 +21,7 @@ test("never contact a production, local, HTTP or unspecified destination", () =>
     { STAGING_API_URL: "https://api.staging.contributorops.example/wrong" },
     { STAGING_WEB_URL: "https://attacker@web.staging.contributorops.example" },
     { STAGING_SUPABASE_PROJECT_REF: "" },
+    { STAGING_EXPECTED_SHA: "wrong-sha" },
     { STAGING_MODE: "unknown" },
   ]) {
     assert.throws(() => validateStagingConfig({ ...safe, ...change }), /./);
@@ -37,7 +39,7 @@ test("two-user mode is blocked without both distinct user tokens and explicit mu
   }), /two different/i);
 });
 
-function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false } = {}) {
+function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false, wrongBuild = false } = {}) {
   const states = {
     A: { safetyLevel: "research", approvalRequired: false, lastUpdatedAt: "baseline-a" },
     B: { safetyLevel: "research", approvalRequired: false, lastUpdatedAt: "baseline-b" },
@@ -57,6 +59,7 @@ function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false 
       });
     }
     if (path === "/api/health") return json(200, { status: "ok" });
+    if (path === "/api/meta") return json(200, { mode: "hosted", releaseCommit: wrongBuild ? "c".repeat(40) : "b".repeat(40), hostedWritesEnabled: false, enabledFeatures: [] });
     if (path === "/api/pricing") return json(200, []);
     if (path.startsWith("/api/public/")) return json(404, { message: "Not found" });
     if (path === "/api/github/callback") return json(400, { message: "Bad state" });
@@ -88,7 +91,7 @@ test("public acceptance never mutates real data or fetches user tokens", async (
   const mock = mockStagingFetch();
   const result = await runStagingAcceptance(safe, mock.fetcher);
   assert.equal(result.mode, "public");
-  assert.equal(result.passed, 12);
+  assert.equal(result.passed, 13);
   assert.ok(result.notVerified.some(x => x.includes("OAuth")));
   assert.ok(mock.calls.every(x => x.method === "GET" ||
     x.path === "/api/waitlist" || x.path === "/api/github/complete" ||
@@ -125,4 +128,12 @@ test("unexpected paid entitlement escalation aborts staging acceptance", async (
     STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY",
     STAGING_USER_A_TOKEN: "jwt-a", STAGING_USER_B_TOKEN: "jwt-b" };
   await assert.rejects(() => runStagingAcceptance(env, mock.fetcher), /must have a free subscription/);
+});
+
+test("staging acceptance never certifies an unexpected deployed SHA", async () => {
+  const mock = mockStagingFetch({ wrongBuild: true });
+  await assert.rejects(
+    () => runStagingAcceptance(safe, mock.fetcher),
+    /Staging build identity or hosted GitHub write-safety metadata mismatch/,
+  );
 });
