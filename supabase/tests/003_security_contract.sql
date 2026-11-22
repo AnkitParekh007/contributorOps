@@ -70,6 +70,14 @@ BEGIN
   THEN RAISE EXCEPTION 'Service-role permission contract is missing for hosted API state'; END IF;
 END $$;
 
+DO $$
+BEGIN
+  IF has_table_privilege('authenticated','public.subscriptions','INSERT')
+     OR has_table_privilege('authenticated','public.subscriptions','UPDATE')
+     OR has_table_privilege('authenticated','public.subscriptions','DELETE')
+  THEN RAISE EXCEPTION 'Authenticated client must not mutate subscriptions'; END IF;
+END $$;
+
 SET ROLE authenticated;
 DO $$
 BEGIN
