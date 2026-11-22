@@ -47,23 +47,23 @@ test("parallel users cannot read or overwrite another user's state, run, billing
   ]);
   const [a, b] = await Promise.all([
     withUserContext("11111111-1111-4111-8111-111111111111", async () => ({
-      control: await repo.read("controlMode", null),
+      control: await repo.read<{ consent: string } | null>("controlMode", null),
       runs: await repo.read("contributionRuns", []),
-      billing: await repo.read("billing", null),
+      billing: await repo.read<{ plan: string } | null>("billing", null),
     })),
     withUserContext("22222222-2222-4222-8222-222222222222", async () => ({
-      control: await repo.read("controlMode", null),
+      control: await repo.read<{ consent: string } | null>("controlMode", null),
       runs: await repo.read("contributionRuns", []),
-      billing: await repo.read("billing", null),
+      billing: await repo.read<{ plan: string } | null>("billing", null),
     })),
   ]);
-  assert.equal((a.control as { consent: string }).consent, "owner A");
-  assert.equal((b.control as { consent: string }).consent, "owner B");
+  assert.equal(a.control?.consent, "owner A");
+  assert.equal(b.control?.consent, "owner B");
   assert.deepEqual(a.runs, [{ id: "run-a", approvalToken: "only-a" }]);
   assert.deepEqual(b.runs, [{ id: "run-b", approvalToken: "only-b" }]);
-  assert.equal((a.billing as { plan: string }).plan, "career");
-  assert.equal((b.billing as { plan: string }).plan, "free");
-  await assert.rejects(repo.read("billing", null), /Authenticated user context/);
+  assert.equal(a.billing?.plan, "career");
+  assert.equal(b.billing?.plan, "free");
+  await assert.rejects(repo.read<{ plan: string } | null>("billing", null), /Authenticated user context/);
   await assert.rejects(repo.write("billing", { plan: "team" }), /Authenticated user context/);
 });
 
