@@ -31,6 +31,20 @@ export function validateStagingConfig(env = process.env) {
   }
   const api = parseSecureOrigin(env.STAGING_API_URL, "STAGING_API_URL");
   const web = parseSecureOrigin(env.STAGING_WEB_URL, "STAGING_WEB_URL");
+  // Only send staging bearer tokens to hosts under an explicitly approved
+  // owner-controlled DNS suffix. A hostname containing "staging" alone is
+  // not sufficient: api.staging.attacker.example would otherwise qualify.
+  const approvedDomain = (env.STAGING_APPROVED_DOMAIN || "").toLowerCase();
+  if (!/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z]{2,63}$/.test(approvedDomain)) {
+    throw new Error("STAGING_APPROVED_DOMAIN must be an explicit lower-case owner-controlled DNS suffix");
+  }
+  const belongsToDomain = (origin) => {
+    const hostname = new URL(origin).hostname;
+    return hostname === approvedDomain || hostname.endsWith(`.${approvedDomain}`);
+  };
+  if (!belongsToDomain(api) || !belongsToDomain(web)) {
+    throw new Error("Both staging origins must belong to STAGING_APPROVED_DOMAIN before sending credentials");
+  }
   const ref = env.STAGING_SUPABASE_PROJECT_REF || "";
   if (!/^[a-z0-9]{20}$/.test(ref)) {
     throw new Error("An explicitly designated 20-character staging Supabase project reference is required");
@@ -50,7 +64,7 @@ export function validateStagingConfig(env = process.env) {
       throw new Error("Two different staging-only authenticated test user access tokens are required");
     }
   }
-  return { api, web, ref, mode, expectedSha, tokenA: env.STAGING_USER_A_TOKEN, tokenB: env.STAGING_USER_B_TOKEN };
+  return { api, web, approvedDomain, ref, mode, expectedSha, tokenA: env.STAGING_USER_A_TOKEN, tokenB: env.STAGING_USER_B_TOKEN };
 }
 
 async function check(fetcher, checks, base, path, expected, opts = {}) {
@@ -147,12 +161,15 @@ export async function runTwoUserChecks(config, fetcher = fetch) {
   if (beforeA?.safetyLevel !== "research" || beforeB?.safetyLevel !== "research") {
     throw new Error("Two-user acceptance requires fresh A/B test accounts in research mode");
   }
-  let changedA = false, firstError = null;
+  let attemptedMutation = false, firstError = null;
   try {
+    // A transport failure or 5xx after a successful server-side mutation is
+    // ambiguous. Mark the attempt BEFORE the request so cleanup is required
+    // even if the server commits "draft" but fails to return HTTP 200.
+    attemptedMutation = true;
     await check(fetcher, checks, config.api, "/api/control-mode", 200, {
       method: "POST", token: tokenA, body: { safetyLevel: "draft" },
     });
-    changedA = true;
     const afterA = await check(fetcher, checks, config.api, "/api/control-mode", 200, { token: tokenA });
     if (afterA?.safetyLevel !== "draft") throw new Error("User A cannot read its own temporary state");
     const afterB = await check(fetcher, checks, config.api, "/api/control-mode", 200, { token: tokenB });
@@ -162,13 +179,18 @@ export async function runTwoUserChecks(config, fetcher = fetch) {
   } catch (error) {
     firstError = error;
   } finally {
-    if (changedA) {
+    if (attemptedMutation) {
       try {
         await check(fetcher, checks, config.api, "/api/control-mode", 200, {
           method: "POST", token: tokenA, body: { safetyLevel: "research" },
         });
+        // A 200 response does not prove that the reset was actually committed.
+        const restored = await check(fetcher, checks, config.api, "/api/control-mode", 200, { token: tokenA });
+        if (restored?.safetyLevel !== "research") {
+          throw new Error("Staging user A is still outside research mode after restoration");
+        }
       } catch (cleanupError) {
-        throw new Error("Control-mode staging check failed to restore A's research mode", { cause: cleanupError });
+        throw new Error("Control-mode staging check failed to restore and verify A's research mode; inspect the staging account manually", { cause: cleanupError });
       }
     }
   }
