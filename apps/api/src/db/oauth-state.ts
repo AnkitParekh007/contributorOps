@@ -4,6 +4,13 @@ import { getSupabaseAdmin } from "./client.js";
 export const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 export const OAUTH_COOKIE = "contributorops_gh_oauth";
 
+/**
+ * OAuth state and browser-binding values are 32-byte CSPRNG nonces, NOT
+ * user-chosen passwords. SHA-256 is appropriate for storing an opaque
+ * verifier for 256-bit uniformly random values; a slow password KDF would
+ * not add meaningful brute-force resistance here. Neither raw nonce is
+ * persisted in the database. See docs/security/P0-hosted-api-release-gates.md.
+ */
 export function oauthHash(value: string): string {
   return crypto.createHash("sha256").update(value, "utf8").digest("hex");
 }
