@@ -62,6 +62,14 @@ BEGIN
  THEN RAISE EXCEPTION 'Waitlist RLS disabled'; END IF;
 END $$;
 
+DO $
+BEGIN
+  IF NOT has_table_privilege('service_role', 'public.oauth_accounts', 'SELECT,INSERT,UPDATE,DELETE')
+     OR NOT has_table_privilege('service_role', 'public.oauth_states', 'SELECT,INSERT,UPDATE,DELETE')
+     OR NOT has_table_privilege('service_role', 'public.user_scoped_state', 'SELECT,INSERT,UPDATE,DELETE')
+  THEN RAISE EXCEPTION 'Service-role permission contract is missing for hosted API state'; END IF;
+END $;
+
 SET ROLE authenticated;
 DO $$
 BEGIN
