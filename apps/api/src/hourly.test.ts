@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { hasAiContributionProhibition, isLowSignalIssue, normalizeRadarState } from "./hourly.js";
+import { buildRepoSearchTerms } from "./github.js";
 
 test("normalizeRadarState resets a previous day and de-duplicates repos", () => {
   assert.deepEqual(normalizeRadarState({ date: "2026-08-08", repos: ["a/b"] }, "2026-08-09"), {
@@ -43,5 +44,35 @@ test("isLowSignalIssue rejects typo-only work but keeps real bugs", () => {
       labels: ["bug", "accessibility"]
     }),
     false
+  );
+});
+
+test("GitHub discovery uses bounded supported topic/language queries rather than OR qualifier groups", () => {
+  const terms = buildRepoSearchTerms({
+    topics: ["ai", "llm", "developer-tools"],
+    languages: ["typescript", "javascript"],
+    labels: ["good first issue"]
+  });
+
+  assert.equal(terms.length, 3);
+  assert.match(terms[0], /topic:ai language:typescript$/);
+  assert.match(terms[1], /topic:llm language:javascript$/);
+  assert.match(terms[2], /topic:developer-tools language:typescript$/);
+  assert.ok(terms.every((term) => !term.includes(" OR ") && !term.includes("(")));
+  assert.ok(terms.every((term) => term.includes("archived:false") && term.includes("stars:>50")));
+});
+
+test("GitHub discovery limits repositories searched and has a safe default category", () => {
+  const terms = buildRepoSearchTerms({
+    topics: Array.from({ length: 16 }, (_, i) => `topic-${i}`),
+    languages: [],
+    labels: []
+  });
+  assert.equal(terms.length, 8);
+  assert.ok(terms.every((term) => term.includes("language:typescript")));
+
+  assert.deepEqual(
+    buildRepoSearchTerms({ topics: [], languages: ["javascript"], labels: [] }),
+    ["archived:false is:public stars:>50 topic:developer-tools language:javascript"]
   );
 });
