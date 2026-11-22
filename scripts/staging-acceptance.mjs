@@ -35,6 +35,10 @@ export function validateStagingConfig(env = process.env) {
   if (!/^[a-z0-9]{20}$/.test(ref)) {
     throw new Error("An explicitly designated 20-character staging Supabase project reference is required");
   }
+  const expectedSha = (env.STAGING_EXPECTED_SHA || "").toLowerCase();
+  if (!/^[a-f0-9]{40}$/.test(expectedSha)) {
+    throw new Error("STAGING_EXPECTED_SHA must be the exact 40-character commit deployed to staging");
+  }
   const mode = env.STAGING_MODE || "public";
   if (!["public", "two-user"].includes(mode)) throw new Error("STAGING_MODE must be public or two-user");
   if (mode === "two-user") {
@@ -46,7 +50,7 @@ export function validateStagingConfig(env = process.env) {
       throw new Error("Two different staging-only authenticated test user access tokens are required");
     }
   }
-  return { api, web, ref, mode, tokenA: env.STAGING_USER_A_TOKEN, tokenB: env.STAGING_USER_B_TOKEN };
+  return { api, web, ref, mode, expectedSha, tokenA: env.STAGING_USER_A_TOKEN, tokenB: env.STAGING_USER_B_TOKEN };
 }
 
 async function check(fetcher, checks, base, path, expected, opts = {}) {
@@ -74,6 +78,12 @@ export async function runPublicChecks(config, fetcher = fetch) {
   if (!health || typeof health !== "object") throw new Error("Health route did not return JSON");
   const pricing = await check(fetcher, checks, config.api, "/api/pricing", 200);
   if (!Array.isArray(pricing)) throw new Error("Pricing route did not return an array");
+  const meta = await check(fetcher, checks, config.api, "/api/meta", 200);
+  if (meta?.mode !== "hosted" || meta?.hostedWritesEnabled !== false ||
+      meta?.releaseCommit !== config.expectedSha ||
+      meta?.enabledFeatures?.includes("safe-auto-contribute")) {
+    throw new Error("Staging build identity or hosted GitHub write-safety metadata mismatch");
+  }
   await check(fetcher, checks, config.api, "/api/public/portfolio/staging-probe-absent-00001", 404);
   await check(fetcher, checks, config.api, "/api/public/user/staging-probe-absent-00001", 404);
   await check(fetcher, checks, config.api, "/api/github/callback?code=invalid&state=invalid", 400);
@@ -173,7 +183,7 @@ export async function runStagingAcceptance(env = process.env, fetcher = fetch) {
   const result = {
     timestamp: new Date().toISOString(), mode: config.mode,
     apiOrigin: config.api, webOrigin: config.web,
-    stagingProjectRef: config.ref, passed: checks.length, checks,
+    stagingProjectRef: config.ref, releaseCommit: config.expectedSha, passed: checks.length, checks,
     // Explicitly NOT proving live OAuth, Supabase RLS or migration history.
     notVerified: [
       "real GitHub OAuth browser callback and same-account nonce binding",
