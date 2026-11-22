@@ -10,7 +10,7 @@ https://codespaces.new/AnkitParekh007/contributorOps?quickstart=1
 
 The dev container:
 
-- uses Node.js 20
+- uses Node.js 22
 - runs `npm ci` after creation
 - forwards ports `5173`, `8787`, and `4174`
 - sets `STORAGE_MODE=demo`
@@ -29,7 +29,7 @@ Open the forwarded Product UI port (`5173`).
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - npm 10+
 
 ### Clone and install
