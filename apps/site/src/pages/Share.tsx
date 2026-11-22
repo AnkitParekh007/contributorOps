@@ -13,7 +13,7 @@ const SHARE_PATHS = [
 		title: "Developer / contributor",
 		description: "Share something immediately usable before asking someone to inspect the full repository.",
 		route: "/demo",
-		copy: "ContributorOps is an open-source workflow for finding higher-signal OSS work, preparing focused changes, validating quality, explicitly authorizing GitHub actions, and turning finished contributions into career proof. The browser demo needs no signup or GitHub token and uses fictional examples.",
+		copy: "ContributorOps helps you find worthwhile OSS issues, prepare focused PRs, and turn real merged work into career proof. An upstream Floating UI fix prepared with ContributorOps assistance was merged (floating-ui/floating-ui#3494). The no-signup browser demo uses clearly labeled fictional scenarios.",
 	},
 	{
 		id: "recruiter",
@@ -21,7 +21,7 @@ const SHARE_PATHS = [
 		title: "Recruiter / hiring manager",
 		description: "Send the concise engineering brief rather than asking someone to reverse-engineer the repository.",
 		route: "/recruiter",
-		copy: "ContributorOps is a public engineering case study spanning React, TypeScript, Node/Express, Octokit, GitHub Actions, action-scoped authorization, bounded exact-patch automation, security gates, and contributor experience. This two-minute brief links directly to the evidence.",
+		copy: "ContributorOps is an open-source React/TypeScript and Node.js system that demonstrates governed GitHub actions, bounded exact-patch automation, and public security gates. Its real upstream Floating UI PR #3494 was merged on October 26, 2026, with automation disclosed. This engineering brief links to the implementation and evidence.",
 	},
 	{
 		id: "maintainer",
@@ -37,7 +37,7 @@ const SHARE_PATHS = [
 		title: "Developer community",
 		description: "Use a problem-first message and link to something people can try immediately.",
 		route: "/launch",
-		copy: "I’m looking for technical feedback on ContributorOps, an open-source system for choosing worthwhile OSS work, preparing it well, constraining GitHub write authority, and turning finished contributions into explainable proof of work. The launch hub includes a no-signup browser demo, source, architecture, and safety evidence.",
+		copy: "I built ContributorOps to help developers find useful issues, prepare reviewable pull requests, and capture verified contribution history. One disclosed ContributorOps-assisted fix was merged upstream in Floating UI (PR #3494). I'd welcome a critique of the workflow and the distinction between action-scoped approval and the separate bounded draft-PR queue. The browser demo uses example data, without signup.",
 	},
 ];
 
@@ -80,6 +80,7 @@ export function Share() {
 						<Link className="button-primary" to="/demo">Try browser demo</Link>
 						<a className="button-secondary" href={REPO_URL} target="_blank" rel="noreferrer"><Github size={16} /> Open GitHub</a>
 						<Link className="button-secondary" to="/adoption">View growth signals</Link>
+						<a className="button-secondary" href="https://github.com/floating-ui/floating-ui/pull/3494" target="_blank" rel="noreferrer">Verified merged PR <ExternalLink size={14}/></a>
 					</div>
 				</div>
 				<aside className="distribution-principle-card">
