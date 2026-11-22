@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { hasAiContributionProhibition, isLowSignalIssue, normalizeRadarState } from "./hourly.js";
-import { buildRepoSearchTerms } from "./github.js";
+import { buildRepoSearchTerms, canSkipDiscoveryError } from "./github.js";
 
 test("normalizeRadarState resets a previous day and de-duplicates repos", () => {
   assert.deepEqual(normalizeRadarState({ date: "2026-08-08", repos: ["a/b"] }, "2026-08-09"), {
@@ -75,4 +75,17 @@ test("GitHub discovery limits repositories searched and has a safe default categ
     buildRepoSearchTerms({ topics: [], languages: ["javascript"], labels: [] }),
     ["archived:false is:public stars:>50 topic:developer-tools language:javascript"]
   );
+});
+
+test("discovery tolerates isolated GitHub 5xx but never masks invalid credentials or rate limits", () => {
+  assert.equal(canSkipDiscoveryError({ status: 502 }, "search"), true);
+  assert.equal(canSkipDiscoveryError({ status: 503 }, "issues"), true);
+  assert.equal(canSkipDiscoveryError({ status: 404 }, "issues"), true);
+  assert.equal(canSkipDiscoveryError({ status: 410 }, "issues"), true);
+  for (const status of [401, 403, 422, 429]) {
+    assert.equal(canSkipDiscoveryError({ status }, "search"), false);
+    assert.equal(canSkipDiscoveryError({ status }, "issues"), false);
+  }
+  assert.equal(canSkipDiscoveryError({ status: 404 }, "search"), false);
+  assert.equal(canSkipDiscoveryError(new Error("no status"), "search"), false);
 });
