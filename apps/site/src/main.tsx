@@ -11,6 +11,7 @@ import "./adoption.css";
 import "./try.css";
 import "./quality.css";
 import "./launch.css";
+import "./proof-journey.css";
 
 initAnalytics();
 
