@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Public read-only smoke or temporary two-user portfolio isolation"
+        description: "Public read-only smoke or temporary two-user control-mode isolation"
         required: true
         type: choice
         options: [public, two-user]
@@ -15,8 +15,8 @@ on:
         required: true
         type: boolean
         default: false
-      allow_temporary_portfolio:
-        description: "Two-user only: allow creation, attempted cross-user PATCH and deletion of one test fixture"
+      allow_control_mode_mutation:
+        description: "Two-user only: permit temporary change and restoration of A's control mode"
         required: true
         type: boolean
         default: false
@@ -46,7 +46,7 @@ jobs:
           STAGING_SUPABASE_PROJECT_REF: ${{ vars.STAGING_SUPABASE_PROJECT_REF }}
           STAGING_MODE: ${{ inputs.mode }}
           STAGING_ATTESTATION: ${{ inputs.confirm_staging && 'I_CONFIRM_ISOLATED_CONTRIBUTOROPS_STAGING' || '' }}
-          STAGING_MUTATION_APPROVAL: ${{ inputs.allow_temporary_portfolio && 'ALLOW_TEMPORARY_TEST_PORTFOLIO_ONLY' || '' }}
+          STAGING_MUTATION_APPROVAL: ${{ inputs.allow_control_mode_mutation && 'ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY' || '' }}
           STAGING_USER_A_TOKEN: ${{ secrets.STAGING_USER_A_TOKEN }}
           STAGING_USER_B_TOKEN: ${{ secrets.STAGING_USER_B_TOKEN }}
           STAGING_REPORT_PATH: ${{ runner.temp }}/staging-acceptance.json
