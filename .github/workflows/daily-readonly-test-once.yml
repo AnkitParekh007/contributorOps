@@ -1,0 +1,43 @@
+name: One-shot daily planner read-only integration
+on:
+  push:
+    branches:
+      - fix/scheduled-workflow-token-fallback-20261122
+    paths:
+      - .github/workflows/daily-readonly-test-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_CONTRIBUTOROPS_TOKEN: ''
+      AUTO_CONTRIBUTE_ENABLED: 'false'
+      AUTO_WORKSPACE_ENABLED: 'false'
+      CREATE_DAILY_ISSUE: 'false'
+      STORAGE_MODE: demo
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Generate a genuine daily plan with read-only GitHub API
+        run: |
+          npm run daily | tee /tmp/daily-plan.log
+          test -s data/daily-plan.json
+          if grep -Fq 'GitHub discovery matched no candidate issues' /tmp/daily-plan.log; then
+            echo "::error::Daily planner discovery returned no candidates."
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-readonly-smoke-${{ github.run_id }}
+          path: data/daily-plan.json
+          if-no-files-found: warn
