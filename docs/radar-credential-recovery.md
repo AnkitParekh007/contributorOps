@@ -18,6 +18,20 @@ The fallback **explicitly disables** `AUTO_WORKSPACE_ENABLED` and `AUTO_CONTRIBU
 
 If no custom token is available, leave the write opt-ins off. Read-only discovery is a better outcome than failing every scheduled run or accidentally widening access.
 
+## Other scheduled workflows
+
+### Daily ContributorOps plan
+
+The `Daily ContributorOps` workflow now uses its job-scoped `GITHUB_TOKEN` for read-only discovery if the custom `GH_CONTRIBUTOROPS_TOKEN` is absent or rejected. It explicitly disables `CREATE_DAILY_ISSUE` on fallback; it does **not** use the read-only credential to create an issue. It uses `npm ci` for reproducible installs.
+
+To opt in to posting a daily planning issue in this repository, provide a **valid** custom token with the required issue-write permission and explicitly configure the `CREATE_DAILY_ISSUE=true` Actions variable. That is separate from external upstream contribution authority.
+
+### Standing exact-patch queue
+
+The `Execute OSS Patch Queue` workflow is **write-capable**. There is intentionally **no read-only fallback** for it. The job starts only if `CONTRIBUTOROPS_ALLOW_UNATTENDED_PATCHES=true` is explicitly configured as a repository Actions variable, and it validates the custom PAT with GitHub before loading any queued patches.
+
+Do not enable unattended execution without reviewing the authored patch queue, rate limits, repository policy and the [security model](./security-model.md). The mere presence of a secret must never authorize unattended writes.
+
 ## Monitoring after recovery
 
 Review the newest [hourly radar Actions runs](https://github.com/AnkitParekh007/contributorOps/actions/workflows/hourly-oss-radar.yml). Verify:
