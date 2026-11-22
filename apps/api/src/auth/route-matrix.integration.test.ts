@@ -91,7 +91,7 @@ test("Supabase mode returns public health/pricing but rejects anonymous and inva
     for (const endpoint of ["/api/health", "/api/pricing", "/api/meta", "/api/launch-offer"]) {
       assert.equal((await fetch(api.url + endpoint)).status, 200, endpoint);
     }
-    for (const endpoint of ["/api/billing", "/api/portfolio", "/api/control-mode", "/api/discover", "/api/github/status", "/api/github/connect", "/api/contribute/runs", "/api/usage"]) {
+    for (const endpoint of ["/api/billing", "/api/portfolio", "/api/control-mode", "/api/discover", "/api/github/status", "/api/github/connect", "/api/github/complete", "/api/contribute/runs", "/api/usage"]) {
       assert.equal((await fetch(api.url + endpoint)).status, 401, endpoint);
     }
     const noToken = await fetch(api.url + "/api/billing/mock-select-plan", {
@@ -109,6 +109,10 @@ test("Supabase mode returns public health/pricing but rejects anonymous and inva
     assert.equal(invalidWaitlist.status, 400, "public waitlist must validate before any database write");
     assert.equal((await fetch(api.url + "/api/public/portfolio/bad%20slug")).status, 404);
     assert.equal((await fetch(api.url + "/api/public/user/bad%20slug")).status, 404);
+    const missingCompletion = await fetch(api.url + "/api/github/complete", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    });
+    assert.equal(missingCompletion.status, 401, "OAuth completion requires an authenticated bearer identity");
     const invalidCallback = await fetch(api.url + "/api/github/callback?code=fake", { redirect: "manual" });
     assert.equal(invalidCallback.status, 400, await invalidCallback.text());
   } finally {
