@@ -108,6 +108,8 @@ jobs:
         run: npm run site:build
       - name: Verify routes, metadata, accessibility hygiene, and Pages paths
         run: node scripts/site-quality.mjs
+      - name: Verify campaign attribution and anti-gaming policy
+        run: npm run growth:quality
 
   lighthouse:
     name: Lighthouse Quality Budgets
