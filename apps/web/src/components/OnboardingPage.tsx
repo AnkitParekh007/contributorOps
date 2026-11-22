@@ -100,7 +100,7 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
         <OnboardingStep
           stepNumber={1}
           title="Connect your GitHub account"
-          description="We use your GitHub token to discover real issues and open PRs on your behalf."
+          description="Connect your GitHub identity for account-specific features. Hosted GitHub writes remain disabled until the user-owned approval workflow is available."
           isCompleted={status.githubConnected}
           isActive={activeStep === 1}
         >
@@ -113,8 +113,7 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
               </button>
               {connectError ? <p className="step-note" role="alert">{connectError}</p> : null}
               <p className="step-note">
-                This requests <code>public_repo</code> scope — enough to fork repos and open draft PRs.
-                You can request broader access later if needed.
+                This connection requests only <code>read:user</code> permission. Repository writes are not available from the hosted API.
               </p>
             </div>
           )}
