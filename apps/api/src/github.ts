@@ -112,6 +112,23 @@ function repoMatchesFilters(candidate: RawIssueCandidate, filters: DiscoveryFilt
   return topicMatch && languageMatch && labelMatch;
 }
 
+// GitHub repository search does not support the boolean qualifier group
+// syntax `(topic:a OR topic:b)` used by issue searches. Produce bounded,
+// independently valid queries to cover categories without a silent zero-result.
+export function buildRepoSearchTerms(filters: DiscoveryFilters): string[] {
+  const topics = filters.topics.slice(0, 8);
+  const languages = filters.languages.length ? filters.languages : ["typescript"];
+  return (topics.length ? topics : ["developer-tools"]).map((topic, index) =>
+    [
+      "archived:false",
+      "is:public",
+      "stars:>50",
+      `topic:${topic}`,
+      `language:${languages[index % languages.length]}`
+    ].join(" ")
+  );
+}
+
 export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): Promise<{
   mode: "demo" | "github";
   candidates: RawIssueCandidate[];
@@ -126,20 +143,9 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
     };
   }
 
-  // GitHub repository search does not interpret parenthesized OR groups of
-  // topic/language qualifiers as the union we want. Run a bounded number of
-  // supported single-qualifier searches and interleave the results instead.
-  const topics = filters.topics.slice(0, 8);
-  const languages = filters.languages.length ? filters.languages : ["typescript"];
-  const searchTerms = (topics.length ? topics : ["developer-tools"]).map((topic, index) =>
-    [
-      "archived:false",
-      "is:public",
-      "stars:>50",
-      `topic:${topic}`,
-      `language:${languages[index % languages.length]}`
-    ].join(" ")
-  );
+  // Bound the number of authenticated repository searches and interleave
+  // matching topic/language results so one broad category cannot dominate.
+  const searchTerms = buildRepoSearchTerms(filters);
 
   const searchPages = await Promise.all(
     searchTerms.map((q) =>
