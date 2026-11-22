@@ -1,4 +1,5 @@
 import { config } from "./config.js";
+import { ApiError } from "./middleware/apiError.js";
 import { requireRequestUserId } from "./auth/request-context.js";
 import { getSubscription } from "./db/billing.js";
 import { readBillingState, readPortfolio, readUsageSnapshot, writeBillingState, writeUsageSnapshot } from "./storage.js";
@@ -244,7 +245,7 @@ export async function getBillingState(): Promise<BillingState> {
 }
 
 export async function updateBillingPlan(plan: BillingPlan): Promise<BillingState> {
-  if (config.storageMode === "supabase") throw new Error("Mock plan changes are disabled in hosted mode.");
+  if (config.storageMode === "supabase") throw new ApiError(403, "MOCK_BILLING_DISABLED", "Mock plan changes are disabled in hosted mode.");
   const current = await getBillingState();
   const seatCount = plan === "team" ? 5 : 1;
   const next = {
@@ -312,7 +313,7 @@ export async function ensureFeature(feature: FeatureKey): Promise<void> {
   const state = await getBillingState();
   const entitlements = buildEntitlements(state);
   if (!entitlements.features[feature]) {
-    throw new Error(`The ${feature} feature is not included in the ${state.plan} plan.`);
+    throw new ApiError(403, "FEATURE_NOT_INCLUDED", `The ${feature} feature is not included in the ${state.plan} plan.`);
   }
 }
 
@@ -322,11 +323,13 @@ export async function ensurePlanGenerationAllowed(): Promise<void> {
   const usage = await getUsageSnapshot();
 
   if (!entitlements.features["basic-discovery"]) {
-    throw new Error("Your current plan does not include discovery.");
+    throw new ApiError(403, "DISCOVERY_NOT_INCLUDED", "Your current plan does not include discovery.");
   }
 
   if (entitlements.weeklyPlanLimit !== null && usage.generatedPlans >= entitlements.weeklyPlanLimit) {
-    throw new Error(
+    throw new ApiError(
+      429,
+      "WEEKLY_PLAN_LIMIT",
       `The ${state.plan} plan includes ${entitlements.weeklyPlanLimit} generated plans per week. Upgrade to Pro for unlimited daily plans.`
     );
   }

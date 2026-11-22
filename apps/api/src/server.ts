@@ -11,6 +11,7 @@ import { authMiddleware } from "./auth/middleware.js";
 import { isPublicApiRequest } from "./auth/public-routes.js";
 import { withUserContext } from "./auth/request-context.js";
 import { hostedExternalWriteGate } from "./auth/hosted-policy.js";
+import { verifyApiStartupPolicy } from "./auth/startup-policy.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestId } from "./middleware/requestId.js";
 import { standardLimiter } from "./middleware/rateLimiter.js";
@@ -98,18 +99,22 @@ app.use(errorHandler);
 // Demo mode must not be remotely reachable with a fixed unauthenticated identity.
 // Explicitly configure API_HOST only for an authenticated Supabase deployment.
 const host = process.env.API_HOST || (config.storageMode === "demo" ? "127.0.0.1" : "0.0.0.0");
-if (config.storageMode === "supabase" && (!config.supabaseUrl || !config.supabaseServiceKey)) {
-  throw new Error("Supabase mode requires SUPABASE_URL and SUPABASE_SERVICE_KEY; refusing insecure fallback.");
-}
-if (config.storageMode === "demo" && !["127.0.0.1", "localhost", "::1"].includes(host)) {
-  throw new Error("Demo API must bind to localhost. Use Supabase mode for network access.");
-}
-if (config.storageMode === "supabase" && config.githubToken) {
-  throw new Error("Hosted API refuses process-wide GitHub credentials. Use user-scoped OAuth tokens.");
-}
-if ((config.autoContributeEnabled || config.autoWorkspaceEnabled || config.createDailyIssue) && config.githubToken) {
-  throw new Error("HTTP API cannot run write automation with a process-wide GitHub token. Run dedicated operator-controlled CLI jobs instead.");
-}
+verifyApiStartupPolicy({
+  storageMode: config.storageMode,
+  nodeEnv: process.env.NODE_ENV || "development",
+  host,
+  publicAppUrl: config.publicAppUrl,
+  allowedOrigins: config.allowedOrigins,
+  supabaseUrl: config.supabaseUrl,
+  supabaseServiceKey: config.supabaseServiceKey,
+  tokenEncryptionKey: config.tokenEncryptionKey,
+  githubToken: config.githubToken,
+  githubClientId: process.env.GITHUB_CLIENT_ID || "",
+  githubClientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+  createDailyIssue: config.createDailyIssue,
+  autoContributeEnabled: config.autoContributeEnabled,
+  autoWorkspaceEnabled: config.autoWorkspaceEnabled,
+});
 app.listen(config.port, host, () => {
   logger.info(`ContributorOps API listening on http://${host}:${config.port}`);
 });
