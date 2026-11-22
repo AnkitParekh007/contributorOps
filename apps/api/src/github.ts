@@ -129,6 +129,16 @@ export function buildRepoSearchTerms(filters: DiscoveryFilters): string[] {
   );
 }
 
+export function canSkipDiscoveryError(error: unknown, stage: "search" | "issues"): boolean {
+  if (typeof error !== "object" || error === null || !("status" in error)) return false;
+  const status = (error as { status: unknown }).status;
+  if (typeof status !== "number") return false;
+  // A transient GitHub edge outage must not invalidate all other categories.
+  if (status >= 500 && status <= 599) return true;
+  // A repository may disappear or disable issues between search and inspection.
+  return stage === "issues" && (status === 404 || status === 410);
+}
+
 export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): Promise<{
   mode: "demo" | "github";
   candidates: RawIssueCandidate[];
@@ -147,7 +157,7 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
   // matching topic/language results so one broad category cannot dominate.
   const searchTerms = buildRepoSearchTerms(filters);
 
-  const searchPages = await Promise.all(
+  const searchResults = await Promise.allSettled(
     searchTerms.map((q) =>
       octokit.search.repos({
         q,
@@ -157,6 +167,18 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
       })
     )
   );
+  const searchPages: Awaited<ReturnType<typeof octokit.search.repos>>[] = [];
+  for (const [index, result] of searchResults.entries()) {
+    if (result.status === "fulfilled") {
+      searchPages.push(result.value);
+    } else {
+      if (!canSkipDiscoveryError(result.reason, "search")) throw result.reason;
+      console.warn(`GitHub search temporarily unavailable for ${searchTerms[index]} (5xx); using other categories.`);
+    }
+  }
+  if (!searchPages.length) {
+    throw new Error("All GitHub repository searches failed. No real issue candidates can be verified.");
+  }
 
   const repoItems: (typeof searchPages)[number]["data"]["items"] = [];
   const seen = new Set<string>();
@@ -170,7 +192,7 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
     }
   }
 
-  const issueLists = await Promise.all(
+  const issueResults = await Promise.allSettled(
     repoItems.map(async (repo) => {
       if (!repo.owner?.login) {
         return [];
@@ -209,6 +231,16 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
         }));
     })
   );
+
+  const issueLists: RawIssueCandidate[][] = [];
+  for (const [index, result] of issueResults.entries()) {
+    if (result.status === "fulfilled") {
+      issueLists.push(result.value);
+    } else {
+      if (!canSkipDiscoveryError(result.reason, "issues")) throw result.reason;
+      console.warn(`GitHub issue list temporarily unavailable for ${repoItems[index]?.full_name}; skipping this repository.`);
+    }
+  }
 
   const scanned = issueLists.flat();
   const flattened = scanned
