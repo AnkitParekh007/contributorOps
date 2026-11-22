@@ -129,13 +129,14 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
   const repoQueryParts = [
     "archived:false",
     "is:public",
+    "stars:>50",
     `(${filters.topics.map((topic) => `topic:${topic}`).join(" OR ")})`,
     `(${filters.languages.map((language) => `language:${language}`).join(" OR ")})`
   ];
 
   const repos = await octokit.search.repos({
     q: repoQueryParts.join(" "),
-    per_page: 8,
+    per_page: 24,
     sort: "updated",
     order: "desc"
   });
@@ -154,7 +155,7 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
         state: "open",
         sort: "updated",
         direction: "desc",
-        per_page: 12
+        per_page: 80
       });
 
       return issues.data
@@ -182,10 +183,16 @@ export async function discoverIssues(filtersInput?: Partial<DiscoveryFilters>): 
     })
   );
 
-  const flattened = issueLists
-    .flat()
+  const scanned = issueLists.flat();
+  const flattened = scanned
     .filter((candidate) => repoMatchesFilters(candidate, filters))
-    .slice(0, 30);
+    .slice(0, 60);
+
+  if (flattened.length === 0) {
+    console.warn(
+      `GitHub discovery matched no candidate issues: ${repoItems.length} active repos scanned, ${scanned.length} open issues inspected. Recheck topic, language and label filters.`
+    );
+  }
 
   return { mode: "github", candidates: flattened };
 }
