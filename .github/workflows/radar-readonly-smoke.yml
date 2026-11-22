@@ -1,0 +1,50 @@
+name: Read-only OSS radar discovery smoke test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: Validate real issue discovery without writes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_CONTRIBUTOROPS_TOKEN: ''
+      GITHUB_USERNAME: ${{ github.repository_owner }}
+      AUTO_WORKSPACE_ENABLED: 'false'
+      AUTO_CONTRIBUTE_ENABLED: 'false'
+      CREATE_DAILY_ISSUE: 'false'
+      STORAGE_MODE: demo
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run live candidate discovery with explicit read-only permissions
+        run: |
+          npm run hourly | tee /tmp/radar-output.log
+          if grep -Fq '"selected": []' /tmp/radar-output.log && grep -Fq '"rejectedCount": 0' /tmp/radar-output.log; then
+            echo "::error::Radar evaluated zero candidate issues. Inspect repository search qualifiers and filters."
+            exit 1
+          fi
+          test -s data/hourly-radar-summary.md
+          grep -Fq 'No issue comments were posted.' data/hourly-radar-summary.md
+          grep -Fq 'No upstream pull requests were opened.' data/hourly-radar-summary.md
+          cat data/hourly-radar-summary.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload research-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-readonly-${{ github.run_id }}
+          path: |
+            data/hourly-radar-summary.md
+            data/hourly-radar-state.json
+          if-no-files-found: warn
+          retention-days: 7
