@@ -20,6 +20,7 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
   });
   const [loading, setLoading] = useState(true);
   const [activeStep, setActiveStep] = useState(1);
+  const [connectError, setConnectError] = useState("");
 
   useEffect(() => {
     apiClient
@@ -41,15 +42,24 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
     if (params.get("github") === "connected") {
-      setStatus((prev) => ({ ...prev, githubConnected: true }));
-      setActiveStep(2);
-      // Clean up the URL
+      // Callback alone is not proof of connection; confirm server-side ownership.
+      apiClient.getOnboardingStatus().then((fresh) => {
+        setStatus(fresh);
+        setActiveStep(fresh.githubConnected ? 2 : 1);
+      }).catch(() => setConnectError("Unable to verify GitHub connection. Please retry."));
       window.history.replaceState({}, "", window.location.pathname + "#/onboarding");
     }
   }, []);
 
-  const handleConnectGithub = () => {
-    window.location.href = "/api/github/connect";
+  const handleConnectGithub = async () => {
+    setConnectError("");
+    try {
+      const { authorizationUrl } = await apiClient.beginGithubConnect();
+      if (!authorizationUrl.startsWith("https://github.com/login/oauth/authorize?")) throw new Error("Invalid authorization destination");
+      window.location.assign(authorizationUrl);
+    } catch (error) {
+      setConnectError(error instanceof Error ? error.message : "Unable to start GitHub connection.");
+    }
   };
 
   const handleSetSafetyMode = async () => {
@@ -101,6 +111,7 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
               <button type="button" className="primary-button" onClick={handleConnectGithub}>
                 Connect GitHub
               </button>
+              {connectError ? <p className="step-note" role="alert">{connectError}</p> : null}
               <p className="step-note">
                 This requests <code>public_repo</code> scope — enough to fork repos and open draft PRs.
                 You can request broader access later if needed.
