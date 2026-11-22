@@ -37,11 +37,13 @@ async function launch(mode: "demo" | "supabase"): Promise<{
       SUPABASE_SERVICE_KEY: "integration-test-not-secret",
       NODE_ENV: "test",
     },
-    stdio: "ignore",
+    stdio: ["ignore", "ignore", "pipe"],
   });
+  let stderr = "";
+  child.stderr?.on("data", (chunk: Buffer) => { stderr = (stderr + String(chunk)).slice(-2000); });
   const url = `http://127.0.0.1:${port}`;
   for (let attempt = 0; attempt < 80; attempt++) {
-    if (child.exitCode !== null) throw new Error(`API exited prematurely with code ${child.exitCode}`);
+    if (child.exitCode !== null) throw new Error(`API exited prematurely with code ${child.exitCode}: ${stderr}`);
     try {
       const r = await fetch(`${url}/api/pricing`);
       if (r.status === 200) return { url, stop: () => child.kill("SIGTERM") };
