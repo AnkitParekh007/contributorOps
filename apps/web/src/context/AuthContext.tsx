@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       provider: "github",
       options: {
         redirectTo: window.location.origin + window.location.pathname,
-        scopes: "read:user public_repo",
+        scopes: "read:user",
       },
     });
   }, []);
