@@ -104,6 +104,9 @@ if (config.storageMode === "supabase" && (!config.supabaseUrl || !config.supabas
 if (config.storageMode === "demo" && !["127.0.0.1", "localhost", "::1"].includes(host)) {
   throw new Error("Demo API must bind to localhost. Use Supabase mode for network access.");
 }
+if (config.storageMode === "supabase" && config.githubToken) {
+  throw new Error("Hosted API refuses process-wide GitHub credentials. Use user-scoped OAuth tokens.");
+}
 if ((config.autoContributeEnabled || config.autoWorkspaceEnabled || config.createDailyIssue) && config.githubToken) {
   throw new Error("HTTP API cannot run write automation with a process-wide GitHub token. Run dedicated operator-controlled CLI jobs instead.");
 }
