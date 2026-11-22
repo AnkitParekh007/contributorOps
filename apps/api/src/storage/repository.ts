@@ -43,11 +43,12 @@ const demoRepository: StorageRepository = {
   },
 };
 
-const hostedRepository: StorageRepository = {
+export function makeHostedStorageRepository(dbFactory: () => ReturnType<typeof getSupabaseAdmin> = getSupabaseAdmin): StorageRepository {
+  return {
   async read<T>(key: string, fallback: T): Promise<T> {
     if (!Object.hasOwn(paths, key)) throw new Error("Unrecognized state key");
     const userId = requireRequestUserId();
-    const { data, error } = await getSupabaseAdmin().from("user_scoped_state")
+    const { data, error } = await dbFactory().from("user_scoped_state")
       .select("value").eq("user_id", userId).eq("state_key", key).maybeSingle();
     if (error) throw new Error(`Scoped state read failed: ${error.message}`);
     return data ? data.value as T : fallback;
@@ -55,7 +56,7 @@ const hostedRepository: StorageRepository = {
   async write<T>(key: string, value: T): Promise<T> {
     if (!Object.hasOwn(paths, key)) throw new Error("Unrecognized state key");
     const userId = requireRequestUserId();
-    const { error } = await getSupabaseAdmin().from("user_scoped_state").upsert({
+    const { error } = await dbFactory().from("user_scoped_state").upsert({
       user_id: userId,
       state_key: key,
       value,
@@ -64,8 +65,10 @@ const hostedRepository: StorageRepository = {
     if (error) throw new Error(`Scoped state write failed: ${error.message}`);
     return value;
   },
-};
+  };
+}
 
+const hostedRepository = makeHostedStorageRepository();
 export function getStorageRepository(): StorageRepository {
   return config.storageMode === "supabase" ? hostedRepository : demoRepository;
 }
