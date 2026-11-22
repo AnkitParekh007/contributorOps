@@ -56,6 +56,7 @@ function fakeSupabase() {
       return send(200, { user_id: user, plan: "free", status: "active", stripe_subscription_id: null });
     }
     if (url.pathname === "/rest/v1/public_portfolio_profiles") return send(200, null);
+    if (url.pathname === "/rest/v1/portfolio_entries") return send(200, []);
     if (url.pathname === "/rest/v1/waitlist_entries") {
       if (req.method === "GET") return send(200, [...waitlist.values()]);
       if (req.method === "POST") {
@@ -124,7 +125,9 @@ test("two real HTTP sessions isolate tenant state and reject mock paid plans and
     assert.equal(((await after.json()) as {billing:{plan:string}}).billing.plan,"free");
     assert.equal((await call("/api/contribute/approve-comment","token-a","POST",{})).status,403);
     assert.equal((await call("/api/create-planning-issue","token-a","POST",{})).status,403);
-    assert.equal((await call("/api/portfolio","token-b")).status,404, "test backend does not publish user data");
+    const privatePortfolio = await call("/api/portfolio","token-b");
+    assert.equal(privatePortfolio.status,200);
+    assert.deepEqual(await privatePortfolio.json(), [], "B has no access to A\'s entries");
     assert.equal((await call("/api/billing")).status,401);
     assert.equal((await call("/api/billing","invalid-token")).status,401);
   } finally {
