@@ -6,7 +6,7 @@
 
 The [manual staging acceptance workflow](../../.github/workflows/staging-acceptance.yml) and [script](../../scripts/staging-acceptance.mjs) make a subset of the P0 release gates repeatable, observable and auditable.
 
-There are two explicit modes. **Public** executes strictly non-mutating public HTTP checks, including intentionally invalid requests (no waitlist registration, no GitHub OAuth token exchange). **Two-user** requires two designated free staging test users; it performs those checks plus a temporary portfolio creation, cross-user access/mutation rejection and owner cleanup. Nothing invokes a real GitHub repository-write endpoint successfully.
+There are two explicit modes. **Public** executes strictly non-mutating public HTTP checks, including intentionally invalid requests (no waitlist registration, no GitHub OAuth token exchange). **Two-user** requires two designated free staging test users, and probes owner-scoped control-mode state: A's temporary change must not affect B, then A is restored to Research mode. Portfolio editing requires a paid entitlement and is explicitly **not** covered by this automated mode. Nothing invokes a real GitHub repository-write endpoint successfully.
 
 **A green staging HTTP run is not, by itself, proof of production readiness.** The workflow does not apply migrations, create users, change billing, grant access, provision infrastructure, verify database-direct RLS or complete real GitHub browser OAuth.
 
@@ -28,15 +28,17 @@ Open [GitHub Actions → ContributorOps staging acceptance (manual, fail closed)
 
 First run **`public`** and explicitly tick `confirm_staging`. The script refuses missing attestations, unconfigured project references, non-HTTPS/origin URLs and hosts lacking `staging` or `preview`. It does not run automatically for a push, PR or cron event. If GitHub creates an empty environment implicitly, checks fail before network access because required variables are missing.
 
-When public acceptance passes, refresh both test-user JWTs and select **`two-user`**, enabling `allow_temporary_portfolio` deliberately. The script:
-- Requires two *different* supplied tokens and an explicit temporary-mutation acknowledgement;
-- Confirms both users have the free plan; rejects a mock billing upgrade;
-- Confirms authenticated HTTP GitHub writes remain 403;
-- Creates one temporary **A-owned** portfolio record, checks A sees it and B cannot read it;
-- Tries to PATCH A's UUID as B and demands 404; checks A's record is unchanged;
-- Deletes the temporary row as A even when an assertion fails.
+When public acceptance passes, refresh both test-user JWTs and select **`two-user`**, enabling `allow_control_mode_mutation` deliberately. Both test accounts must start on the **free plan** in **Research mode**. The script:
 
-An unsuccessful fixture cleanup is an operational incident. Inspect the staging database using authorized credentials and remove the `contributorops/staging-fixture` record manually before further runs. Do not turn the tester loose on production by changing its hostname gate.
+- Requires two distinct staging-user tokens and explicit authorization for a temporary internal state change;
+- Confirms both users are free, and that the mock billing upgrade remains 403;
+- Confirms authenticated hosted GitHub writes remain 403;
+- Reads the baseline control mode for A and B, changes A to Draft mode, and verifies B's state is unchanged;
+- Restores A to Research mode even if a cross-user assertion fails.
+
+**Important:** The free tier does not include `portfolio-tracker`. Attempting an A-owned portfolio creation with free credentials would fail for entitlement reasons rather than prove isolation. Create additional *explicitly entitled staging-only users* and perform the paid-portfolio create/read/foreign-PATCH/delete test as separate manual release evidence. Do not bypass the feature gate or grant paid subscriptions through a public mock-plan API.
+
+A failed control-mode restoration requires manual review of the test account's safety settings before further runs. These tests use *isolated test users only*; they never mutate real users.
 
 Successful runs attach a **sanitized JSON evidence artifact** (14-day retention) with the observed HTTP statuses, timestamp, mode and staging origins; no tokens or OAuth codes. Retain durable evidence elsewhere if the release audit requires longer retention.
 
@@ -44,7 +46,7 @@ Successful runs attach a **sanitized JSON evidence artifact** (14-day retention)
 
 - **Real GitHub OAuth:** In a real browser as A, connect → callback → authenticated `POST /api/github/complete` → status → reconnect → disconnect. Capture only redacted screenshots/statuses, not tokens, cookies or authorization codes. Attempt forged/missing/expired/replayed state and same-browser A→B account switch; every negative attempt must fail.
 - **Database-direct RLS:** With staging-only `anon` and authenticated PostgREST sessions, verify the actual grants/policies for portfolio rows, subscriptions, OAuth states/accounts, audit, approvals and `user_scoped_state`. Do not mistake service-role user predicates for tested RLS.
-- **Broader API owner isolation:** Test A/B on control mode, daily plans, contribution run ownership, approvals, billing, published portfolio and export endpoints, including malicious IDs. This goes beyond the automated portfolio fixture.
+- **Broader API owner isolation:** Test A/B on control mode, daily plans, contribution run ownership, approvals, billing, published portfolio and export endpoints, including malicious IDs. The automated check covers only A/B control-mode isolation, not portfolio or run ownership.
 - **Secrets and subscription events:** Verify encrypted token persistence/retrieval/disconnect, free-to-paid changes only through trusted billing events, invalid token rejection and deletion/retention policies.
 - **Operations:** Confirm environment settings, GitHub Dependency Graph (#21), secure logs, backup/rollback plan, staging monitoring, error rate/latency budgets and manual rollback of hosted deployments. Do not enable hosted GitHub write features until a separate user-owned credential adapter has been reviewed.
 
