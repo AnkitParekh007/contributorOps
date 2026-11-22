@@ -192,7 +192,7 @@ export const apiClient = {
   getGithubStatus: () =>
     request<{ connected: boolean; scopes: string[]; demo?: boolean }>("/api/github/status"),
   connectGithub: () =>
-    request<void>("/api/github/connect"),
+    request<{ authorizationUrl: string }>("/api/github/connect", { method: "POST", body: "{}" }),
   disconnectGithub: () =>
     request<{ message: string }>("/api/github/disconnect", { method: "DELETE" }),
   getOnboardingStatus: () =>
