@@ -70,7 +70,7 @@ ContributorOps is **not** a PR-spam engine. An LLM-generated plan never grants a
 
 ## Help improve it
 
-Start with [good first issues](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), read [CONTRIBUTING.md](./CONTRIBUTING.md), or [report workflow feedback](https://github.com/AnkitParekh007/contributorOps/issues/new/choose). We welcome documentation fixes, accessibility improvements, tests and careful trust-boundary reviews. If you are new to the project, the [Contribute page](https://ankitparekh007.github.io/contributorOps/#/contribute) explains where to start.
+Start with [good first issues](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), read the [first-contribution walkthrough](./docs/first-contribution.md) and [CONTRIBUTING.md](./CONTRIBUTING.md), or [report workflow feedback](https://github.com/AnkitParekh007/contributorOps/issues/new/choose). We welcome documentation fixes, accessibility improvements, tests and careful trust-boundary reviews. If you are new to the project, the [Contribute page](https://ankitparekh007.github.io/contributorOps/#/contribute) explains where to start.
 
 ### Engineering reference
 
