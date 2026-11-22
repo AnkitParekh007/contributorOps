@@ -1,23 +1,22 @@
-# Portfolio Status — ContributorOps
+# ContributorOps — Current public project status
 
-ContributorOps is a valid standalone developer-product experiment, but it is **not part of the core AI Frontend Architect / Agent Systems Architect portfolio narrative**.
+ContributorOps is an **active, public open-source developer-tool experiment**. Its primary aim is to help developers discover useful OSS issues, prepare focused contributions, keep maintainer-facing actions appropriately authorized, and present verifiable engineering proof.
 
-## Recommended public status
+## What is demonstrated
 
-Choose one of these account-level actions after reviewing external links/stars/forks:
+- A no-signup fictional browser walkthrough and a locally runnable React/Express application.
+- Public architecture, safety policies, approval controls and repository quality gates.
+- A verified external contribution: [Floating UI PR #3494](https://github.com/floating-ui/floating-ui/pull/3494), merged upstream on October 26, 2026, whose PR body explicitly discloses ContributorOps-assisted preparation.
+- Open contribution paths and a public [launch/distribution operating guide](./docs/phase-9-growth-operating-system.md).
 
-1. **Transfer to a dedicated developer-tools/product organization** if active development will continue, or
-2. **Archive the repository** if the project is no longer a priority.
+## What is not claimed
 
-Do not feature or pin it on the personal profile while the primary positioning is enterprise frontend + AI architecture.
+The public website is not a hosted production multi-user SaaS, and this one merged upstream PR is not evidence of broad adoption or recruitment success. The repo's stars/forks are engagement signals, not customers.
 
-## Why
+## Positioning
 
-The project demonstrates useful product and GitHub-integration engineering, but its primary story is contribution/career workflow optimization. Keeping it equally prominent beside `ngx-copilot-platform`, `frontend-ai-patterns`, `agent-studio` and `org-ai-force` weakens specialization.
+Describe this project as an **open-source contribution workflow and proof-of-work tool**, not as a generic AI agent platform or an autonomous PR-farming bot. For career-oriented profiles, present it as a supporting example of safe GitHub integration, product design and OSS collaboration.
 
-## Before archive/transfer
+## Maintenance expectations
 
-- verify GitHub Pages and external links that depend on the current repository path
-- preserve any reusable GitHub API/safety patterns in project documentation
-- add an archive/move notice to the README if the repository remains public
-- disable unnecessary scheduled automation after archive
+Keep the README, examples and demo honest; review inbound contributions promptly; maintain a usable issue queue; repair scheduled jobs; and publish meaningful releases when they are verified. Do not archive or transfer the repository while it is being actively promoted without an explicit new decision and a documented URL/redirect plan.

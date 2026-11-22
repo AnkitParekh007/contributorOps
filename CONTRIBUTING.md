@@ -1,61 +1,50 @@
 # Contributing to ContributorOps
 
-Thank you for your interest in contributing.
+Thanks for making open-source contributions easier to discover, review, and explain. **Small, useful changes are welcome.** Documentation, examples, accessibility fixes, regression tests, and API improvements all count.
 
-## Before You Start
+## Pick your first issue
 
-Read the [Safety Policy](./docs/safety-policy.md) before contributing to any code that touches GitHub API integration or contribution automation. The safety model is a first-class product constraint, not a feature.
+Start with [good first issues](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [help wanted](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22). Before you begin, check whether an issue already has an open pull request and leave a short note when coordination would help. You can also report a confusing step using the workflow-feedback issue template.
 
-## Safety Rules for Contributors
+The monorepo contains `apps/site` (public website), `apps/web` (product interface), and `apps/api` (issue discovery, planning, and authorized GitHub actions).
 
-These rules are non-negotiable:
+## Local development
 
-1. **No external GitHub writes without human approval.** Any code path that creates a comment, branch, commit, or pull request on an external repository must go through the approval gate in `apps/api/src/contribute.ts`.
-
-2. **No scheduled jobs may write externally.** The daily cron (`daily.ts`) is limited to discovery, scoring, and planning. It must never call any write endpoint.
-
-3. **No mass automation.** Pull requests that add bulk comment, bulk PR, or metric-gaming capabilities will not be merged.
-
-4. **Audit logs are required.** Any new external write action must write an audit log entry.
-
-## Development Setup
+Use Node.js 20+ and npm 10+:
 
 ```bash
-# Install all dependencies
-npm install
-
-# Start API + Web in development mode
+git clone https://github.com/AnkitParekh007/contributorOps.git
+cd contributorOps
+npm ci
 npm run dev
-
-# Start the marketing site only
-npm run site:dev
-
-# Run TypeScript checks for all apps
-npm run typecheck
-
-# Build everything
-npm run build:all
 ```
 
-## Environment Setup
+Open a separate terminal and run `npm run site:dev` to work on the public site. Demo discovery works without a GitHub token; never commit an `.env`, private key, or credential. Read [environment setup](./docs/environment-setup.md) if you need additional integrations.
 
-Copy the `.env.example` files in each app:
+Before you open a PR, run the checks appropriate to your change:
 
 ```bash
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env
-cp apps/site/.env.example apps/site/.env
+npm run typecheck
+npm run build:all
+npm run test:api
+npm run site:quality       # for public-site changes
 ```
 
-The API and Web run in **demo mode** without a GitHub token. Mock issues are returned and no real GitHub calls are made.
+For changes to public-site layout or accessibility, also use `npm run site:lighthouse` and document any manual mobile/keyboard checks you performed. Keep diffs focused, use a descriptive branch name, and explain the user impact and your actual validation in the pull-request template. Do not claim checks you did not run.
 
-## Pull Request Guidelines
+## GitHub authority and maintainer trust
 
-- Keep PRs focused on a single concern
-- Run `npm run typecheck` before submitting
-- Run `npm run build:all` and ensure it passes
-- For any change to the contribution/approval flow, explain how the safety model is preserved
+**Generated intent is never permission to write to an external repository.** Changes to automation and external-action code must preserve [the security model](./docs/security-model.md) and [safety policy](./docs/safety-policy.md).
 
-## Reporting Issues
+There are **two separate, explicit authorization models**, each with its own limits:
 
-Open a GitHub Issue. For security vulnerabilities, see [SECURITY.md](./SECURITY.md).
+1. **Interactive action-scoped approval.** Exact comments, fork branches and draft PR actions require the appropriate separate approval capability and leave auditable records.
+2. **Operator-enabled standing exact-patch authorization.** Pre-authored bounded patches may be applied only after live repository policy, state, duplicate, path, size, daily-rate, and exact-match checks. These submissions are draft PRs and disclose automation.
+
+The **hourly radar** discovers issues and can prepare a contributor-owned fork workspace when the operator explicitly enables that capability; it does not itself submit upstream PRs. The separate exact-patch workflow has its own safeguards. Do not remove approval gates, enable mass submissions, or add deceptive contribution/metrics behavior.
+
+## Review process
+
+A maintainer will review changes for correctness, scope, documentation, tests, and safety implications. A draft PR is treated as work in progress: please mark it ready for review when it is ready. We value constructive feedback and an accurate contribution history over speed or volume.
+
+If a PR affects external GitHub actions, describe which authorization path it touches, what changes for users, and the regression tests proving the boundary remains intact. See [the project roadmap](./docs/roadmap.md) and [Code of Conduct](./CODE_OF_CONDUCT.md).

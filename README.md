@@ -1,95 +1,81 @@
 # ContributorOps
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./apps/site/public/contributorops-logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="./apps/site/public/contributorops-logo-light.svg">
-    <img src="./apps/site/public/contributorops-logo-light.svg" alt="ContributorOps logo" width="680">
-  </picture>
-</p>
+<p align="center"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./apps/site/public/contributorops-logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./apps/site/public/contributorops-logo-light.svg">
+  <img src="./apps/site/public/contributorops-logo-light.svg" width="560" alt="ContributorOps">
+</picture></p>
+
+<p align="center"><strong>Find worthwhile GitHub issues. Prepare better PRs. Turn merged work into verifiable career proof.</strong></p>
 
 <p align="center">
-  <strong>Turn meaningful open-source contributions into verifiable career proof.</strong>
+  <a href="https://ankitparekh007.github.io/contributorOps/#/demo"><strong>Try the browser demo</strong></a> ·
+  <a href="https://ankitparekh007.github.io/contributorOps/#/try">Run locally / Codespaces</a> ·
+  <a href="./docs/case-study-floating-ui-3494.md">Real merged PR case study</a> ·
+  <a href="./CONTRIBUTING.md">Contribute</a>
 </p>
 
 <p align="center">
   <a href="https://github.com/AnkitParekh007/contributorOps/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/AnkitParekh007/contributorOps/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://ankitparekh007.github.io/contributorOps/"><img alt="Live site" src="https://img.shields.io/badge/live-site-8b5cf6?style=flat-square"></a>
-  <a href="https://github.com/AnkitParekh007/contributorOps/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/AnkitParekh007/contributorOps?style=flat-square"></a>
-  <a href="https://github.com/AnkitParekh007/contributorOps/forks"><img alt="GitHub forks" src="https://img.shields.io/github/forks/AnkitParekh007/contributorOps?style=flat-square"></a>
-  <a href="https://github.com/AnkitParekh007/contributorOps/issues"><img alt="Open issues" src="https://img.shields.io/github/issues/AnkitParekh007/contributorOps?style=flat-square"></a>
-  <a href="./LICENSE"><img alt="BSD 3-Clause" src="https://img.shields.io/badge/license-BSD--3--Clause-2563eb?style=flat-square"></a>
+  <a href="https://github.com/AnkitParekh007/contributorOps/releases"><img alt="GitHub releases" src="https://img.shields.io/github/v/release/AnkitParekh007/contributorOps?include_prereleases"></a>
+  <a href="./LICENSE"><img alt="BSD 3-Clause" src="https://img.shields.io/badge/license-BSD--3--Clause-2563eb"></a>
 </p>
 
-<p align="center">
-  <a href="https://ankitparekh007.github.io/contributorOps/#/demo"><strong>Browser demo</strong></a>
-  ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/launch"><strong>Launch hub</strong></a>
-  ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/try"><strong>Run the real app</strong></a>
-  ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/showcase"><strong>Engineering showcase</strong></a>
-  ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/recruiter"><strong>Recruiter brief</strong></a>
-  ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/safety"><strong>Safety</strong></a>
-  ·
-  <a href="https://ankitparekh007.github.io/contributorOps/#/contribute"><strong>Contribute</strong></a>
-</p>
+## See what ContributorOps is for
+
+Most developers can find open-source issues. The hard part is choosing a useful one, submitting a reviewable change, and showing what was actually delivered.
+
+**ContributorOps connects those steps:** discover role-relevant OSS work → prepare a focused implementation and test plan → check repository policy and PR quality → obtain bounded authorization for external actions → retain evidence you can link in interviews.
+
+### Verified upstream result
+
+**[Floating UI PR #3494](https://github.com/floating-ui/floating-ui/pull/3494) was merged October 26, 2026.** It fixes iOS overlay scroll restoration by making the saved-position restore instantaneous and includes a patch changeset for `@floating-ui/react`. The upstream PR explicitly discloses ContributorOps-assisted preparation and its safety checks.
+
+[Read the verifiable case study](./docs/case-study-floating-ui-3494.md) · [Inspect the upstream code and PR conversation](https://github.com/floating-ui/floating-ui/pull/3494)
+
+> This is one publicly verifiable outcome, **not** a claimed success rate or hiring result. The browser demo uses fictional scenarios; the project is runnable locally, but a hosted multi-user SaaS is not live.
+
+## Try it in under a minute
+
+| Start here | What you will see | GitHub token? |
+| --- | --- | --- |
+| [Interactive browser demo](https://ankitparekh007.github.io/contributorOps/#/demo) | Discover → Prepare → Validate → Authorize → Prove using clearly labeled example issues | **No** |
+| [GitHub Codespaces](https://codespaces.new/AnkitParekh007/contributorOps?quickstart=1) | The actual React + Express app in demo-safe mode | **No** for demo |
+| [Local quick start](https://ankitparekh007.github.io/contributorOps/#/try) | Clone, install and run the real product locally | **No** for demo |
+
+```bash
+git clone https://github.com/AnkitParekh007/contributorOps.git
+cd contributorOps
+npm ci
+npm run dev
+```
+
+Node.js 20+ and npm 10+ are required. Live authenticated GitHub actions require credentials and separately defined authorization. Without a GitHub token, discovery uses demo fixtures.
+
+## What it does
+
+| Step | Developer outcome |
+| --- | --- |
+| **Discover** | Search and score OSS issues relevant to your stack and intended role |
+| **Prepare** | Get scoped files, test ideas, a branch plan and maintainer-ready PR language |
+| **Validate** | Check quality, duplicates, policies and contribution safety before acting |
+| **Authorize** | Inspect specific actions or explicitly enable a tightly bounded exact-patch queue |
+| **Prove** | Export contribution history into portfolio entries, resume bullets and interview stories |
+
+ContributorOps is **not** a PR-spam engine. An LLM-generated plan never grants authority to write to somebody else's repository. Interactive writes require action-scoped approval; a separate standing-authorized queue only executes pre-authored bounded patches and opens draft PRs. [Read the security model](./docs/security-model.md).
+
+## Help improve it
+
+Start with [good first issues](https://github.com/AnkitParekh007/contributorOps/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), read [CONTRIBUTING.md](./CONTRIBUTING.md), or [report workflow feedback](https://github.com/AnkitParekh007/contributorOps/issues/new/choose). We welcome documentation fixes, accessibility improvements, tests and careful trust-boundary reviews. If you are new to the project, the [Contribute page](https://ankitparekh007.github.io/contributorOps/#/contribute) explains where to start.
+
+### Engineering reference
+
+- [Architecture](./docs/architecture.md) · [Security boundaries](./docs/security-model.md) · [Safety policy](./docs/safety-policy.md)
+- [API/Web/Site quality gates](./docs/quality-gates.md) · [Architecture decision records](./docs/adr/README.md)
+- [Live website](https://ankitparekh007.github.io/contributorOps/) · [Engineering showcase](https://ankitparekh007.github.io/contributorOps/#/showcase) · [Launch and growth plan](./docs/phase-9-growth-operating-system.md)
+- [Releases](https://github.com/AnkitParekh007/contributorOps/releases) · [Roadmap](./docs/roadmap.md)
 
 ---
-
-ContributorOps is an open-source contribution intelligence platform for developers who want to do meaningful OSS work and turn that work into evidence that maintainers and hiring teams can understand.
-
-The core loop is:
-
-**Discover → Prepare → Validate → Authorize → Prove**
-
-- **Discover** role-relevant contribution opportunities.
-- **Prepare** scoped change plans, tests, maintainer context, and PR narrative.
-- **Validate** scope, quality, repository policy, duplicates, and submission readiness.
-- **Authorize** maintainer-facing writes through explicit, bounded authority paths.
-- **Prove** completed work through portfolio evidence, resume bullets, and interview stories.
-
-> ContributorOps is intentionally **not** a mass-commenting bot, mass-PR engine, or contribution-gaming system. Maintainer trust is an architecture constraint.
-
-## Try it before you trust it
-
-The fastest evaluation path is the [browser demo](https://ankitparekh007.github.io/contributorOps/#/demo). It requires no signup, no GitHub token, and no repository access.
-
-The demo uses explicitly fictional examples and walks through:
-
-1. issue discovery and role-fit scoring
-2. focused file/test planning
-3. deterministic quality checks
-4. interactive versus standing authorization boundaries
-5. recruiter-readable proof-of-work output
-
-Want the real product instead of the walkthrough?
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/AnkitParekh007/contributorOps?quickstart=1)
-
-The Codespaces/local default remains demo-safe: no GitHub token is required and external contribution execution is disabled unless the operator explicitly configures it.
-
-## Why this repository is different
-
-ContributorOps makes the product story **inspectable**. The architecture, trust boundaries, quality gates, launch rules, and adoption signals are public rather than hidden behind marketing claims.
-
-| Evidence | What it demonstrates |
-| --- | --- |
-| [Browser Demo](https://ankitparekh007.github.io/contributorOps/#/demo) | immediate no-signup product evaluation with clearly fictional scenarios |
-| [Launch Hub](https://ankitparekh007.github.io/contributorOps/#/launch) | audience-specific evaluation paths for developers, recruiters, and maintainers |
-| [`docs/architecture.md`](./docs/architecture.md) | system surfaces, data flow, CI, deployment, and production evolution |
-| [`docs/security-model.md`](./docs/security-model.md) | interactive action-scoped approval and standing exact-patch authorization boundaries |
-| [`docs/adr/`](./docs/adr/README.md) | durable reasoning behind high-impact architecture choices |
-| [`docs/safety-policy.md`](./docs/safety-policy.md) | anti-spam rules, repository-policy checks, exact-patch constraints, and rate limits |
-| [`docs/quality-gates.md`](./docs/quality-gates.md) | deterministic route/metadata checks, Lighthouse budgets, TypeScript/build gates, and limits |
-| [CI workflow](./.github/workflows/ci.yml) | API/Web/Site builds, trust tests, dependency audits, secret scanning, and site-quality enforcement |
-| [CodeQL workflow](./.github/workflows/codeql.yml) | JavaScript/TypeScript static security analysis |
-| [Engineering Showcase](https://ankitparekh007.github.io/contributorOps/#/showcase) | how the implementation maps to engineering evidence |
-| [Recruiter Brief](https://ankitparekh007.github.io/contributorOps/#/recruiter) | a two-minute path from product story to source-level proof |
-| [Adoption Dashboard](https://ankitparekh007.github.io/contributorOps/#/adoption) | live public GitHub signals without invented customer or user claims |
-| [`docs/phase-8-launch-execution.md`](./docs/phase-8-launch-execution.md) | launch packets, channel rules, 60-second demo, measurement, and anti-gaming policy |
 
 ## Authorization model
 

@@ -19,9 +19,10 @@ jobs:
     timeout-minutes: 20
     env:
       GH_CONTRIBUTOROPS_TOKEN: ${{ secrets.GH_CONTRIBUTOROPS_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
       GITHUB_USERNAME: ${{ github.repository_owner }}
-      AUTO_WORKSPACE_ENABLED: 'true'
-      AUTO_CONTRIBUTE_ENABLED: 'true'
+      AUTO_WORKSPACE_ENABLED: ${{ vars.CONTRIBUTOROPS_ALLOW_FORK_PREP == 'true' && 'true' || 'false' }}
+      AUTO_CONTRIBUTE_ENABLED: ${{ vars.CONTRIBUTOROPS_ALLOW_UNATTENDED_PATCHES == 'true' && 'true' || 'false' }}
       HOURLY_RADAR_MIN_SCORE: '70'
       FORK_READY_TIMEOUT_MS: '60000'
       FORK_POLL_INTERVAL_MS: '1500'
@@ -34,10 +35,21 @@ jobs:
           node-version: '20'
           cache: npm
 
-      - name: Verify ContributorOps token
+      - name: Resolve GitHub credentials (fail closed for writes)
+        env:
+          CUSTOM_TOKEN: ${{ secrets.GH_CONTRIBUTOROPS_TOKEN }}
+          READ_TOKEN: ${{ github.token }}
         run: |
-          if [ -z "$GH_CONTRIBUTOROPS_TOKEN" ]; then
-            echo "GH_CONTRIBUTOROPS_TOKEN is not configured."
+          if [ -n "$CUSTOM_TOKEN" ] && GH_TOKEN="$CUSTOM_TOKEN" gh api user >/dev/null 2>&1; then
+            echo "ContributorOps custom credential is valid."
+          else
+            echo "::warning::Custom token missing or rejected (401). Using workflow token for read-only discovery. Rotate GH_CONTRIBUTOROPS_TOKEN before enabling writes."
+            echo "GH_CONTRIBUTOROPS_TOKEN=" >> "$GITHUB_ENV"
+            echo "AUTO_WORKSPACE_ENABLED=false" >> "$GITHUB_ENV"
+            echo "AUTO_CONTRIBUTE_ENABLED=false" >> "$GITHUB_ENV"
+          fi
+          if ! GH_TOKEN="$READ_TOKEN" gh api "repos/${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::The workflow token cannot read this repository."
             exit 1
           fi
 
