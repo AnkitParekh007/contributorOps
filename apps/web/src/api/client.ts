@@ -65,6 +65,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const apiClient = {
   health: () => request<HealthResponse>("/api/health"),
   beginGithubConnect: () => request<{ authorizationUrl: string }>("/api/github/connect", { method: "POST", body: "{}" }),
+  completeGithubConnect: (payload: { code: string; state: string }) =>
+    request<{ connected: boolean }>("/api/github/complete", { method: "POST", body: JSON.stringify(payload) }),
   getPricing: () => request<PricingTier[]>("/api/pricing"),
   getBilling: () =>
     request<{ billing: BillingState; entitlements: FeatureFlags }>("/api/billing"),
