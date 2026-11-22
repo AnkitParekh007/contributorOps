@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import { spawn, type ChildProcess } from "node:child_process";
 import net from "node:net";
 import path from "node:path";
@@ -64,6 +65,19 @@ test("demo mode keeps public endpoints accessible and uses local-only identity",
     assert.equal((await fetch(api.url + "/api/create-planning-issue", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
     })).status, 403, "demo API must not invoke the owner's GitHub PAT");
+    // Public waitlist registration must not depend on demo identity or an auth header.
+    const registration = await fetch(api.url + "/api/waitlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Route Matrix",
+        email: `route-matrix-${crypto.randomUUID()}@example.test`,
+        targetRole: "Backend Engineer",
+      }),
+    });
+    assert.equal(registration.status, 201, "anonymous demo waitlist registration should succeed");
+    // Invalid public portfolio slugs are rejected as not found, never as private 401s.
+    assert.equal((await fetch(api.url + "/api/public/portfolio/bad%20slug")).status, 404);
     const callback = await fetch(api.url + "/api/github/callback?code=x&state=y", { redirect: "manual" });
     assert.equal(callback.status, 403, "demo mode must not accept real OAuth codes");
   } finally {
@@ -88,6 +102,13 @@ test("Supabase mode returns public health/pricing but rejects anonymous and inva
       headers: { Authorization: "Bearer invalid-token" },
     });
     assert.equal(invalidToken.status, 401);
+    // Public routes reach validation without requiring a JWT.
+    const invalidWaitlist = await fetch(api.url + "/api/waitlist", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    });
+    assert.equal(invalidWaitlist.status, 400, "public waitlist must validate before any database write");
+    assert.equal((await fetch(api.url + "/api/public/portfolio/bad%20slug")).status, 404);
+    assert.equal((await fetch(api.url + "/api/public/user/bad%20slug")).status, 404);
     const invalidCallback = await fetch(api.url + "/api/github/callback?code=fake", { redirect: "manual" });
     assert.equal(invalidCallback.status, 400, await invalidCallback.text());
   } finally {
