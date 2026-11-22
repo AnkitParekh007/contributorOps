@@ -6,6 +6,7 @@ const safe = {
   STAGING_ATTESTATION: "I_CONFIRM_ISOLATED_CONTRIBUTOROPS_STAGING",
   STAGING_API_URL: "https://api.staging.contributorops.example",
   STAGING_WEB_URL: "https://app.staging.contributorops.example",
+  STAGING_APPROVED_DOMAIN: "contributorops.example",
   STAGING_SUPABASE_PROJECT_REF: "a".repeat(20),
   STAGING_EXPECTED_SHA: "b".repeat(40),
   STAGING_MODE: "public",
@@ -20,6 +21,12 @@ test("never contact a production, local, HTTP or unspecified destination", () =>
     { STAGING_API_URL: "https://api.staging.contributorops.example:8080" },
     { STAGING_API_URL: "https://api.staging.contributorops.example/wrong" },
     { STAGING_WEB_URL: "https://attacker@web.staging.contributorops.example" },
+    { STAGING_APPROVED_DOMAIN: "" },
+    { STAGING_APPROVED_DOMAIN: "example" },
+    { STAGING_APPROVED_DOMAIN: "contributorops.example.evil" },
+    { STAGING_API_URL: "https://api.staging.contributorops.example.attacker.tld" },
+    { STAGING_WEB_URL: "https://app.staging.attacker.example" },
+    { STAGING_WEB_URL: "https://app.staging.contributorops.example.attacker.tld" },
     { STAGING_SUPABASE_PROJECT_REF: "" },
     { STAGING_EXPECTED_SHA: "wrong-sha" },
     { STAGING_MODE: "unknown" },
@@ -39,7 +46,7 @@ test("two-user mode is blocked without both distinct user tokens and explicit mu
   }), /two different/i);
 });
 
-function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false, wrongBuild = false } = {}) {
+function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false, wrongBuild = false, commitThenFail = false, lyingRestore = false, wrongProject = false } = {}) {
   const states = {
     A: { safetyLevel: "research", approvalRequired: false, lastUpdatedAt: "baseline-a" },
     B: { safetyLevel: "research", approvalRequired: false, lastUpdatedAt: "baseline-b" },
@@ -59,7 +66,7 @@ function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false,
       });
     }
     if (path === "/api/health") return json(200, { status: "ok" });
-    if (path === "/api/meta") return json(200, { mode: "hosted", releaseCommit: wrongBuild ? "c".repeat(40) : "b".repeat(40), hostedWritesEnabled: false, enabledFeatures: [] });
+    if (path === "/api/meta") return json(200, { mode: "hosted", releaseCommit: wrongBuild ? "c".repeat(40) : "b".repeat(40), hostedWritesEnabled: false, supabaseProjectRef: wrongProject ? "c".repeat(20) : "a".repeat(20), enabledFeatures: [] });
     if (path === "/api/pricing") return json(200, []);
     if (path.startsWith("/api/public/")) return json(404, { message: "Not found" });
     if (path === "/api/github/callback") return json(400, { message: "Bad state" });
@@ -79,7 +86,9 @@ function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false,
     if (path === "/api/control-mode" && method === "POST") {
       const level = JSON.parse(opts.body).safetyLevel;
       if (denyCleanup && level === "research") return json(500);
+      if (lyingRestore && level === "research") return json(200, states[user]);
       states[user] = { safetyLevel: level, approvalRequired: false, lastUpdatedAt: level + "-time" };
+      if (commitThenFail && level === "draft") return json(503);
       return json(200, states[user]);
     }
     throw new Error(`Mock route not implemented: ${method} ${path}`);
@@ -132,6 +141,41 @@ test("unexpected paid entitlement escalation aborts staging acceptance", async (
 
 test("staging acceptance never certifies an unexpected deployed SHA", async () => {
   const mock = mockStagingFetch({ wrongBuild: true });
+  await assert.rejects(
+    () => runStagingAcceptance(safe, mock.fetcher),
+    /Staging build identity or hosted GitHub write-safety metadata mismatch/,
+  );
+});
+
+test("a server that commits A's draft state and then returns 503 still triggers restoration", async () => {
+  const mock = mockStagingFetch({ commitThenFail: true });
+  const env = { ...safe, STAGING_MODE: "two-user",
+    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY",
+    STAGING_USER_A_TOKEN: "jwt-a", STAGING_USER_B_TOKEN: "jwt-b" };
+  await assert.rejects(() => runStagingAcceptance(env, mock.fetcher), /expected HTTP 200, received 503/);
+  assert.equal(mock.getState("A").safetyLevel, "research", "do not strand an account in draft mode after a 5xx");
+  assert.ok(mock.calls.some(x => x.path === "/api/control-mode" && x.method === "POST" && x.user === "A"));
+});
+
+test("a falsely successful restoration response fails closed instead of certifying a safe user", async () => {
+  const mock = mockStagingFetch({ lyingRestore: true });
+  const env = { ...safe, STAGING_MODE: "two-user",
+    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY",
+    STAGING_USER_A_TOKEN: "jwt-a", STAGING_USER_B_TOKEN: "jwt-b" };
+  await assert.rejects(() => runStagingAcceptance(env, mock.fetcher), /failed to restore and verify/);
+  assert.equal(mock.getState("A").safetyLevel, "draft", "the test must detect the server's uncommitted reset");
+});
+
+test("an explicit reset failure is reported and cannot be mistaken for a passing acceptance run", async () => {
+  const mock = mockStagingFetch({ denyCleanup: true });
+  const env = { ...safe, STAGING_MODE: "two-user",
+    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY",
+    STAGING_USER_A_TOKEN: "jwt-a", STAGING_USER_B_TOKEN: "jwt-b" };
+  await assert.rejects(() => runStagingAcceptance(env, mock.fetcher), /failed to restore and verify/);
+});
+
+test("staging acceptance cannot attest an unrelated Supabase backend project", async () => {
+  const mock = mockStagingFetch({ wrongProject: true });
   await assert.rejects(
     () => runStagingAcceptance(safe, mock.fetcher),
     /Staging build identity or hosted GitHub write-safety metadata mismatch/,

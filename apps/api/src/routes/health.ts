@@ -5,6 +5,23 @@ import { readControlMode } from "../storage.js";
 
 const router = Router();
 
+/**
+ * Report the configured Supabase project reference, derived only from the
+ * canonical host. This public project identifier is not a secret or API key.
+ * A custom/noncanonical endpoint remains unverified (null) so staging tests
+ * fail closed rather than trusting a user-provided project label.
+ */
+export function configuredSupabaseProjectRef(value: string): string | null {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" || url.username || url.password || url.port ||
+        url.pathname !== "/" || url.search || url.hash) return null;
+    return /^([a-z0-9]{20})\.supabase\.co$/i.exec(url.hostname)?.[1].toLowerCase() ?? null;
+  } catch {
+    return null;
+  }
+}
+
 router.get("/health", async (_req, res, next) => {
   try {
     if (config.storageMode === "supabase") {
@@ -43,6 +60,7 @@ router.get("/meta", (_req, res) => {
     repo: "https://github.com/AnkitParekh007/contributorOps",
     mode: hosted ? "hosted" : config.githubToken ? "github" : "demo",
     releaseCommit,
+    supabaseProjectRef: hosted ? configuredSupabaseProjectRef(config.supabaseUrl) : null,
     hostedWritesEnabled: false,
     publicAppUrl: "https://ankitparekh007.github.io/contributorOps/",
     enabledFeatures: [
