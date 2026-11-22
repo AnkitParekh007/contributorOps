@@ -44,6 +44,7 @@ jobs:
           STAGING_API_URL: ${{ vars.STAGING_API_URL }}
           STAGING_WEB_URL: ${{ vars.STAGING_WEB_URL }}
           STAGING_SUPABASE_PROJECT_REF: ${{ vars.STAGING_SUPABASE_PROJECT_REF }}
+          STAGING_EXPECTED_SHA: ${{ vars.STAGING_EXPECTED_SHA }}
           STAGING_MODE: ${{ inputs.mode }}
           STAGING_ATTESTATION: ${{ inputs.confirm_staging && 'I_CONFIRM_ISOLATED_CONTRIBUTOROPS_STAGING' || '' }}
           STAGING_MUTATION_APPROVAL: ${{ inputs.allow_control_mode_mutation && 'ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY' || '' }}
@@ -64,6 +65,7 @@ jobs:
           console.log(`- **Checks passed:** ${result.passed}`);
           console.log(`- **Staging API:** ${result.apiOrigin}`);
           console.log(`- **Staging project reference:** ${result.stagingProjectRef}`);
+          console.log(`- **Verified API build SHA:** ${result.releaseCommit}`);
           console.log("\n**Not yet verified by this automated smoke:**");
           for (const item of result.notVerified) console.log(`- ${item}`);
           console.log("\nThis is not authorization to activate hosted GitHub writes.");
