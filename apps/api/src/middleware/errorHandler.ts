@@ -8,7 +8,6 @@ export function errorHandler(
   _next: NextFunction
 ): void {
   const requestId = req.headers["x-request-id"] as string | undefined;
-  const message = error instanceof Error ? error.message : "Unexpected server error.";
 
   logger.error({
     requestId,
@@ -18,5 +17,5 @@ export function errorHandler(
   });
 
   // Never leak stack traces
-  res.status(500).json({ message, requestId });
+  res.status(500).json({ message: "Internal server error", requestId });
 }
