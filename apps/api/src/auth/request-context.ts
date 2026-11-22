@@ -5,7 +5,7 @@ const context = new AsyncLocalStorage<{ userId: string }>();
 
 export function withUserContext<T>(userId: string, next: () => T): T {
   if (!userId || userId === "demo-user") throw new Error("A verified user identity is required.");
-  context.run({ userId }, next);
+  return context.run({ userId }, next);
 }
 
 export function requireRequestUserId(): string {
