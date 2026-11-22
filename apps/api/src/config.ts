@@ -9,6 +9,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "../../..");
 
+const rawStorageMode = process.env.STORAGE_MODE || "demo";
+if (rawStorageMode !== "demo" && rawStorageMode !== "supabase") {
+  throw new Error("STORAGE_MODE must be exactly demo or supabase.");
+}
+
+
 export const config = {
   port: Number(process.env.PORT || 8787),
   githubToken: process.env.GH_CONTRIBUTOROPS_TOKEN || process.env.GITHUB_TOKEN || "",
@@ -27,7 +33,7 @@ export const config = {
   supabaseUrl: process.env.SUPABASE_URL || "",
   supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY || "",
   tokenEncryptionKey: process.env.TOKEN_ENCRYPTION_KEY || "",
-  storageMode: (process.env.STORAGE_MODE || "demo") as "demo" | "supabase",
+  storageMode: rawStorageMode,
   repoRoot,
   dataDir: path.join(repoRoot, "data"),
   portfolioPath: path.join(repoRoot, "data", "portfolio.json"),
