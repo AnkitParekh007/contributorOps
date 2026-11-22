@@ -46,7 +46,7 @@ test("two-user mode is blocked without both distinct user tokens and explicit mu
   }), /two different/i);
 });
 
-function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false, wrongBuild = false, commitThenFail = false, lyingRestore = false } = {}) {
+function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false, wrongBuild = false, commitThenFail = false, lyingRestore = false, wrongProject = false } = {}) {
   const states = {
     A: { safetyLevel: "research", approvalRequired: false, lastUpdatedAt: "baseline-a" },
     B: { safetyLevel: "research", approvalRequired: false, lastUpdatedAt: "baseline-b" },
@@ -66,7 +66,7 @@ function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false,
       });
     }
     if (path === "/api/health") return json(200, { status: "ok" });
-    if (path === "/api/meta") return json(200, { mode: "hosted", releaseCommit: wrongBuild ? "c".repeat(40) : "b".repeat(40), hostedWritesEnabled: false, enabledFeatures: [] });
+    if (path === "/api/meta") return json(200, { mode: "hosted", releaseCommit: wrongBuild ? "c".repeat(40) : "b".repeat(40), hostedWritesEnabled: false, supabaseProjectRef: wrongProject ? "c".repeat(20) : "a".repeat(20), enabledFeatures: [] });
     if (path === "/api/pricing") return json(200, []);
     if (path.startsWith("/api/public/")) return json(404, { message: "Not found" });
     if (path === "/api/github/callback") return json(400, { message: "Bad state" });
@@ -172,4 +172,12 @@ test("an explicit reset failure is reported and cannot be mistaken for a passing
     STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY",
     STAGING_USER_A_TOKEN: "jwt-a", STAGING_USER_B_TOKEN: "jwt-b" };
   await assert.rejects(() => runStagingAcceptance(env, mock.fetcher), /failed to restore and verify/);
+});
+
+test("staging acceptance cannot attest an unrelated Supabase backend project", async () => {
+  const mock = mockStagingFetch({ wrongProject: true });
+  await assert.rejects(
+    () => runStagingAcceptance(safe, mock.fetcher),
+    /Staging build identity or hosted GitHub write-safety metadata mismatch/,
+  );
 });
