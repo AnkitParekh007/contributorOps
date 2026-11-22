@@ -55,8 +55,16 @@ app.use("/api", (req, res, next) => {
 
 // Hosted GitHub writes are unavailable until they use user-owned credentials.
 // All other protected routes still require verified Supabase JWTs.
+const HOSTED_GITHUB_WRITE_PATHS = new Set([
+  "/create-planning-issue",
+  "/run-daily",
+  "/contribute/prepare",
+  "/contribute/approve-comment",
+  "/contribute/approve-branch",
+  "/contribute/approve-draft-pr",
+]);
 app.use("/api", (req, res, next) => {
-  if (/^\/(create-planning-issue|contribute\/(approve-|runs\/[^/]+\/cancel)|run-daily)/.test(req.path)) {
+  if (HOSTED_GITHUB_WRITE_PATHS.has(req.path)) {
     return hostedExternalWriteGate(req, res, next);
   }
   next();
@@ -93,7 +101,7 @@ const host = process.env.API_HOST || (config.storageMode === "demo" ? "127.0.0.1
 if (config.storageMode === "demo" && !["127.0.0.1", "localhost", "::1"].includes(host)) {
   throw new Error("Demo API must bind to localhost. Use Supabase mode for network access.");
 }
-if (config.storageMode === "supabase" && config.autoContributeEnabled && config.githubToken) {
+if (config.storageMode === "supabase" && (config.autoContributeEnabled || config.autoWorkspaceEnabled || config.createDailyIssue) && config.githubToken) {
   throw new Error("Hosted API cannot enable write automation using a shared GitHub token.");
 }
 app.listen(config.port, host, () => {
