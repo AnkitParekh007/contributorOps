@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "test": "tsx --test src/github/fork-manager.test.ts src/github/executable-patch.test.ts src/patch-queue.test.ts src/hourly.test.ts src/approval-policy.test.ts src/auth/public-routes.test.ts src/db/oauth-state.test.ts src/db/users.integration.test.ts src/storage/repository.test.ts src/auth/route-matrix.integration.test.ts src/auth/hosted-multiuser.integration.test.ts src/billing-entitlements.test.ts",
+    "test": "tsx --test src/github/fork-manager.test.ts src/github/executable-patch.test.ts src/patch-queue.test.ts src/hourly.test.ts src/approval-policy.test.ts src/auth/public-routes.test.ts src/db/oauth-state.test.ts src/db/users.integration.test.ts src/storage/repository.test.ts src/auth/route-matrix.integration.test.ts src/auth/hosted-multiuser.integration.test.ts src/billing-entitlements.test.ts src/storage/portfolio-export.test.ts",
     "start": "node dist/server.js",
     "daily": "tsx src/daily.ts",
     "hourly": "tsx src/hourly.ts",
