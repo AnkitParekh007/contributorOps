@@ -8,6 +8,9 @@ import { pinoHttp } from "pino-http";
 import { config } from "./config.js";
 import { logger } from "./logger.js";
 import { authMiddleware } from "./auth/middleware.js";
+import { isPublicApiRequest } from "./auth/public-routes.js";
+import { withUserContext } from "./auth/request-context.js";
+import { hostedExternalWriteGate } from "./auth/hosted-policy.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { requestId } from "./middleware/requestId.js";
 import { standardLimiter } from "./middleware/rateLimiter.js";
@@ -39,17 +42,24 @@ app.use(express.json({ limit: "1mb" }));
 app.use("/api", standardLimiter);
 
 // ── Auth middleware ──────────────────────────────────────────────────────────
-const PUBLIC_PATHS = new Set(["/api/health", "/api/pricing", "/api/meta", "/api/launch-offer"]);
-// /api/github/callback must be public — GitHub redirects here before the user has a session
-const PUBLIC_PREFIXES = ["/api/public/", "/api/waitlist", "/api/github/callback", "/api/github/connect"];
-
 app.use("/api", (req, res, next) => {
-  const isPublic =
-    PUBLIC_PATHS.has(req.path) ||
-    PUBLIC_PREFIXES.some((prefix) => req.path.startsWith(prefix)) ||
-    req.method === "OPTIONS";
-  if (isPublic) return next();
-  return authMiddleware(req, res, next);
+  if (isPublicApiRequest(req.method, req.path)) return next();
+  void authMiddleware(req, res, () => {
+    if (config.storageMode === "supabase") {
+      withUserContext(req.userId, next);
+    } else {
+      next();
+    }
+  });
+});
+
+// Hosted GitHub writes are unavailable until they use user-owned credentials.
+// All other protected routes still require verified Supabase JWTs.
+app.use("/api", (req, res, next) => {
+  if (/^\/(create-planning-issue|contribute\/(approve-|runs\/[^/]+\/cancel)|run-daily)/.test(req.path)) {
+    return hostedExternalWriteGate(req, res, next);
+  }
+  next();
 });
 
 // ── Route modules ────────────────────────────────────────────────────────────
@@ -77,6 +87,15 @@ if (fs.existsSync(config.webDistPath)) {
 // ── Global error handler (must be last) ─────────────────────────────────────
 app.use(errorHandler);
 
-app.listen(config.port, () => {
-  logger.info(`ContributorOps API listening on http://localhost:${config.port}`);
+// Demo mode must not be remotely reachable with a fixed unauthenticated identity.
+// Explicitly configure API_HOST only for an authenticated Supabase deployment.
+const host = process.env.API_HOST || (config.storageMode === "demo" ? "127.0.0.1" : "0.0.0.0");
+if (config.storageMode === "demo" && !["127.0.0.1", "localhost", "::1"].includes(host)) {
+  throw new Error("Demo API must bind to localhost. Use Supabase mode for network access.");
+}
+if (config.storageMode === "supabase" && config.autoContributeEnabled && config.githubToken) {
+  throw new Error("Hosted API cannot enable write automation using a shared GitHub token.");
+}
+app.listen(config.port, host, () => {
+  logger.info(`ContributorOps API listening on http://${host}:${config.port}`);
 });
