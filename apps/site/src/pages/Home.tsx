@@ -4,7 +4,7 @@ import { Hero } from "../components/Hero";
 import { AudienceProof } from "../components/AudienceProof";
 import { Section } from "../components/Section";
 import { features } from "../data/features";
-import { Search, FileCode2, BarChart3, Briefcase, ArrowRight } from "lucide-react";
+import { Search, FileCode2, BarChart3, Briefcase, ArrowRight, ArrowUpRight, GitMerge, CheckCircle2 } from "lucide-react";
 
 const WORKFLOW = [
 	{
@@ -45,48 +45,56 @@ export function Home() {
 
 			<Section
 				id="problem"
-				eyebrow="Problem"
-				title="Most developers have activity, but not enough visible proof."
-				description="ContributorOps is built for developers who want real OSS contributions to become stronger hiring signal."
+				eyebrow="From contribution to career proof"
+				title="Your work deserves a better story than a green square."
+				description="ContributorOps helps developers turn real open-source contributions into job-ready proof of work. Go from a meaningful issue to a reviewable change — then keep the evidence you can actually show."
 			>
-				<div className="before-after-grid">
-					<div className="before-card">
-						<h3>Without ContributorOps</h3>
-						{[
-							"Find a random issue, lose context, abandon it",
-							"Draft a weak PR with no test plan or maintainer context",
-							"Contribution goes unnoticed in resume",
-							"Struggle to explain the work in interviews",
-							"No public proof beyond vague GitHub activity",
-						].map((item) => (
-							<div key={item} className="ba-item">
-								<span className="ba-cross">✕</span>
-								{item}
+				<div className="proof-journey">
+					<div className="proof-journey-story">
+						<div className="proof-journey-intro">
+							<span className="proof-journey-overline">A clearer path to meaningful work</span>
+							<p>Not another contribution counter. A repeatable way to answer <strong>what did I solve, how did I do it, and where can someone verify it?</strong></p>
+						</div>
+						<ol className="proof-journey-list">
+							<li className="proof-journey-step">
+								<span className="proof-journey-step-icon" aria-hidden="true"><Search size={19}/></span>
+								<div><span className="proof-journey-step-index">01 / Discover</span><h3>Find work worth doing.</h3><p>Choose an issue with a clear problem, a realistic scope, and a reason to care.</p></div>
+							</li>
+							<li className="proof-journey-step">
+								<span className="proof-journey-step-icon" aria-hidden="true"><FileCode2 size={19}/></span>
+								<div><span className="proof-journey-step-index">02 / Deliver</span><h3>Make the change reviewable.</h3><p>Plan the patch, capture validation and respect the maintainer's review process.</p></div>
+							</li>
+							<li className="proof-journey-step">
+								<span className="proof-journey-step-icon" aria-hidden="true"><CheckCircle2 size={19}/></span>
+								<div><span className="proof-journey-step-index">03 / Prove</span><h3>Keep evidence, not just activity.</h3><p>Connect the problem, the engineering decision and the upstream result.</p></div>
+							</li>
+						</ol>
+						<Link to="/demo" className="proof-journey-demo-link">Walk through the browser demo <ArrowRight size={17} aria-hidden="true"/></Link>
+					</div>
+					<article className="proof-artifact" aria-labelledby="proof-artifact-title">
+						<div className="proof-artifact-toolbar">
+							<span className="proof-artifact-source"><span className="proof-artifact-source-dot" aria-hidden="true"/> REAL UPSTREAM EXAMPLE</span>
+							<span className="proof-artifact-status"><GitMerge size={15} aria-hidden="true"/> Merged</span>
+						</div>
+						<div className="proof-artifact-content">
+							<div className="proof-artifact-repo">floating-ui / floating-ui <span>PR #3494</span></div>
+							<h3 id="proof-artifact-title">Restore iOS overlay scroll instantly</h3>
+							<p className="proof-artifact-description">A small, focused fix to prevent scroll restoration from animating when a page uses smooth scrolling.</p>
+							<div className="proof-artifact-code" role="group" aria-label="Before and after code from the merged pull request">
+								<div className="proof-artifact-code-label">THE ACTUAL CHANGE</div>
+								<div className="proof-artifact-code-row proof-artifact-removed"><span aria-hidden="true">−</span><code>window.scrollTo(scrollX, scrollY);</code></div>
+								<div className="proof-artifact-code-row proof-artifact-added"><span aria-hidden="true">+</span><code>{"window.scrollTo({ left: scrollX, top: scrollY, behavior: 'instant' });"}</code></div>
 							</div>
-						))}
-					</div>
-
-					<div className="before-after-divider">
-						<span className="before-after-arrow">→</span>
-						<span>vs</span>
-					</div>
-
-					<div className="after-card">
-						<h3>With ContributorOps</h3>
-						{[
-							"Job-matched issue finder surfaces the right work",
-							"AI plan scopes files and PR narrative up front",
-							"PR quality and policy checks before submission",
-							"STAR stories and resume bullets generated automatically",
-							"Public portfolio page with verifiable contribution history",
-						].map((item) => (
-							<div key={item} className="ba-item">
-								<span className="ba-check">✓</span>
-								{item}
+							<div className="proof-artifact-evidence">
+								<div><span>Evidence</span><strong>Upstream merged PR</strong></div>
+								<div><span>Included</span><strong>Patch + changeset</strong></div>
+								<div><span>Merged</span><strong>Oct 26, 2026</strong></div>
 							</div>
-						))}
-					</div>
+							<a className="proof-artifact-link" href="https://github.com/floating-ui/floating-ui/pull/3494" target="_blank" rel="noopener noreferrer">Inspect the real pull request <ArrowUpRight size={17} aria-hidden="true"/></a>
+						</div>
+					</article>
 				</div>
+				<p className="proof-journey-disclosure">The merged pull request publicly discloses ContributorOps-assisted preparation. This is one verified example, not a claimed merge rate. The interactive demo uses fictional scenarios.</p>
 			</Section>
 
 			<Section
