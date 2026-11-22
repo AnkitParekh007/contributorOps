@@ -95,6 +95,7 @@ export async function runPublicChecks(config, fetcher = fetch) {
   const meta = await check(fetcher, checks, config.api, "/api/meta", 200);
   if (meta?.mode !== "hosted" || meta?.hostedWritesEnabled !== false ||
       meta?.releaseCommit !== config.expectedSha ||
+      meta?.supabaseProjectRef !== config.ref ||
       meta?.enabledFeatures?.includes("safe-auto-contribute")) {
     throw new Error("Staging build identity or hosted GitHub write-safety metadata mismatch");
   }
