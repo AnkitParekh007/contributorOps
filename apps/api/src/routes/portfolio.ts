@@ -20,6 +20,7 @@ import {
   updatePortfolioEntry,
 } from "../db/portfolio.js";
 import { getUserId } from "../auth/session.js";
+import { getPublishedPortfolio, publishPublicPortfolio } from "../db/public-portfolio.js";
 import type { PortfolioEntry } from "../types.js";
 
 const router = Router();
@@ -141,6 +142,13 @@ router.post("/portfolio/share", async (req, res, next) => {
   try {
     await ensureFeature("recruiter-share-link");
     const billing = await updatePublicProfile({ publicPortfolioEnabled: true });
+    if (isSupabaseMode()) {
+      await publishPublicPortfolio(getUserId(req), billing);
+      await incrementUsage("recruiterShares");
+      res.json({ slug: billing.publicPortfolioSlug,
+        recruiterShareUrl: `/u/${encodeURIComponent(billing.publicPortfolioSlug)}` });
+      return;
+    }
     await incrementUsage("recruiterShares");
     const profile = await buildPublicPortfolioProfile();
     res.json({ slug: billing.publicPortfolioSlug, recruiterShareUrl: profile.recruiterShareUrl });
@@ -151,6 +159,15 @@ router.post("/portfolio/share", async (req, res, next) => {
 
 router.get("/public/portfolio/:slug", async (req, res, next) => {
   try {
+    if (isSupabaseMode()) {
+      const profile = await getPublishedPortfolio(String(req.params.slug));
+      if (!profile) {
+        res.status(404).json({ message: "Public portfolio not found." });
+        return;
+      }
+      res.json(profile);
+      return;
+    }
     const profile = await getPublicPortfolioProfileBySlug(req.params.slug);
     const billing = await getBillingState();
     if (!billing.publicPortfolioEnabled) {
@@ -166,6 +183,15 @@ router.get("/public/portfolio/:slug", async (req, res, next) => {
 
 router.get("/public/user/:username", async (req, res, next) => {
   try {
+    if (isSupabaseMode()) {
+      const profile = await getPublishedPortfolio(String(req.params.username));
+      if (!profile) {
+        res.status(404).json({ message: "Public portfolio not found." });
+        return;
+      }
+      res.json(profile);
+      return;
+    }
     const profile = await getPublicPortfolioProfileBySlug(req.params.username);
     const billing = await getBillingState();
     if (!billing.publicPortfolioEnabled) {
