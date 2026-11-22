@@ -24,11 +24,13 @@ jobs:
           npm ci
           node - <<'JS'
           const lock = require('./package-lock.json')
-          const types = lock.packages['node_modules/@types/node'].version
+          const path = require('node:path')
+          const resolved = require.resolve('@types/node/package.json',{paths:[path.resolve('apps/api')]})
+          const types = require(resolved).version
           const tsx = lock.packages['node_modules/tsx'].version
-          if (!types.startsWith('22.')) throw new Error('Expected Node 22 types, got ' + types)
+          if (!types.startsWith('22.')) throw new Error('API workspace must resolve Node 22 types, got ' + types + ' from ' + resolved)
           if (!tsx.startsWith('4.')) throw new Error('Expected compatible tsx 4.x, got ' + tsx)
-          console.log('Verified Node 22 types:', types, 'tsx:', tsx)
+          console.log('Verified API workspace Node 22 types:', types, 'from', resolved, 'tsx:', tsx)
           JS
       - name: Validate API and public-site compatibility
         run: |
