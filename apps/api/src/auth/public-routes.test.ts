@@ -11,7 +11,7 @@ test("the public route matrix uses paths relative to the /api mount", () => {
 });
 
 test("private and write endpoints never match public routes", () => {
-  for (const path of ["/github/connect", "/github/disconnect", "/billing", "/billing/mock-select-plan", "/portfolio", "/portfolio/share", "/contribute/prepare", "/contribute/approve-comment", "/control-mode", "/discover", "/daily-plan", "/public/portfolio/alice/extra", "/waitlist/junk"]) {
+  for (const path of ["/github/connect", "/github/complete", "/github/disconnect", "/billing", "/billing/mock-select-plan", "/portfolio", "/portfolio/share", "/contribute/prepare", "/contribute/approve-comment", "/control-mode", "/discover", "/daily-plan", "/public/portfolio/alice/extra", "/waitlist/junk"]) {
     assert.equal(isPublicApiRequest("GET", path), false, `GET ${path}`);
     assert.equal(isPublicApiRequest("POST", path), false, `POST ${path}`);
   }
