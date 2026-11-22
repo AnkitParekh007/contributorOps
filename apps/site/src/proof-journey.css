@@ -240,14 +240,14 @@
   display: flex;
   gap: 14px;
   padding: 10px 18px;
-  width: max-content;
   min-width: 100%;
   align-items: start;
   font-size: 0.73rem;
 }
 .proof-artifact-code-row > span { font-weight: 800; flex: 0 0 8px; }
 .proof-artifact-code-row code {
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   font: 0.73rem/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 .proof-artifact-removed {
@@ -310,6 +310,24 @@
 html[data-theme="light"] .proof-journey-step-icon { color: #0369a1; }
 html[data-theme="light"] .proof-journey-step:nth-child(2) .proof-journey-step-icon { color: #6d28d9; }
 html[data-theme="light"] .proof-journey-step:nth-child(3) .proof-journey-step-icon { color: #047857; }
+
+/* Existing hero preview had a min-content-width issue on narrow viewports.
+   Constrain the nested grid so the proof journey never inherits page-wide side-scroll. */
+@media (max-width: 760px) {
+  .page-home .hero,
+  .page-home .hero-preview,
+  .page-home .hero-dashboard,
+  .page-home .hd-body,
+  .page-home .hd-panel {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .page-home .hd-body { grid-template-columns: minmax(0, 1fr); }
+  .page-home .hd-issue { min-width: 0; }
+  .page-home .hd-issue-info { min-width: 0; }
+  .page-home .hd-issue-repo,
+  .page-home .hd-issue-label { display: block; }
+}
 
 @media (max-width: 880px) {
   .proof-journey { grid-template-columns: minmax(0, 1fr); }
