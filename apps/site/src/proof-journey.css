@@ -329,6 +329,21 @@ html[data-theme="light"] .proof-journey-step:nth-child(3) .proof-journey-step-ic
   .page-home .hd-issue-label { display: block; }
 }
 
+/* The shared footer's mobile grid also had unbroken min-content links,
+   causing page-wide side scrolling even when this section fit the viewport. */
+@media (max-width: 760px) {
+  .footer-top,
+  .footer-link-grid { grid-template-columns: minmax(0, 1fr); }
+  .footer-link-group,
+  .footer-link-list,
+  .footer-link-list a,
+  .footer-link-group h4 {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+
 @media (max-width: 880px) {
   .proof-journey { grid-template-columns: minmax(0, 1fr); }
   .proof-journey-story { padding: 0; }
