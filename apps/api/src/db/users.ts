@@ -27,14 +27,15 @@ export async function getUserById(userId: string): Promise<UserDB | null> {
  * Saves an encrypted GitHub OAuth token for a user.
  * Upserts into oauth_accounts (one row per user+provider).
  */
-export async function saveGithubToken(userId: string, token: string, scopes: string[]): Promise<void> {
+export async function saveGithubToken(userId: string, token: string, scopes: string[], providerUserId: string): Promise<void> {
   const db = getSupabaseAdmin();
   const encrypted = encrypt(token);
   const { error } = await db.from("oauth_accounts").upsert(
     {
       user_id: userId,
       provider: "github",
-      access_token_enc: encrypted,
+      provider_user_id: providerUserId,
+      access_token_encrypted: encrypted,
       scopes,
       updated_at: new Date().toISOString(),
     },
@@ -51,7 +52,7 @@ export async function getGithubToken(userId: string): Promise<{ token: string; s
   const db = getSupabaseAdmin();
   const { data, error } = await db
     .from("oauth_accounts")
-    .select("access_token_enc, scopes")
+    .select("access_token_encrypted, scopes, provider_user_id")
     .eq("user_id", userId)
     .eq("provider", "github")
     .maybeSingle();
@@ -59,7 +60,7 @@ export async function getGithubToken(userId: string): Promise<{ token: string; s
   if (error) throw new Error(`Get GitHub token failed: ${error.message}`);
   if (!data) return null;
 
-  const token = decrypt((data as { access_token_enc: string }).access_token_enc);
+  const token = decrypt((data as { access_token_encrypted: string }).access_token_encrypted);
   return { token, scopes: (data as { scopes: string[] }).scopes || [] };
 }
 
