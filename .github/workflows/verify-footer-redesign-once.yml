@@ -1,0 +1,83 @@
+# Temporary branch-only visual acceptance workflow. Deletes itself after committing screenshots.
+name: One-shot footer redesign visual acceptance
+on:
+  push:
+    branches: [design/footer-conversion-redesign-20261122]
+    paths: [.github/workflows/verify-footer-redesign-once.yml]
+permissions:
+  contents: write
+jobs:
+  visual-acceptance:
+    if: github.repository == 'AnkitParekh007/contributorOps'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build the actual public React website
+        run: |
+          npm ci
+          npm run site:build
+          (cd apps/site && npx --no-install vite preview --host 127.0.0.1 --port 4174) >/tmp/footer-preview.log 2>&1 &
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:4174/contributorOps/ >/dev/null 2>&1 && break
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:4174/contributorOps/ >/dev/null || { cat /tmp/footer-preview.log; exit 1; }
+      - name: Inspect navigation, overflow, mobile stacking, contrast cues and CTA
+        run: |
+          python -m pip install --disable-pip-version-check 'playwright==1.56.0' 'Pillow>=10,<13'
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import os
+          from playwright.sync_api import sync_playwright
+          chrome=next((p for p in ['/usr/bin/google-chrome','/usr/bin/google-chrome-stable','/usr/bin/chromium'] if os.path.isfile(p)),None)
+          assert chrome, 'Chromium executable missing'
+          Path('docs/assets').mkdir(parents=True,exist_ok=True)
+          base='http://127.0.0.1:4174/contributorOps/#/'
+          with sync_playwright() as pw:
+              browser=pw.chromium.launch(executable_path=chrome,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+              cases=[('desktop-light',1440,900,'light'),('desktop-dark',1440,900,'dark'),('mobile-light',390,844,'light'),('mobile-dark',390,844,'dark')]
+              for label,width,height,theme in cases:
+                  page=browser.new_page(viewport={'width':width,'height':height},reduced_motion='reduce',device_scale_factor=1)
+                  page.add_init_script(f"localStorage.setItem('contributorops_theme','{theme}')")
+                  page.goto(base,wait_until='networkidle')
+                  footer=page.locator('.footer-v2')
+                  footer.scroll_into_view_if_needed()
+                  assert footer.locator('#footer-v2-heading').is_visible(), label
+                  assert footer.locator('.footer-v2-trust li').count()==3, label
+                  assert footer.locator('.footer-v2-nav').count()==3, label
+                  assert footer.locator('.footer-trust-pill').count()==0, label
+                  assert footer.get_by_role('link',name='Explore the demo').get_attribute('href')=='#/demo',label
+                  assert footer.get_by_role('link',name='Inspect merged PR #3494').get_attribute('href')=='https://github.com/floating-ui/floating-ui/pull/3494',label
+                  assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1'), f'Page-wide horizontal overflow: {label}'
+                  expected_columns=1 if width<990 else 2
+                  columns=footer.locator('.footer-v2-callout').evaluate("(node)=>getComputedStyle(node).gridTemplateColumns.split(' ').length")
+                  assert columns==expected_columns, (label,columns,expected_columns)
+                  assert footer.locator('.footer-v2-callout').evaluate("(node)=>getComputedStyle(node).backgroundImage")!='none', label
+                  if label in ('desktop-light','mobile-dark'):
+                      path=f'docs/assets/footer-redesign-{label}.png'
+                      footer.screenshot(path=path,animations='disabled')
+                      with Image.open(path) as img:
+                          assert img.width>300 and img.height>450,img.size
+                      print('SCREENSHOT:',path,flush=True)
+                  print('PASS:',label,'heading, trust, CTA, 3 nav columns, responsive stacking, no horizontal overflow',flush=True)
+                  page.close()
+              browser.close()
+          PY
+      - name: Commit screenshots and remove this one-shot workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm .github/workflows/verify-footer-redesign-once.yml
+          git add docs/assets/footer-redesign-desktop-light.png docs/assets/footer-redesign-mobile-dark.png .github/workflows/verify-footer-redesign-once.yml
+          git diff --cached --check
+          git commit -m 'docs(visual): save verified footer desktop and mobile screenshots'
+          git push origin HEAD:design/footer-conversion-redesign-20261122
