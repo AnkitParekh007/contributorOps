@@ -46,6 +46,13 @@ ALTER TABLE public.user_scoped_state ENABLE ROW LEVEL SECURITY;
 -- No client RLS policies: service role only. The API enforces user identity and
 -- binds every query to the authenticated user ID.
 
+-- Be explicit: service-role bypassing RLS still requires table privileges on
+-- installations with nonstandard public-schema default grants.
+GRANT USAGE ON SCHEMA public TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE
+  ON public.oauth_accounts, public.oauth_states, public.user_scoped_state
+  TO service_role;
+
 -- Stored encrypted tokens and provider identity are managed only by the server.
 DROP POLICY IF EXISTS "Users can manage their own OAuth accounts" ON public.oauth_accounts;
 REVOKE INSERT, UPDATE, DELETE ON public.oauth_accounts FROM anon, authenticated;
