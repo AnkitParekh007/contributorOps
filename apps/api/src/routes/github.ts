@@ -43,6 +43,12 @@ router.post("/github/connect", async (req, res, next) => {
     const scope = "read:user";
     const { state, browserBinding } = await createOAuthState(getUserId(req), scope);
     const secure = new URL(config.publicAppUrl).protocol === "https:";
+    // Intentional browser-bound double-submit value, NOT a GitHub access token.
+    // The DB stores only a SHA-256 verifier; this independent 256-bit nonce is
+    // readable by the browser's cookie transport but not by JavaScript
+    // (httpOnly), is origin-restricted and short-lived, and cannot finalize
+    // OAuth without the matching one-use state and initiating user's JWT.
+    // Hosted deployments must use HTTPS for the Secure attribute.
     res.cookie(OAUTH_COOKIE, browserBinding, {
       httpOnly: true,
       secure,
@@ -50,6 +56,9 @@ router.post("/github/connect", async (req, res, next) => {
       path: "/api/github",
       maxAge: OAUTH_STATE_TTL_MS,
     });
+    // Never allow an authenticated OAuth authorization URL to be cached.
+    res.setHeader("Cache-Control", "no-store");
+    res.setHeader("Referrer-Policy", "no-referrer");
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: `${config.publicAppUrl.replace(/\/$/, "")}/api/github/callback`,
