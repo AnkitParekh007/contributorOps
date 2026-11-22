@@ -1,11 +1,48 @@
 import { getStorageRepository } from "./storage/repository.js";
+import { config } from "./config.js";
+import { requireRequestUserId } from "./auth/request-context.js";
+import { getPortfolioByUser, type PortfolioEntryDB } from "./db/portfolio.js";
 import type { BillingState, ContributionRun, ControlModeState, DailyPlan, PortfolioEntry, PullRequestActivity, UsageSnapshot } from "./types.js";
 
+/** Convert the canonical hosted portfolio rows to export/story-generation input. */
+export function toExportPortfolioEntry(entry: PortfolioEntryDB): PortfolioEntry {
+  const proof = entry.proof || {};
+  const field = (name: string) => typeof proof[name] === "string" ? proof[name] as string : "";
+  return {
+    id: entry.id,
+    selectedRepo: entry.repo,
+    issueUrl: entry.title.startsWith("https://") ? entry.title : "",
+    prUrl: entry.prUrl || "",
+    status: entry.status,
+    notes: entry.description,
+    resumeBullet: field("resumeBullet"),
+    interviewStarStory: field("interviewStarStory"),
+    interviewSituation: field("interviewSituation"),
+    interviewTask: field("interviewTask"),
+    interviewAction: field("interviewAction"),
+    interviewResult: field("interviewResult"),
+    linkedInPost: field("linkedInPost"),
+    linkedInShort: field("linkedInShort"),
+    linkedInMedium: field("linkedInMedium"),
+    linkedInDetailed: field("linkedInDetailed"),
+    recruiterOutreach: field("recruiterOutreach"),
+    githubProfileSnippet: field("githubProfileSnippet"),
+    createdAt: entry.createdAt,
+    updatedAt: entry.createdAt,
+  };
+}
+
 export async function readPortfolio(): Promise<PortfolioEntry[]> {
+  if (config.storageMode === "supabase") {
+    return (await getPortfolioByUser(requireRequestUserId())).map(toExportPortfolioEntry);
+  }
   return getStorageRepository().read("portfolio", []);
 }
 
 export async function writePortfolio(entries: PortfolioEntry[]): Promise<PortfolioEntry[]> {
+  if (config.storageMode === "supabase") {
+    throw new Error("Hosted portfolio writes must use owner-scoped portfolio entry APIs.");
+  }
   return getStorageRepository().write("portfolio", entries);
 }
 
