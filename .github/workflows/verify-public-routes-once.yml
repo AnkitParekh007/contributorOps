@@ -30,9 +30,20 @@ jobs:
               for route in routes:
                   page=browser.new_page(viewport={'width':1280,'height':800},reduced_motion='reduce')
                   response=page.goto(url+'#/'+route,wait_until='domcontentloaded',timeout=25000)
-                  page.locator('main h1').first.wait_for(state='visible',timeout=12000)
-                  title=page.locator('main h1').first.inner_text()
-                  assert title and 'not found' not in title.lower(), (route,title)
+                  heading=page.locator('main h1, main h2').first
+                  heading.wait_for(state='visible',timeout=12000)
+                  title=heading.inner_text()
+                  expected={
+                    'demo':'Try the contribution loop',
+                    'launch':'One launch surface',
+                    'adoption':'Turn launch attention',
+                    'share':'Send the right proof',
+                    'recruiter':'Evaluate the engineering',
+                    'safety':'Explicit authorization',
+                    'quality':'Quality claims',
+                    'contribute':'Make your first ContributorOps',
+                  }
+                  assert expected[route].lower() in title.lower(), (route,title)
                   assert page.evaluate('location.hash') == '#/'+route, route
                   assert response and response.status == 200, (route,response.status if response else None)
                   print('PASS /#/'+route+' :: '+title[:120],flush=True)
