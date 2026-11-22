@@ -58,7 +58,7 @@ export function Try() {
 			<section className="site-section">
 				<div className="section-heading">
 					<span className="section-eyebrow">Local quick start</span>
-					<h2>One command after Node.js 20+.</h2>
+					<h2>One command after Node.js 22+.</h2>
 					<p>This installs the workspace and starts the API plus product UI.</p>
 				</div>
 				<div className="try-command-card">
