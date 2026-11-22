@@ -1,5 +1,6 @@
 # Temporary branch-scoped visual QA, self-deletes after committing screenshots.
 name: Capture contribution proof section desktop and mobile
+# Includes regression assertion for global viewport overflow, hero and footer.
 on:
   push:
     branches: [design/contribution-to-proof-ux-20261122]
