@@ -35,7 +35,7 @@ export function validateStagingConfig(env = process.env) {
   // owner-controlled DNS suffix. A hostname containing "staging" alone is
   // not sufficient: api.staging.attacker.example would otherwise qualify.
   const approvedDomain = (env.STAGING_APPROVED_DOMAIN || "").toLowerCase();
-  if (!/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z]{2,63}$/.test(approvedDomain)) {
+  if (!/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,63}$/.test(approvedDomain)) {
     throw new Error("STAGING_APPROVED_DOMAIN must be an explicit lower-case owner-controlled DNS suffix");
   }
   const belongsToDomain = (origin) => {
