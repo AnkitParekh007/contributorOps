@@ -168,7 +168,12 @@ router.get("/public/portfolio/:slug", async (req, res, next) => {
       res.json(profile);
       return;
     }
-    const profile = await getPublicPortfolioProfileBySlug(req.params.slug);
+    const requested = String(req.params.slug);
+    if (!/^[a-z0-9_-]{1,100}$/i.test(requested)) {
+      res.status(404).json({ message: "Public portfolio not found." });
+      return;
+    }
+    const profile = await getPublicPortfolioProfileBySlug(requested);
     const billing = await getBillingState();
     if (!billing.publicPortfolioEnabled) {
       res.status(404).json({ message: "Public portfolio is disabled." });
@@ -177,6 +182,10 @@ router.get("/public/portfolio/:slug", async (req, res, next) => {
     await incrementUsage("publicPortfolioViews");
     res.json(profile);
   } catch (error) {
+    if (error instanceof Error && error.message === "Public portfolio not found.") {
+      res.status(404).json({ message: "Public portfolio not found." });
+      return;
+    }
     next(error);
   }
 });
@@ -192,7 +201,12 @@ router.get("/public/user/:username", async (req, res, next) => {
       res.json(profile);
       return;
     }
-    const profile = await getPublicPortfolioProfileBySlug(req.params.username);
+    const requested = String(req.params.username);
+    if (!/^[a-z0-9_-]{1,100}$/i.test(requested)) {
+      res.status(404).json({ message: "Public portfolio not found." });
+      return;
+    }
+    const profile = await getPublicPortfolioProfileBySlug(requested);
     const billing = await getBillingState();
     if (!billing.publicPortfolioEnabled) {
       res.status(404).json({ message: "Public portfolio is disabled." });
@@ -201,6 +215,10 @@ router.get("/public/user/:username", async (req, res, next) => {
     await incrementUsage("publicPortfolioViews");
     res.json(profile);
   } catch (error) {
+    if (error instanceof Error && error.message === "Public portfolio not found.") {
+      res.status(404).json({ message: "Public portfolio not found." });
+      return;
+    }
     next(error);
   }
 });
