@@ -21,6 +21,10 @@
   <a href="./LICENSE"><img alt="BSD 3-Clause" src="https://img.shields.io/badge/license-BSD--3--Clause-2563eb"></a>
 </p>
 
+[![Actual ContributorOps browser demo, displaying the fictional example workflow without a GitHub token](./docs/assets/contributorops-demo.png)](https://ankitparekh007.github.io/contributorOps/#/demo)
+
+*Actual screenshot from the running site. Its guided issue scenarios are explicitly fictional; [inspect a real merged upstream contribution](./docs/case-study-floating-ui-3494.md) separately.*
+
 ## See what ContributorOps is for
 
 Most developers can find open-source issues. The hard part is choosing a useful one, submitting a reviewable change, and showing what was actually delivered.
