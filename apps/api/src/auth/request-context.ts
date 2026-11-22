@@ -3,7 +3,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 /** Per-request identity; no process-global mutable user state. */
 const context = new AsyncLocalStorage<{ userId: string }>();
 
-export function withUserContext(userId: string, next: () => void): void {
+export function withUserContext<T>(userId: string, next: () => T): T {
   if (!userId || userId === "demo-user") throw new Error("A verified user identity is required.");
   context.run({ userId }, next);
 }
