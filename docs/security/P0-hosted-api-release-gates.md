@@ -13,6 +13,40 @@
 | C05 | HTTP external writes return 403 regardless of demo/hosted mode. Demo server defaults to loopback, unsafe token/automation combinations fail at startup. Operator CLI workflows are separate. | Route-matrix regression, source gate |
 | C06 | Mock plan changes denied in hosted mode; only active, server-side subscription rows may resolve to a paid plan. Overrides from local/demo state cannot grant hosted entitlements. | `billing-entitlements.test.ts` and route-matrix checks |
 
+## Automated CodeQL review triage (PR #54)
+
+Two GitHub Advanced Security inline comments classify the OAuth nonce as a
+password and its browser-binding cookie as cleartext sensitive storage:
+
+- [Random-state hashing comment](https://github.com/AnkitParekh007/contributorOps/pull/54#discussion_r4659368292)
+- [Browser-binding cookie comment](https://github.com/AnkitParekh007/contributorOps/pull/54#discussion_r4659409752)
+
+**Nonce hash — likely false positive.** `createOAuthState` generates two
+independent `crypto.randomBytes(32)` values (256 bits each), not
+human-memorable passwords. The database stores only SHA-256 hashes of
+these unguessable, ten-minute, single-use verifiers. A slow password KDF
+would not improve meaningful attack resistance; it would increase
+lookup/DoS cost. Unit tests assert raw values never enter stored rows.
+
+**Cookie — intentional browser-bound secret transport, not token persistence.**
+The independently generated browser binding must reach the same browser
+that initiated the OAuth redirect, so it is sent as a host-only,
+`HttpOnly`, `SameSite=Lax`, ten-minute cookie scoped to `/api/github`.
+`Secure` is enabled under the required HTTPS production origin. The
+database stores only its SHA-256 hash. It is **not** a GitHub access token,
+and the cookie cannot connect an account by itself: completion additionally
+requires a valid one-use state and the exact initiating user's authenticated
+Supabase JWT. Authenticated authorization URLs also use `Cache-Control:
+no-store` and `Referrer-Policy: no-referrer`.
+
+These comments are documented as **potential CodeQL false positives**, not
+as proof that a live hosted deployment is safe. An authorized maintainer
+must examine the final code-scanning alert state and record any
+false-positive dismissal separately. Do not silence CodeQL globally,
+suppress the rule wholesale, remove the browser binding, or treat
+green CodeQL workflow execution as evidence that alerts have been
+dismissed.
+
 ## Non-negotiable staging verification
 
 - [ ] Provision a **disposable or designated staging Supabase project** for ContributorOps. Do not apply migrations to unrelated or production databases.
