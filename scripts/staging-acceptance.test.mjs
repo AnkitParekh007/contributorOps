@@ -30,7 +30,7 @@ test("never contact a production, local, HTTP or unspecified destination", () =>
 test("two-user mode is blocked without both distinct user tokens and explicit mutation consent", () => {
   assert.throws(() => validateStagingConfig({ ...safe, STAGING_MODE: "two-user" }), /approval/);
   const approved = { ...safe, STAGING_MODE: "two-user",
-    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_PORTFOLIO_ONLY" };
+    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY" };
   assert.throws(() => validateStagingConfig(approved), /two different/);
   assert.throws(() => validateStagingConfig({
     ...approved, STAGING_USER_A_TOKEN: "same", STAGING_USER_B_TOKEN: "same",
@@ -38,7 +38,10 @@ test("two-user mode is blocked without both distinct user tokens and explicit mu
 });
 
 function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false } = {}) {
-  let record = null;
+  const states = {
+    A: { safetyLevel: "research", approvalRequired: false, lastUpdatedAt: "baseline-a" },
+    B: { safetyLevel: "research", approvalRequired: false, lastUpdatedAt: "baseline-b" },
+  };
   const calls = [];
   async function fetcher(input, opts = {}) {
     const url = new URL(input), path = url.pathname, method = opts.method || "GET";
@@ -66,29 +69,19 @@ function mockStagingFetch({ leak = false, escalate = false, denyCleanup = false 
     if (path === "/api/contribute/approve-comment" || path === "/api/create-planning-issue") {
       return json(403);
     }
-    if (path === "/api/portfolio" && method === "POST" && user === "A") {
-      const body = JSON.parse(opts.body);
-      record = { id: "test-row-uuid", ...body, createdAt: new Date().toISOString() };
-      return json(201, record);
+    if (path === "/api/portfolio" && method === "GET") return json(200, []);
+    if (path === "/api/control-mode" && method === "GET") {
+      return json(200, user === "B" && leak ? states.A : states[user]);
     }
-    if (path === "/api/portfolio" && method === "GET") {
-      return json(200, record && (user === "A" || leak) ? [record] : []);
-    }
-    if (path === "/api/portfolio/test-row-uuid" && method === "PATCH" && user === "B") {
-      if (leak && record) {
-        record.notes = JSON.parse(opts.body).notes;
-        return json(200, record);
-      }
-      return json(404);
-    }
-    if (path === "/api/portfolio/test-row-uuid" && method === "DELETE" && user === "A") {
-      if (denyCleanup) return json(500);
-      record = null;
-      return new Response(null, { status: 204 });
+    if (path === "/api/control-mode" && method === "POST") {
+      const level = JSON.parse(opts.body).safetyLevel;
+      if (denyCleanup && level === "research") return json(500);
+      states[user] = { safetyLevel: level, approvalRequired: false, lastUpdatedAt: level + "-time" };
+      return json(200, states[user]);
     }
     throw new Error(`Mock route not implemented: ${method} ${path}`);
   }
-  return { fetcher, calls, getRecord: () => record };
+  return { fetcher, calls, getState: (user) => states[user] };
 }
 
 test("public acceptance never mutates real data or fetches user tokens", async () => {
@@ -103,32 +96,33 @@ test("public acceptance never mutates real data or fetches user tokens", async (
   assert.ok(mock.calls.every(x => x.user === null));
 });
 
-test("two-user staging acceptance detects isolation and always cleans up its fixture", async () => {
+test("two-user staging acceptance detects independent control state and restores A", async () => {
   const mock = mockStagingFetch();
   const env = { ...safe, STAGING_MODE: "two-user",
-    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_PORTFOLIO_ONLY",
+    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY",
     STAGING_USER_A_TOKEN: "jwt-a", STAGING_USER_B_TOKEN: "jwt-b" };
   const result = await runStagingAcceptance(env, mock.fetcher);
   assert.equal(result.mode, "two-user");
   assert.ok(result.passed > 20);
-  assert.equal(mock.getRecord(), null);
-  assert.ok(mock.calls.some(x => x.path === "/api/portfolio/test-row-uuid" && x.user === "B"));
-  assert.ok(mock.calls.some(x => x.method === "DELETE" && x.user === "A"));
+  assert.equal(mock.getState("A").safetyLevel, "research");
+  assert.equal(mock.getState("B").safetyLevel, "research");
+  assert.ok(mock.calls.some(x => x.path === "/api/control-mode" && x.method === "POST" && x.user === "A"));
+  assert.ok(mock.calls.every(x => x.method !== "DELETE"));
 });
 
-test("a cross-user portfolio read causes a failure, not a false green report", async () => {
+test("a cross-user control-state leak causes a failure, not a false green report", async () => {
   const mock = mockStagingFetch({ leak: true });
   const env = { ...safe, STAGING_MODE: "two-user",
-    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_PORTFOLIO_ONLY",
+    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY",
     STAGING_USER_A_TOKEN: "jwt-a", STAGING_USER_B_TOKEN: "jwt-b" };
-  await assert.rejects(() => runStagingAcceptance(env, mock.fetcher), /Cross-user data leak/);
-  assert.equal(mock.getRecord(), null, "clean up still runs on isolation failure");
+  await assert.rejects(() => runStagingAcceptance(env, mock.fetcher), /Cross-user state leak/);
+  assert.equal(mock.getState("A").safetyLevel, "research", "restore runs after a failed isolation check");
 });
 
 test("unexpected paid entitlement escalation aborts staging acceptance", async () => {
   const mock = mockStagingFetch({ escalate: true });
   const env = { ...safe, STAGING_MODE: "two-user",
-    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_PORTFOLIO_ONLY",
+    STAGING_MUTATION_APPROVAL: "ALLOW_TEMPORARY_TEST_CONTROL_MODE_ONLY",
     STAGING_USER_A_TOKEN: "jwt-a", STAGING_USER_B_TOKEN: "jwt-b" };
   await assert.rejects(() => runStagingAcceptance(env, mock.fetcher), /must have a free subscription/);
 });
