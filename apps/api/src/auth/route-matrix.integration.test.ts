@@ -59,6 +59,9 @@ test("demo mode keeps public endpoints accessible and uses local-only identity",
       const response = await fetch(api.url + endpoint);
       assert.equal(response.status, 200, endpoint);
     }
+    assert.equal((await fetch(api.url + "/api/create-planning-issue", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    })).status, 403, "demo API must not invoke the owner's GitHub PAT");
     const callback = await fetch(api.url + "/api/github/callback?code=x&state=y", { redirect: "manual" });
     assert.equal(callback.status, 403, "demo mode must not accept real OAuth codes");
   } finally {
