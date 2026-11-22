@@ -1,0 +1,71 @@
+/* Shared empty/loading/error patterns for site evaluation surfaces. */
+.async-state {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  min-height: 164px;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+  color: var(--text);
+}
+.async-state--compact { min-height: 100px; padding: 18px 22px; }
+.async-state__icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(139, 92, 246, .24);
+  background: rgba(139, 92, 246, .10);
+  border-radius: 15px;
+  color: var(--accent);
+}
+.async-state--error .async-state__icon {
+  border-color: rgba(244, 63, 94, .25);
+  background: rgba(244, 63, 94, .08);
+  color: #fb7185;
+}
+.async-state--empty .async-state__icon {
+  border-color: rgba(34, 211, 238, .22);
+  background: rgba(34, 211, 238, .08);
+  color: var(--accent-3);
+}
+.async-state__spinner { animation: async-state-spin 1.25s linear infinite; }
+@keyframes async-state-spin { to { transform: rotate(360deg); } }
+.async-state__content { min-width: 0; flex: 1 1 225px; }
+.async-state__content strong { display: block; font-size: .98rem; line-height: 1.4; }
+.async-state__content p { margin: 6px 0 0; color: var(--muted); line-height: 1.6; font-size: .9rem; }
+.async-state__action { display: flex; align-items: center; }
+.async-state__action .button-secondary { white-space: nowrap; }
+.share-feedback {
+  min-height: 1.55rem;
+  margin: 10px 0 0;
+  color: var(--accent-3);
+  font-size: .81rem;
+  line-height: 1.45;
+}
+.share-feedback.is-error { color: #fb7185; }
+html[data-theme="light"] .share-feedback.is-error { color: #be123c; }
+html[data-theme="light"] .async-state--error .async-state__icon { color: #be123c; }
+html[data-theme="light"] .async-state--empty .async-state__icon { color: #0369a1; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 580px) {
+  .async-state { align-items: flex-start; }
+  .async-state__action { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .async-state__spinner { animation: none; }
+}

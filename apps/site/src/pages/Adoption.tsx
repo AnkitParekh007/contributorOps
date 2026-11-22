@@ -16,6 +16,7 @@ import {
 	TrendingUp,
 	Users,
 } from "lucide-react";
+import { AsyncState } from "../components/AsyncState";
 import { analyticsConfigured, trackEvent } from "../lib/analytics";
 import { CAMPAIGN_CHANNELS, CAMPAIGN_ID, channelUrl } from "../lib/campaigns";
 
@@ -63,7 +64,7 @@ export function Adoption() {
 			if (err instanceof DOMException && err.name === "AbortError") return;
 			setError("Live GitHub metrics are temporarily unavailable. The repository links below still work.");
 		} finally {
-			setLoading(false);
+			if (!signal?.aborted) setLoading(false);
 		}
 	}
 
@@ -134,17 +135,38 @@ export function Adoption() {
 						<RefreshCw size={15} /> {loading ? "Refreshing" : "Refresh"}
 					</button>
 				</div>
-				{error && <div className="adoption-error" role="status">{error}</div>}
-				<div className="adoption-metric-grid" aria-live="polite">
-					{metrics.map((metric) => (
-						<a key={metric.label} className="adoption-metric-card" href={metric.href} target="_blank" rel="noreferrer">
-							<span className="adoption-metric-icon">{metric.icon}</span>
-							<strong>{loading && metric.value === undefined ? "—" : compact(metric.value ?? 0)}</strong>
-							<span>{metric.label}</span>
-						</a>
-					))}
-				</div>
-				{repo && <p className="adoption-updated">GitHub repository metadata last updated {new Date(repo.updated_at).toLocaleString()}.</p>}
+				{loading && !repo ? (
+					<AsyncState kind="loading" title="Loading public GitHub metrics" description="Checking the repository and its listed contributors directly with GitHub. No values are estimated." />
+				) : null}
+				{error ? (
+					<AsyncState
+						kind="error"
+						compact={Boolean(repo)}
+						title="Live GitHub data is unavailable"
+						description={repo ? "The previous successful values remain visible below with their GitHub metadata timestamp." : error}
+						action={<button className="button-secondary" type="button" onClick={() => void loadMetrics()}>Retry GitHub request</button>}
+					/>
+				) : null}
+				{!loading && !error && !repo ? (
+					<AsyncState kind="empty" title="No public metrics returned" description="GitHub has not returned repository metadata. Use the repository link to inspect its public activity." action={<a className="button-secondary" href={REPO_URL} target="_blank" rel="noreferrer">View on GitHub</a>} />
+				) : null}
+				{repo ? (
+					<>
+						<div className="adoption-metric-grid" aria-label="Public repository metrics">
+							{metrics.map((metric) => (
+								<a key={metric.label} className="adoption-metric-card" href={metric.href} target="_blank" rel="noreferrer">
+									<span className="adoption-metric-icon">{metric.icon}</span>
+									<strong>{compact(metric.value ?? 0)}</strong>
+									<span>{metric.label}</span>
+								</a>
+							))}
+						</div>
+						{!loading && !error && humanContributors === 0 ? (
+							<AsyncState kind="empty" compact title="No human contributors listed yet" description="GitHub currently lists no human contributors in this repository. Explore beginner-friendly issues to get involved." action={<a className="button-secondary" href={`${REPO_URL}/contribute`} target="_blank" rel="noreferrer">Find an issue</a>} />
+						) : null}
+						<p className="adoption-updated">GitHub repository metadata last updated {new Date(repo.updated_at).toLocaleString()}.</p>
+					</>
+				) : null}
 			</section>
 
 			<section className="site-section">
