@@ -92,9 +92,19 @@ test("expired state fails both inspection and completion", async () => {
 });
 
 test("OAuth state uses independent cryptographic 32-byte opaque values", async () => {
-  const { db } = fakeOAuthDatabase();
+  const { db, data } = fakeOAuthDatabase();
   const a = await createOAuthState(USER_A, "read:user", db);
   const b = await createOAuthState(USER_A, "read:user", db);
+  // These are randomly generated nonce verifiers, not passwords. Never store
+  // either raw nonce or a reusable GitHub access token in the state table.
+  const row = data.get(oauthHash(a.state));
+  assert.ok(row);
+  assert.notEqual(row.state_hash, a.state);
+  assert.notEqual(row.browser_binding_hash, a.browserBinding);
+  assert.equal(row.state_hash, oauthHash(a.state));
+  assert.equal(row.browser_binding_hash, oauthHash(a.browserBinding));
+  assert.equal(JSON.stringify([...data.values()]).includes(a.state), false);
+  assert.equal(JSON.stringify([...data.values()]).includes(a.browserBinding), false);
   assert.equal(a.state.length, 43);
   assert.notEqual(a.state, b.state);
   assert.notEqual(a.browserBinding, a.state);
