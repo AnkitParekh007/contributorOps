@@ -29,6 +29,18 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
-      - name: Record inactive dependency-review gate
+      - name: Install Node.js for high-severity fallback audit
         if: steps.dependency-graph.outputs.enabled != 'true'
-        run: echo "Dependency Review is configured but inactive until GitHub Dependency Graph is enabled."
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Reject high-severity vulnerabilities while Dependency Graph is disabled
+        if: steps.dependency-graph.outputs.enabled != 'true'
+        run: |
+          npm ci
+          npm audit --audit-level=high
+          echo "::notice::Full dependency npm audit passed. GitHub's change-scoped Dependency Review remains unavailable until Dependency Graph is enabled."
+      - name: Report owner setting still required
+        if: steps.dependency-graph.outputs.enabled != 'true'
+        run: echo "::warning::Enable GitHub Dependency Graph in repository security settings to activate change-scoped Dependency Review. Fallback npm audit is enforcing a high/critical vulnerability gate meanwhile."
